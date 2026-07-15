@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Search - Obsidian Ember Music</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            color: #121414;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .glass-player {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .category-card {
+            aspect-ratio: 16 / 9;
+            overflow: hidden;
+            position: relative;
+        }
+        .category-icon {
+            position: absolute;
+            right: -10px;
+            bottom: -10px;
+            font-size: 80px !important;
+            opacity: 0.2;
+            transform: rotate(-15deg);
+        }
+        /* Custom Orange accent overrides */
+        .text-accent { color: #f97316; }
+        .bg-accent { background-color: #f97316; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-fixed": "#e5e2e1",
+                      "on-primary-fixed-variant": "#005320",
+                      "on-primary-fixed": "#002108",
+                      "tertiary": "#ffb3b3",
+                      "primary-container": "#f97316",
+                      "outline": "#869585",
+                      "surface-container-high": "#e9ecef",
+                      "inverse-surface": "#121414",
+                      "inverse-on-surface": "#f8f9fa",
+                      "on-error-container": "#93000a",
+                      "on-secondary-fixed": "#1c1b1b",
+                      "tertiary-fixed-dim": "#ffb3b3",
+                      "secondary": "#474646",
+                      "surface-variant": "#f1f3f5",
+                      "tertiary-container": "#ff767b",
+                      "on-surface": "#121414",
+                      "on-secondary-container": "#313030",
+                      "secondary-container": "#e5e2e1",
+                      "surface-dim": "#f8f9fa",
+                      "on-surface-variant": "#495057",
+                      "inverse-primary": "#006e2d",
+                      "surface-tint": "#f97316",
+                      "surface-container-highest": "#dee2e6",
+                      "on-secondary-fixed-variant": "#474646",
+                      "on-background": "#121414",
+                      "background": "#f8f9fa",
+                      "on-tertiary-fixed": "#400009",
+                      "secondary-fixed-dim": "#c8c6c5",
+                      "on-primary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "primary-fixed-dim": "#f97316",
+                      "on-primary-container": "#431407",
+                      "primary": "#f97316",
+                      "on-secondary": "#ffffff",
+                      "primary-fixed": "#ffedd5",
+                      "error": "#ba1a1a",
+                      "error-container": "#ffdad6",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-container": "#730a1b",
+                      "on-tertiary-fixed-variant": "#881d28",
+                      "surface-container-low": "#f8f9fa",
+                      "surface-container": "#ffffff",
+                      "surface-bright": "#ffffff",
+                      "outline-variant": "#dee2e6",
+                      "surface-container-lowest": "#ffffff",
+                      "tertiary-fixed": "#ffdad9",
+                      "surface": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack-sm": "8px",
+                      "stack-md": "16px",
+                      "unit": "8px",
+                      "stack-lg": "24px",
+                      "gutter": "16px",
+                      "container-padding-mobile": "16px",
+                      "container-padding-desktop": "32px"
+              },
+              "fontFamily": {
+                      "body-sm": ["Inter"],
+                      "label-sm": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "display-lg-mobile": ["Inter"],
+                      "label-md": ["Inter"],
+                      "headline-sm": ["Inter"],
+                      "display-lg": ["Inter"]
+              },
+              "fontSize": {
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "500"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "display-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "800"}],
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                      "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.04em", "fontWeight": "800"}]
+              }
+            },
+          },
+        }
+      </script>
+<style>
+        body {
+          min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-background selection:bg-primary selection:text-on-primary overflow-x-hidden pb-32">
+<!-- Top App Bar -->
+<header class="w-full sticky top-0 z-40 bg-background/80 backdrop-blur-md flex items-center px-4 h-16">
+<h1 class="font-display-lg-mobile text-display-lg-mobile text-on-surface tracking-tight">Search</h1>
+<div class="ml-auto flex items-center justify-center p-2 rounded-full hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="search">search</span>
+</div>
+</header>
+<main class="px-4 pt-2">
+<!-- Search Input -->
+<div class="relative w-full mb-6 group">
+<div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-on-surface-variant/60" data-icon="search">search</span>
+</div>
+<input class="w-full bg-white h-14 pl-12 pr-4 rounded-full border border-outline-variant focus:ring-2 focus:ring-primary/20 text-body-lg font-body-lg placeholder:text-on-surface-variant/50 transition-all outline-none shadow-sm" placeholder="What do you want to listen to?" type="text"/>
+</div>
+<!-- Filter Chips -->
+<div class="flex gap-2 overflow-x-auto hide-scrollbar -mx-4 px-4 mb-10">
+<button class="px-5 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md whitespace-nowrap active:scale-95 transition-transform shadow-sm">Songs</button>
+<button class="px-5 py-2 rounded-full bg-white border border-outline-variant text-on-surface font-label-md text-label-md whitespace-nowrap active:scale-95 transition-transform hover:bg-surface-variant shadow-sm">Albums</button>
+<button class="px-5 py-2 rounded-full bg-white border border-outline-variant text-on-surface font-label-md text-label-md whitespace-nowrap active:scale-95 transition-transform hover:bg-surface-variant shadow-sm">Artists</button>
+<button class="px-5 py-2 rounded-full bg-white border border-outline-variant text-on-surface font-label-md text-label-md whitespace-nowrap active:scale-95 transition-transform hover:bg-surface-variant shadow-sm">Playlists</button>
+<button class="px-5 py-2 rounded-full bg-white border border-outline-variant text-on-surface font-label-md text-label-md whitespace-nowrap active:scale-95 transition-transform hover:bg-surface-variant shadow-sm">Genres</button>
+<button class="px-5 py-2 rounded-full bg-white border border-outline-variant text-on-surface font-label-md text-label-md whitespace-nowrap active:scale-95 transition-transform hover:bg-surface-variant shadow-sm">Podcasts</button>
+</div>
+<!-- Recent Searches -->
+<section class="mb-10">
+<div class="flex items-center justify-between mb-4">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Recent searches</h2>
+<button class="text-label-md font-label-md text-primary font-semibold uppercase tracking-widest hover:opacity-80 transition-opacity">Clear all</button>
+</div>
+<div class="flex gap-4 overflow-x-auto hide-scrollbar -mx-4 px-4">
+<!-- Artist Circle -->
+<div class="flex flex-col items-center gap-2 min-w-[80px] group cursor-pointer">
+<div class="w-20 h-20 rounded-full overflow-hidden border-2 border-transparent group-hover:border-primary transition-all shadow-md">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Julian Cas" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBro8q8TL3JYZuBrmPvZyOeTteQVlGfjqCjhy6Pl2gSVnDp0k4ST1eTWSFXJMUDvMISZxWUGyQVLja6FGeE6irwqH04jTxyG_Q9KxmcbwFxkMjEylaKi7LmXDJkETmocJK1CXPt3fi6LsqJPId1cirximA2jOVX609XI9rDFTwnHHbqyatHP_L0nOQTaFWN3qZzJlX7xV8A5JTazDgvt3ZwQdyWTBwNF-Ka3xo-cx1YmJoFwv6d_FzE"/>
+</div>
+<span class="text-label-md font-label-md text-on-surface text-center">Julian Cas</span>
+</div>
+<!-- Album Square -->
+<div class="flex flex-col items-center gap-2 min-w-[80px] group cursor-pointer">
+<div class="w-20 h-20 rounded-xl overflow-hidden border-2 border-transparent group-hover:border-primary transition-all shadow-md">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Visions" src="https://lh3.googleusercontent.com/aida-public/AB6AXuClsb7GhQH_QlXmWPsRlmNPNPgdn5v23k_98irN-cnkjsg339e4peTkioNFEtsMTC9jfpC3llz5XhgrIwA6B4BoW5N2kXgspAeOjJlG1uhZR9Xg0iKn2dCjplSbzxLxbIFgKNUCAeLpqOdjmARoIuCQbh6MXlOy1GwDs1F0YSvRvzZhCEEFpA3IzyjVXKToMBamSvhnRrjTjWBSWG58duNr196W0OtufoDymk7uztO4h0aWniZQyfYZ"/>
+</div>
+<span class="text-label-md font-label-md text-on-surface text-center truncate w-full">Visions</span>
+</div>
+<!-- Artist Circle -->
+<div class="flex flex-col items-center gap-2 min-w-[80px] group cursor-pointer">
+<div class="w-20 h-20 rounded-full overflow-hidden border-2 border-transparent group-hover:border-primary transition-all shadow-md">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Solaris" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0e4A70no8x0x3VjQA-hxugw9Cd2IhSUcMO9wSYlTLrl0GPd-1ZXadwxO5bL94bwNNse96SAAK9U0zOq2kvYzWCgYKAw8aAbz8BF8_EmwDqewttbUksiamLvh-YHFKrGvomoNoT0pb19qeEj3hBuLAbT5Ngh_VcBqsgSH9ZZTh_DQirerIR73F6NSy-3Iq2u5KbnqnAS7YZlLa_p4YJkdMMoveQKtkuXBQlvhc70Uo4tesZGr3sX-U"/>
+</div>
+<span class="text-label-md font-label-md text-on-surface text-center">Solaris</span>
+</div>
+<!-- Album Square -->
+<div class="flex flex-col items-center gap-2 min-w-[80px] group cursor-pointer">
+<div class="w-20 h-20 rounded-xl overflow-hidden border-2 border-transparent group-hover:border-primary transition-all shadow-md">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Midnight Flux" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA14AlfLMc51KcQ3jIL9ozdQRn-tLLX2vmYUQ4epNvPE26wg4__XvhVMqIZYGzIkW17OwSLEZlyN5nSJNz17i4MELRMzJbvbTHIiJtjm17v8V3kp8r-KQCmqZ4Tw6tWB6KLFgnn5kJDV01DZObDViUmJeIxyKt2DaDkV3YwPF8hPuvqyDBMBc0WJcLCOWCpfFMsx1wo9r8d_8W6l89_C_jwdupwgC-Z4Vt1AVrVmWF6dhQDTSXKGDWS"/>
+</div>
+<span class="text-label-md font-label-md text-on-surface text-center truncate w-full">Midnight Flux</span>
+</div>
+</div>
+</section>
+<!-- Browse All -->
+<section class="mb-24">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-6">Browse all</h2>
+<div class="grid grid-cols-2 gap-4">
+<!-- Card: Pop -->
+<div class="category-card rounded-2xl bg-gradient-to-br from-pink-500 to-purple-600 p-4 shadow-sm hover:brightness-105 cursor-pointer transition-all active:scale-95">
+<span class="font-headline-sm text-white z-10 relative">Pop</span>
+<span class="material-symbols-outlined category-icon text-white" data-icon="music_note">music_note</span>
+</div>
+<!-- Card: Rock -->
+<div class="category-card rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 p-4 shadow-sm hover:brightness-105 cursor-pointer transition-all active:scale-95">
+<span class="font-headline-sm text-white z-10 relative">Rock</span>
+<span class="material-symbols-outlined category-icon text-white" data-icon="electric_guitar">electric_guitar</span>
+</div>
+<!-- Card: Hip-Hop -->
+<div class="category-card rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 p-4 shadow-sm hover:brightness-105 cursor-pointer transition-all active:scale-95">
+<span class="font-headline-sm text-white z-10 relative">Hip-Hop</span>
+<span class="material-symbols-outlined category-icon text-white" data-icon="mic_external_on">mic_external_on</span>
+</div>
+<!-- Card: Mood -->
+<div class="category-card rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 p-4 shadow-sm hover:brightness-105 cursor-pointer transition-all active:scale-95">
+<span class="font-headline-sm text-white z-10 relative">Mood</span>
+<span class="material-symbols-outlined category-icon text-white" data-icon="sentiment_very_satisfied">sentiment_very_satisfied</span>
+</div>
+<!-- Card: New Releases -->
+<div class="category-card rounded-2xl bg-gradient-to-br from-primary to-emerald-700 p-4 shadow-sm hover:brightness-105 cursor-pointer transition-all active:scale-95">
+<span class="font-headline-sm text-white z-10 relative">New Releases</span>
+<span class="material-symbols-outlined category-icon text-white" data-icon="new_releases">new_releases</span>
+</div>
+<!-- Card: Charts -->
+<div class="category-card rounded-2xl bg-gradient-to-br from-yellow-500 to-orange-600 p-4 shadow-sm hover:brightness-105 cursor-pointer transition-all active:scale-95">
+<span class="font-headline-sm text-white z-10 relative">Charts</span>
+<span class="material-symbols-outlined category-icon text-white" data-icon="trending_up">trending_up</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Mini Player (Floating Glassmorphic) -->
+<div class="fixed bottom-[88px] left-4 right-4 z-40 glass-player rounded-2xl p-2 flex items-center gap-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
+<div class="w-12 h-12 rounded-lg overflow-hidden shrink-0 shadow-sm">
+<img class="w-full h-full object-cover" data-alt="After Hours" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6bonesk2KWaAJCQT5w_836rbhP-q_OVdVHZk_3D5PEyQsiNb4r03P-XlRL6FJolEPPWQMTOk9629-Fv1MZuFFnDZQFwmE0YrqnjYV_0vEc3-JanyU-oC39M962GryXAXf4f4_aOf1Xcr3E_ytoEsEVDLBa-7nAMye03hZaFiyz50p7PXHOtEkKbnSQyQHsgpe2AtXr4RiSiuA0MGMX8pGAKpPBsoalajVy2oWFcTfdNFGbrzk3KfN"/>
+</div>
+<div class="flex-1 min-w-0">
+<h4 class="text-on-surface font-body-lg text-body-lg truncate leading-tight">After Hours</h4>
+<p class="text-on-surface-variant font-body-sm text-body-sm truncate opacity-80">The Weeknd</p>
+</div>
+<div class="flex items-center gap-1">
+<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-2xl" data-icon="skip_previous">skip_previous</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center bg-primary text-on-primary rounded-full active:scale-90 transition-transform shadow-md">
+<span class="material-symbols-outlined text-2xl" data-icon="play_arrow" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-2xl" data-icon="skip_next">skip_next</span>
+</button>
+</div>
+<!-- Progress Bar Overlay -->
+<div class="absolute bottom-0 left-0 w-full h-[2px] bg-black/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-1/3"></div>
+</div>
+</div>
+<!-- Bottom Nav Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-8 pt-2 bg-white/95 backdrop-blur-xl border-t border-outline-variant shadow-lg">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span class="font-label-md text-label-md">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary font-bold active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="search" style="font-variation-settings: 'FILL' 1;">search</span>
+<span class="font-label-md text-label-md">Search</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="library_music">library_music</span>
+<span class="font-label-md text-label-md">Library</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="explore">explore</span>
+<span class="font-label-md text-label-md">Explore</span>
+</a>
+</nav>
+<script>
+        // Micro-interactions for chips
+        const chips = document.querySelectorAll('button.rounded-full');
+        chips.forEach(chip => {
+            if (chip.parentElement.classList.contains('overflow-x-auto')) {
+                chip.addEventListener('click', () => {
+                    chips.forEach(c => {
+                        if (c.parentElement.classList.contains('overflow-x-auto')) {
+                            c.classList.remove('bg-primary', 'text-on-primary', 'border-transparent');
+                            c.classList.add('bg-white', 'text-on-surface', 'border-outline-variant');
+                        }
+                    });
+                    chip.classList.remove('bg-white', 'text-on-surface', 'border-outline-variant');
+                    chip.classList.add('bg-primary', 'text-on-primary', 'border-transparent');
+                });
+            }
+        });
+
+        // Search input subtle focus effect
+        const searchInput = document.querySelector('input');
+        searchInput.addEventListener('focus', () => {
+            searchInput.classList.add('border-primary/50');
+        });
+        searchInput.addEventListener('blur', () => {
+            searchInput.classList.remove('border-primary/50');
+        });
+    </script>
+</body></html>

@@ -1,5 +1,5 @@
 [versions]
-agp = "9.2.1"
+agp = "9.3.0"
 ksp = "2.3.6"
 kotlin = "2.3.21"
 
@@ -17,6 +17,7 @@ mediarouter = "1.8.1"
 palette = "1.0.0"
 preference = "1.2.1"
 constraintlayout = "2.2.1"
+dynamicanimation = "1.0.0"
 swiperefreshlayout = "1.2.0"
 recyclerview = "1.4.0"
 cardview = "1.0.0"
@@ -48,6 +49,12 @@ jaudiotagger = "2.3.15"
 versioncompare = "1.5.0"
 commons-text = "1.15.0"
 
+ksoup = "0.6.0"
+uriKmp = "0.0.21"
+pipepipe = "c3139c584d"
+brave-newpipe = "v0.26.3"
+org-json = "20231013"
+
 [libraries]
 material-components = { module = "com.google.android.material:material", version.ref = "material" }
 androidx-core = { module = "androidx.core:core-ktx", version.ref = "core" }
@@ -60,6 +67,7 @@ androidx-activity-compose = { module = "androidx.activity:activity-compose", ver
 androidx-palette = { module = "androidx.palette:palette-ktx", version.ref = "palette" }
 androidx-preference = { module = "androidx.preference:preference-ktx", version.ref = "preference" }
 androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
+androidx-dynamicanimation = { module = "androidx.dynamicanimation:dynamicanimation", version.ref = "dynamicanimation" }
 androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "swiperefreshlayout" }
 androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
 androidx-cardview = { module = "androidx.cardview:cardview", version.ref = "cardview" }
@@ -89,8 +97,11 @@ navigation-fragment = { module = "androidx.navigation:navigation-fragment-ktx", 
 navigation-ui = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigation" }
 
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose" }
+compose-foundation = { module = "androidx.compose.foundation:foundation" }
 compose-runtime-livedata = { module = "androidx.compose.runtime:runtime-livedata" }
 compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "composeM3" }
+compose-material-icons-core = { module = "androidx.compose.material:material-icons-core" }
+compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 compose-ui = { module = "androidx.compose.ui:ui" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
@@ -112,6 +123,8 @@ ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp", version.r
 ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-encoding = { group = "io.ktor", name = "ktor-client-encoding", version.ref = "ktor" }
 ktor-serialization-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktor" }
+ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktor" }
+ktor-serialization-protobuf = { group = "io.ktor", name = "ktor-serialization-kotlinx-protobuf", version.ref = "ktor" }
 
 markwon-core = { module = "io.noties.markwon:core", version.ref = "markwon" }
 markwon-html = { module = "io.noties.markwon:html", version.ref = "markwon" }
@@ -137,6 +150,13 @@ jaudiotagger = { module = "com.github.Adonai:jaudiotagger", version.ref = "jaudi
 versioncompare = { module = "io.github.g00fy2:versioncompare", version.ref = "versioncompare" }
 commons-text = { module = "org.apache.commons:commons-text", version.ref = "commons-text" }
 juniversalchardet = { module = "com.github.albfernandez:juniversalchardet", version = "2.5.0" }
+uri-kmp = { module = "com.eygraber:uri-kmp", version.ref = "uriKmp" }
+
+ksoup-html = { group = "com.mohamedrejeb.ksoup", name = "ksoup-html", version.ref = "ksoup" }
+ksoup-entities = { group = "com.mohamedrejeb.ksoup", name = "ksoup-entities", version.ref = "ksoup" }
+pipepipe-extractor = { module = "com.github.maxrave-dev:PipePipeExtractor", version.ref = "pipepipe" }
+brave-extractor = { module = "com.github.maxrave-dev:BravePipeExtractor", version.ref = "brave-newpipe" }
+org-json = { module = "org.json:json", version.ref = "org-json" }
 
 [bundles]
 kotlinx = ["kotlinx-datetime", "kotlinx-coroutines-android", "kotlinx-coroutines-guava"]
@@ -151,7 +171,9 @@ markwon = ["markwon-core", "markwon-html", "markwon-linkify"]
 
 [plugins]
 android = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
 android-safeargs = { id = "androidx.navigation.safeargs", version.ref = "navigation" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

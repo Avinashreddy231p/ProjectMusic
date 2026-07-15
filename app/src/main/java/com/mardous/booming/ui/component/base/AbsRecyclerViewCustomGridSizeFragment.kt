@@ -93,6 +93,7 @@ abstract class AbsRecyclerViewCustomGridSizeFragment<Adt : RecyclerView.Adapter<
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        if (!isBindingInitialized) return
         applyRecyclerViewPaddingForLayoutRes(recyclerView, currentLayoutRes)
     }
 
@@ -176,9 +177,11 @@ abstract class AbsRecyclerViewCustomGridSizeFragment<Adt : RecyclerView.Adapter<
         if (gridSize > 0) {
             item.isChecked = true
             this.gridSize = gridSize
-            this.toolbar.menu
-                .findItem(R.id.action_view_type)
-                ?.isEnabled = this.isGridMode
+            if (isBindingInitialized) {
+                this.toolbar.menu
+                    .findItem(R.id.action_view_type)
+                    ?.isEnabled = this.isGridMode
+            }
             return true
         }
         return false

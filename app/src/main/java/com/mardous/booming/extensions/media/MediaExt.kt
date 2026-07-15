@@ -68,6 +68,14 @@ fun Int.asReadableTrackNumber(): Int = this % 1000
 
 fun Int.asNumberOfSongs(context: Context): String = context.plurals(R.plurals.x_songs, this)
 
+fun Int.asNumberOfAlbums(context: Context): String = context.plurals(R.plurals.x_albums, this)
+
+fun Int.asNumberOfArtists(context: Context): String = context.plurals(R.plurals.x_artists, this)
+
+fun Int.asNumberOfGenres(context: Context): String = context.plurals(R.plurals.x_items, this) // Using x_items for genres if no specific plural exists
+
+fun Int.asNumberOfPlaylists(context: Context): String = context.plurals(R.plurals.x_items, this)
+
 fun Int.asNumberOfTimes(context: Context): String {
     return if (this <= 0) {
         context.getString(R.string.label_never)

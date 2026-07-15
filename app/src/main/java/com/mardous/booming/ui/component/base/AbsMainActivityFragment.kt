@@ -81,6 +81,9 @@ abstract class AbsMainActivityFragment @JvmOverloads constructor(@LayoutRes layo
                                 mainActivity.expandPanel()
                             }
                         }
+                        MediaEvent.ShowLyrics -> {
+                            mainActivity.expandPanel()
+                        }
                     }
                 }
             }

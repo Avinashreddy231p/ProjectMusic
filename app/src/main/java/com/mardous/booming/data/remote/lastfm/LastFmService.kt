@@ -101,6 +101,24 @@ class LastFmService(private val client: HttpClient) {
         return json.decodeFromString<ScrobbleResponse>(response)
     }
 
+    suspend fun scrobbleBatch(
+        scrobbles: List<com.mardous.booming.data.local.room.PendingScrobbleEntity>,
+        sk: String
+    ): Any {
+        val params = mutableMapOf<String, String>("sk" to sk)
+        scrobbles.forEachIndexed { index, scrobble ->
+            params["artist[$index]"] = scrobble.artist
+            params["track[$index]"] = scrobble.track
+            params["album[$index]"] = scrobble.album
+            params["timestamp[$index]"] = scrobble.timestamp.toString()
+        }
+        val response = client.lastfmPost("track.scrobble", params)
+        if (response.contains("\"error\"")) {
+            return json.decodeFromString<LastFmError>(response)
+        }
+        return json.decodeFromString<ScrobbleResponse>(response)
+    }
+
     suspend fun updateNowPlaying(
         artist: String,
         track: String,
@@ -115,6 +133,38 @@ class LastFmService(private val client: HttpClient) {
             return json.decodeFromString<LastFmError>(response)
         }
         return json.decodeFromString<NowPlayingResponse>(response)
+    }
+
+    suspend fun loveTrack(
+        artist: String,
+        track: String,
+        sk: String
+    ): Any {
+        val response = client.lastfmPost("track.love", mutableMapOf(
+            "artist" to artist,
+            "track" to track,
+            "sk" to sk
+        ))
+        if (response.contains("\"error\"")) {
+            return json.decodeFromString<LastFmError>(response)
+        }
+        return response
+    }
+
+    suspend fun unloveTrack(
+        artist: String,
+        track: String,
+        sk: String
+    ): Any {
+        val response = client.lastfmPost("track.unlove", mutableMapOf(
+            "artist" to artist,
+            "track" to track,
+            "sk" to sk
+        ))
+        if (response.contains("\"error\"")) {
+            return json.decodeFromString<LastFmError>(response)
+        }
+        return response
     }
 
     private suspend fun HttpClient.lastfm(method: String, block: HttpRequestBuilder.() -> Unit) =

@@ -34,8 +34,9 @@ class SimpleSongAdapter(
     songs: List<Song>,
     layoutRes: Int,
     sortMode: SongSortMode,
+    swipeContext: com.mardous.booming.core.model.swipe.SwipeContext? = null,
     callback: ISongCallback
-) : SongAdapter(context, songs, layoutRes, sortMode, callback) {
+) : SongAdapter(context, songs, layoutRes, sortMode, swipeContext, callback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(LayoutInflater.from(parent.context).inflate(itemLayoutRes, parent, false))

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        try {
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        "colors": {
+                            "primary": "#ff5c00", // Switched to vibrant orange as requested for accents
+                            "on-primary": "#ffffff",
+                            "background": "#f8f9fa",
+                            "surface": "#ffffff",
+                            "on-surface": "#1a1a1a",
+                            "on-surface-variant": "#4a4a4a",
+                            "surface-container": "#f1f3f5",
+                            "surface-container-high": "#e9ecef",
+                            "surface-container-highest": "#dee2e6",
+                            "outline": "#ced4da",
+                            "outline-variant": "#e9ecef",
+                            "secondary": "#6c757d",
+                            "error": "#dc3545"
+                        },
+                        "borderRadius": {
+                            "DEFAULT": "0.25rem",
+                            "lg": "0.5rem",
+                            "xl": "0.75rem",
+                            "full": "9999px"
+                        },
+                        "spacing": {
+                            "stack-sm": "8px",
+                            "stack-md": "16px",
+                            "gutter": "16px",
+                            "container-padding-desktop": "32px",
+                            "unit": "8px",
+                            "container-padding-mobile": "16px",
+                            "stack-lg": "24px"
+                        },
+                        "fontFamily": {
+                            "display-lg": ["Inter"],
+                            "headline-sm": ["Inter"],
+                            "headline-md": ["Inter"],
+                            "label-sm": ["Inter"],
+                            "display-lg-mobile": ["Inter"],
+                            "label-md": ["Inter"],
+                            "body-sm": ["Inter"],
+                            "body-lg": ["Inter"]
+                        },
+                        "fontSize": {
+                            "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.04em", "fontWeight": "800"}],
+                            "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                            "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                            "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}],
+                            "display-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "800"}],
+                            "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                            "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                            "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "500"}]
+                        }
+                    }
+                }
+            }
+        } catch (_e) {}
+    </script>
+<style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface min-h-screen flex flex-col font-body-lg">
+<!-- TopAppBar -->
+<header class="bg-background/80 backdrop-blur-md flex justify-between items-center w-full px-container-padding-mobile h-14 sticky top-0 z-50 transition-all border-b border-outline-variant">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="User profile photo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCft5-eICVrAchnb1talZ_uwLX3ly8m6C27ff5Kt_TqCg0jQse7BDLtOLKBOLr8lmFXJe_sO7yecDZygoInoYXtSUvnUGctatJxPWMSYe8U7NXhkcoeZMPHHWWpQ4KzUPd1Ya9cvicIFjp-9GnnSZw-9wEXmRCibs08Op98ZCVWybrDDK2m6dYfjZYGxavsHFR3yVNgRZiuJQccl8Q2sIUXuU8EjodDAdvTLG41Vc62CqjYsFfmm6B_"/>
+</div>
+<h1 class="text-on-surface text-headline-sm font-bold">Good morning</h1>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">
+            settings
+        </button>
+</header>
+<!-- Main Content -->
+<main class="flex-1 px-container-padding-mobile pb-32">
+<!-- Header Summary & Search -->
+<section class="mt-stack-lg space-y-stack-md">
+<div class="mb-stack-lg">
+<h1 class="font-headline-md text-headline-md text-on-surface">Your Library</h1>
+<p class="font-body-sm text-body-sm text-secondary">128 Albums collected</p>
+</div>
+<div class="relative mb-stack-lg group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-secondary opacity-60 group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-surface-container border border-outline-variant rounded-full h-12 pl-12 pr-4 font-body-sm focus:ring-1 focus:ring-primary focus:bg-white text-on-surface placeholder:text-secondary/50 transition-all" placeholder="Search your albums..." type="text"/>
+</div>
+<div class="flex overflow-x-auto gap-stack-sm no-scrollbar mb-stack-lg pb-1">
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md shadow-sm active:scale-95">Recently Added</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high border border-outline-variant active:scale-95">A-Z</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high border border-outline-variant active:scale-95">Release Date</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-high border border-outline-variant active:scale-95">Artist</button>
+</div>
+<div class="flex flex-col gap-stack-md mb-stack-lg">
+<div class="flex items-center justify-between">
+<div class="flex bg-surface-container rounded-lg p-1 border border-outline-variant">
+<button class="p-2 rounded-md bg-white text-primary shadow-sm active:scale-95">
+<span class="material-symbols-outlined block">grid_view</span>
+</button>
+<button class="p-2 rounded-md text-secondary hover:text-on-surface active:scale-95">
+<span class="material-symbols-outlined block">list</span>
+</button>
+<button class="p-2 rounded-md text-secondary hover:text-on-surface active:scale-95">
+<span class="material-symbols-outlined block">calendar_view_day</span>
+</button>
+</div>
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-widest opacity-60">Layout View</span>
+</div>
+<div class="flex overflow-x-auto gap-stack-sm no-scrollbar">
+<button class="px-4 py-1.5 rounded-full border border-primary text-primary font-label-md text-label-md bg-primary/5 active:scale-95">Standard</button>
+<button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant font-label-md text-label-md bg-white active:scale-95">Colored</button>
+<button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant font-label-md text-label-md bg-white active:scale-95">Circular</button>
+<button class="px-4 py-1.5 rounded-full border border-outline-variant text-on-surface-variant font-label-md text-label-md bg-white active:scale-95">Immersive</button>
+</div>
+</div>
+</section>
+<!-- Albums Grid -->
+<section class="mt-stack-lg">
+<div class="grid grid-cols-2 gap-x-4 gap-y-8">
+<!-- Album Card 1 -->
+<div class="group cursor-pointer">
+<div class="relative aspect-square rounded-xl overflow-hidden mb-3 border border-outline-variant shadow-sm transition-all duration-300 group-hover:scale-[1.02] active:scale-[0.98]">
+<img class="w-full h-full object-cover" data-alt="Neon Pulse album cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVRF_71dlylmLundID7WHf6sy7WxEs4tnQ7tPsIg0HvrJsiS1PI7o7u_sXhEj0LWWIdtfqOqjINtTwJUfDfOqyj6vP3fJlKVIyztAV-aO2SDXxM6zuz5r4uGQDqFv4ORfI6o4Uwwg3cLXRNa1XoLqeqJdoDXvlI6-_nzr-1YOR8xRnU22Qgrc1qgFvcV10QV1Bw1_J4_0iZbi897x2RUPyMxUnJz-zsmlz1n1xsLLtjv_h9X1x5PKV"/>
+</div>
+<div class="space-y-1 px-1">
+<h3 class="text-on-surface font-body-lg text-body-lg truncate">Neon Pulse</h3>
+<p class="text-on-surface-variant font-body-sm text-body-sm truncate">Synthetix • 2024</p>
+</div>
+</div>
+<!-- Album Card 2 -->
+<div class="group cursor-pointer">
+<div class="aspect-square w-full rounded-xl overflow-hidden relative bg-surface-container p-1 shadow-sm border border-outline-variant transition-all duration-300 group-hover:scale-[1.02]">
+<div class="w-full h-full rounded-lg overflow-hidden relative">
+<img alt="The Echoes" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNu0Ezm2WmSg2U2XXE77YfBmT0feLivltFPYGzH-6yJbPkw4EwH5O-qWn91c787rZM8XG4O4WkMB8YkkQjzXljlJubUfOjVZwZAwbgVHXXeL5ySIEBtpn40_fybOM6HvbqNF3UV4AiFA0dIyYa1xmIegeHmB5xe1kQ6L-kj324LVo4EYToPLPsnT4-SlWjRuoDVUOXYDAsen2vuWU88YMnuRrBAby0mxYNJ0VYG3umgXzut3lCc_Tw"/>
+</div>
+</div>
+<div class="mt-3 px-1">
+<h3 class="font-body-lg text-body-lg text-on-surface truncate">The Echoes</h3>
+<p class="font-body-sm text-body-sm text-secondary">Artist</p>
+</div>
+</div>
+<!-- Album Card 3 -->
+<div class="flex flex-col gap-3 group items-center active:scale-95">
+<div class="aspect-square w-full rounded-full overflow-hidden relative shadow-md border-4 border-white transition-all duration-300 group-hover:rotate-6">
+<img alt="Eternal Horizon" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB852PEE3xbCoMuqJLcnRO5sm49ZP4KUphLyTJ62njQg6MDDlDCxnM38m9Qj5x2_LMjeI8ShQKD3wG_YD68YASqRADWZy1kVnbMBbSk4YZbqzcGAfQOlxFfiocB8X6bjxejkIRCWlbRLt365vZSl3Rm9wOUJEep3uyHDjsiVoimJtfKqVXcqYAbcYwPjHMkGr96GRzuV5lckuY4QHQIbNamM1fLsw8SynRRpHZ7E5rytXcIIrpIaoYF"/>
+<div class="absolute inset-0 flex items-center justify-center bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-primary text-4xl" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+</div>
+</div>
+<div class="text-center">
+<h3 class="font-body-lg text-body-lg text-on-surface truncate">Eternal Horizon</h3>
+<div class="flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-primary text-[14px]">bolt</span>
+<p class="font-body-sm text-body-sm text-secondary">Marco Valez • 2024</p>
+</div>
+</div>
+</div>
+<!-- Album Card 4 -->
+<div class="relative aspect-square w-full rounded-xl overflow-hidden group active:scale-95 shadow-md border border-outline-variant">
+<img alt="Midnight Flow" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANPUi_mZQZFsqXiNAu9_ohxf7YvleeftUNQUYaldy-tbgb3KIsPUjiB1jj8AnwCb_0btKWVR62xUtf7EK1lSqgf3swgd-u0xWPcUqf4Te6ArXrTw4ascofkbcvJPitkKcI2ouEy-njFec7rdrVbTa8-mCZ3gGrrDx7LbGSTAQ67teVSE9kBwGM_le0JflO6EH3ZGRJ7q_ad_N-9G2B02CIKpke7yNVGRmmkdOz1eOhAJywBvhr65Ll"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent flex flex-col justify-end p-4">
+<h3 class="font-headline-sm text-headline-sm text-white mb-0">Midnight Flow</h3>
+<p class="text-xs text-white/80">LUNA • 2022</p>
+</div>
+</div>
+<!-- Album Card 5 -->
+<div class="group cursor-pointer">
+<div class="relative aspect-square rounded-xl overflow-hidden mb-3 border border-outline-variant shadow-sm transition-all duration-300 group-hover:scale-[1.02]">
+<img alt="Dusty Orbits" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcA9oUTirjUwjAzQOmZzQyA3pO8PbEUNEDWr6pM3trVQqDVKxIPAQL1rrct6ZUiMI9vUMVAc6xcfSfxRHypoDJ8XgnB2eiHA8quz9PM9RWgEHk4GtRrVAg1Sokcu8c7HXY6fsG9q6WqLe15xy5mExqdpVJXRT4J3_9VmydMLj259cF56C_T7c3R70GZ6B9pdXvqDJ4QW9ZA7gB0cudtOA8thn9hWZCYXYz9_7ZB6DL3w59Up7mJb_6"/>
+</div>
+<div class="space-y-1 px-1">
+<h3 class="text-on-surface font-body-lg text-body-lg truncate">Dusty Orbits</h3>
+<p class="text-on-surface-variant font-body-sm text-body-sm truncate">Vinyl Soul • 2023</p>
+</div>
+</div>
+<!-- Album Card 6 -->
+<div class="group cursor-pointer flex flex-col items-center text-center">
+<div class="relative w-full aspect-square rounded-full overflow-hidden mb-3 border border-outline-variant shadow-sm transition-all duration-300 group-hover:scale-[1.02]">
+<img alt="KAIROS" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1RXmUy3V1W1PZT4qnOePjjDJTjBaq-eS9UnM84pWTGP6D8F5W2PDcNEYFJz6Iti_iEExxfe1HuINaRLHiZyTeK5IR9paD3FknYyqyJONAv3sBztVMTc42rGvzqhDQCx6L4KbqpRRISP7ExYVxWOrgiGEScC9E72x1e0LiPx4R7NMSkZPPzjlOIqzfwOe59Acz17jLFTei5OfQj6EGXXB1Qas-eCTEVjStFzpob-BIDtjzQfo-Uq6Q"/>
+</div>
+<div class="space-y-1">
+<h3 class="text-on-surface font-body-lg text-body-lg truncate">KAIROS</h3>
+<p class="text-primary font-label-md text-label-md uppercase tracking-widest font-bold">Artist</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Glassmorphic Playback Bar -->
+<div class="fixed bottom-20 left-4 right-4 z-40 glass-card rounded-xl p-3 flex items-center gap-3 transition-all active:scale-[0.98]">
+<div class="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="Mini album art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB89hZSGhbHkarSaQPFiWgMQZtxZnDDvAKU9wYchTCJRkhK8LXhRxayVe2vLUIF1WJI3iDCebc2rFeCjAL9jPyylN8-Qu0pyX4V3voFo-viDqAqEUU-DV82y1sKVonvlELgGiOWLAtmylYUkrZO-hnrCW9OFzm1iyz1f5urusztpOizzxmh8Y4DUgcktw6Ni9KZpCHTfeUrUrCysOjzWVgeLENGre6DCKw81n3gP1VJPw-IzA5iB47T"/>
+</div>
+<div class="flex-1 overflow-hidden">
+<p class="text-on-surface font-label-md text-label-md truncate">Neon Pulse</p>
+<p class="text-on-surface-variant text-[10px] uppercase tracking-wider font-semibold">Synthetix</p>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary">devices</button>
+<button class="material-symbols-outlined text-primary text-[32px]" style="font-variation-settings: 'FILL' 1;">pause_circle</button>
+</div>
+<!-- Simple Progress Bar -->
+<div class="absolute bottom-0 left-0 h-[2px] bg-primary" style="width: 45%;"></div>
+</div>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 px-4 pb-safe bg-white border-t border-outline-variant">
+<button class="flex flex-col items-center gap-1 text-secondary hover:text-primary transition-all active:scale-90">
+<span class="material-symbols-outlined">home</span>
+<span class="text-label-sm font-label-sm">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-secondary hover:text-primary transition-all active:scale-90">
+<span class="material-symbols-outlined">search</span>
+<span class="text-label-sm font-label-sm">Search</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary transition-all active:scale-90">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">library_music</span>
+<span class="text-label-sm font-label-sm font-bold">Library</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-secondary hover:text-primary transition-all active:scale-90">
+<span class="material-symbols-outlined">explore</span>
+<span class="text-label-sm font-label-sm">Explore</span>
+</button>
+</nav>
+<script>
+        // Subtle scroll behavior for the TopAppBar
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 20) {
+                header.classList.add('shadow-sm');
+                header.classList.remove('border-b-transparent');
+            } else {
+                header.classList.remove('shadow-sm');
+            }
+        });
+
+        // Pill active state toggle
+        const pills = document.querySelectorAll('button.whitespace-nowrap');
+        pills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                pills.forEach(p => {
+                    p.classList.remove('bg-primary', 'text-on-primary', 'shadow-sm');
+                    p.classList.add('bg-surface-container', 'text-on-surface-variant', 'border', 'border-outline-variant');
+                });
+                pill.classList.add('bg-primary', 'text-on-primary', 'shadow-sm');
+                pill.classList.remove('bg-surface-container', 'text-on-surface-variant', 'border', 'border-outline-variant');
+            });
+        });
+    </script>
+</body></html>

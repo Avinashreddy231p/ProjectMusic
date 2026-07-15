@@ -62,6 +62,7 @@ import com.mardous.booming.data.local.EditTarget
 import com.mardous.booming.data.model.Genre
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.extensions.currentFragment
+import com.mardous.booming.extensions.getShareSongIntent
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
 import com.mardous.booming.extensions.media.albumArtistName
 import com.mardous.booming.extensions.media.displayArtistName
@@ -74,6 +75,7 @@ import com.mardous.booming.extensions.resources.animateBackgroundColor
 import com.mardous.booming.extensions.resources.animateTintColor
 import com.mardous.booming.extensions.resources.inflateMenu
 import com.mardous.booming.extensions.resources.setMarquee
+import com.mardous.booming.extensions.toChooser
 import com.mardous.booming.extensions.utilities.buildInfoString
 import com.mardous.booming.extensions.whichFragment
 import com.mardous.booming.ui.component.menu.newPopupMenu
@@ -112,6 +114,8 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
     private var gesturesController: PlayerGesturesController? = null
     private var coverFragment: CoverPagerFragment? = null
 
+    private var isManualFavoriteToggle = false
+
     protected abstract val colorSchemeMode: PlayerColorSchemeMode
     protected abstract val playerControlsFragment: AbsPlayerControlsFragment
 
@@ -128,11 +132,18 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
         super.onViewCreated(view, savedInstanceState)
         onCreateChildFragments()
         onPrepareViewGestures(view)
+        playerViewModel.refreshAppThemeScheme(requireContext())
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
-            playerViewModel.mediaEvent.filter { it == MediaEvent.FavoriteContentChanged }
-                .collect {
-                    updateIsFavorite(withAnim = true)
+            playerViewModel.mediaEvent.collect {
+                when (it) {
+                    MediaEvent.FavoriteContentChanged -> {
+                        updateIsFavorite(withAnim = isManualFavoriteToggle)
+                        isManualFavoriteToggle = false
+                    }
+                    MediaEvent.ShowLyrics -> onQuickActionEvent(NowPlayingAction.Lyrics)
+                    else -> {}
                 }
+            }
         }
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             playerViewModel.currentSongFlow.collect {
@@ -199,6 +210,15 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
     @CallSuper
     protected open fun onMenuInflated(menu: Menu) {}
 
+    protected fun showNowPlayingMenu(view: View) {
+        newPopupMenu(view, R.menu.menu_now_playing) {
+            onMenuInflated(it)
+        }.apply {
+            setOnMenuItemClickListener { onMenuItemClick(it) }
+            show()
+        }
+    }
+
     protected fun Menu.setShowAsAction(itemId: Int, mode: Int = MenuItem.SHOW_AS_ACTION_IF_ROOM) {
         findItem(itemId)?.setShowAsAction(mode)
     }
@@ -218,6 +238,11 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
 
             R.id.action_show_lyrics -> {
                 onQuickActionEvent(NowPlayingAction.Lyrics)
+                true
+            }
+
+            R.id.action_lyrics_editor -> {
+                onQuickActionEvent(NowPlayingAction.LyricsEditor)
                 true
             }
 
@@ -475,6 +500,11 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
                 true
             }
 
+            NowPlayingAction.FullScreenLyrics -> {
+                goToDestination(requireActivity(), R.id.nav_lyrics)
+                true
+            }
+
             NowPlayingAction.LyricsEditor -> {
                 goToDestination(
                     requireActivity(),
@@ -493,6 +523,7 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
             }
 
             NowPlayingAction.ToggleFavoriteState -> {
+                isManualFavoriteToggle = true
                 toggleFavorite()
                 true
             }
@@ -522,6 +553,15 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
 
             NowPlayingAction.SeekForward -> {
                 playerViewModel.seekForward()
+                true
+            }
+
+            NowPlayingAction.Share -> {
+                startActivity(
+                    requireContext()
+                        .getShareSongIntent(currentSong)
+                        .toChooser(getString(R.string.action_share))
+                )
                 true
             }
 
@@ -568,21 +608,33 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
     }
 
     fun MaterialButton.setIsFavorite(isFavorite: Boolean, withAnimation: Boolean) {
-        /*
-        val iconRes = if (withAnimation) {
-            if (isFavorite) R.drawable.avd_favorite else R.drawable.avd_unfavorite
-        } else {
-            if (isFavorite) R.drawable.ic_favorite_24dp else R.drawable.ic_favorite_outline_24dp
-        }
-         */
-        // There's a bug in the Material Components library that affects the
-        // icon animation on a MaterialButton, so for now, we'll change the
-        // icon in a simple way.
         val iconRes = if (isFavorite) R.drawable.ic_favorite_24dp else R.drawable.ic_favorite_outline_24dp
-        icon = ContextCompat.getDrawable(context, iconRes).also { drawable ->
-            if (drawable is AnimatedVectorDrawable) {
-                drawable.start()
-            }
+        val avdRes = if (isFavorite) R.drawable.avd_favorite else R.drawable.avd_unfavorite
+        
+        val drawable = if (withAnimation) {
+            ContextCompat.getDrawable(context, avdRes)
+        } else {
+            ContextCompat.getDrawable(context, iconRes)
+        }
+
+        icon = drawable
+        if (withAnimation && drawable is android.graphics.drawable.AnimatedVectorDrawable) {
+            drawable.start()
+            
+            // Premium Elastic Bounce
+            this.animate()
+                .scaleX(if (isFavorite) 1.5f else 0.8f)
+                .scaleY(if (isFavorite) 1.5f else 0.8f)
+                .setDuration(150)
+                .withEndAction {
+                    this.animate()
+                        .scaleX(1.0f)
+                        .scaleY(1.0f)
+                        .setDuration(400)
+                        .setInterpolator(android.view.animation.OvershootInterpolator(4f))
+                        .start()
+                }
+                .start()
         }
     }
 

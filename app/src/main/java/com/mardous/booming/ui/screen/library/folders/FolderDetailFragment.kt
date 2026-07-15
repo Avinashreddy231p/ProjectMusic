@@ -86,7 +86,7 @@ class FolderDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_li
 
     private fun setupButtons() {
         binding.playAction.setOnClickListener {
-            playerViewModel.openQueue(songAdapter.dataSet, shuffleMode = OpenShuffleMode.Off)
+            playerViewModel.openQueue(songAdapter.dataSet, shuffleMode = OpenShuffleMode.Off, queueSource = "folder")
         }
         binding.shuffleAction.setOnClickListener {
             playerViewModel.openAndShuffleQueue(songAdapter.dataSet)

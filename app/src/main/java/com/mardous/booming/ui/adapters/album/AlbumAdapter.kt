@@ -84,6 +84,7 @@ open class AlbumAdapter(
         } else {
             holder.image?.transitionName = album.id.toString()
         }
+
         holder.loadPaletteImage(album, DEFAULT_ALBUM_IMAGE)
     }
 

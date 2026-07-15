@@ -19,6 +19,7 @@ package com.mardous.booming.ui.component.views
 
 import android.content.Context
 import android.content.res.Configuration
+import android.graphics.Color
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.core.view.updateLayoutParams
@@ -26,9 +27,11 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.AppBarLayout.LayoutParams.SCROLL_FLAG_NO_SCROLL
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.shape.MaterialShapeDrawable
+import com.mardous.booming.R
 import com.mardous.booming.databinding.CollapsingAppbarLayoutBinding
 import com.mardous.booming.databinding.SimpleAppbarLayoutBinding
 import com.mardous.booming.util.Preferences
+import com.mardous.booming.util.UITheme
 
 class TopAppBarLayout @JvmOverloads constructor(
     context: Context,
@@ -54,6 +57,19 @@ class TopAppBarLayout @JvmOverloads constructor(
             simpleAppbarBinding =
                 SimpleAppbarLayoutBinding.inflate(LayoutInflater.from(context), this, true)
             statusBarForeground = MaterialShapeDrawable.createWithElevationOverlay(context)
+            
+            if (Preferences.uiTheme == UITheme.SPOTIFY) {
+                simpleAppbarBinding?.toolbar?.navigationIcon = context.getDrawable(R.drawable.ic_person_24dp)
+                simpleAppbarBinding?.toolbar?.setNavigationContentDescription(R.string.about_title)
+                setBackgroundColor(Color.TRANSPARENT)
+            }
+        }
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        if (Preferences.uiTheme == UITheme.SPOTIFY) {
+            setBackgroundColor(Color.TRANSPARENT)
         }
     }
 

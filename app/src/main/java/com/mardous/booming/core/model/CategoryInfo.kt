@@ -48,6 +48,6 @@ class CategoryInfo(val category: Category, var visible: Boolean) : Parcelable {
     }
 
     companion object {
-        const val MAX_VISIBLE_CATEGORIES = 5
+        const val MAX_VISIBLE_CATEGORIES = 6
     }
 }

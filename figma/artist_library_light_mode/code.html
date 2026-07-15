@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        try {
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        "colors": {
+                            "on-secondary-fixed": "#1c1b1b",
+                            "background": "#f8f9fa",
+                            "inverse-primary": "#006e2d",
+                            "on-secondary-fixed-variant": "#474646",
+                            "surface-dim": "#e9ecef",
+                            "surface": "#ffffff",
+                            "on-background": "#1a1c1c",
+                            "surface-container-low": "#f1f3f5",
+                            "tertiary-fixed-dim": "#ffb3b3",
+                            "tertiary": "#f97316",
+                            "surface-bright": "#ffffff",
+                            "secondary": "#495057",
+                            "surface-container-lowest": "#ffffff",
+                            "secondary-fixed-dim": "#c8c6c5",
+                            "primary": "#f97316",
+                            "surface-container-high": "#e9ecef",
+                            "on-tertiary-fixed-variant": "#881d28",
+                            "on-primary": "#ffffff",
+                            "secondary-container": "#f1f3f5",
+                            "on-primary-fixed-variant": "#005320",
+                            "outline-variant": "#dee2e6",
+                            "primary-fixed-dim": "#f97316",
+                            "primary-container": "#fff7ed",
+                            "on-surface": "#1a1c1c",
+                            "inverse-surface": "#1a1c1c",
+                            "tertiary-fixed": "#ffdad9",
+                            "tertiary-container": "#ff767b",
+                            "surface-container": "#f1f3f5",
+                            "inverse-on-surface": "#f8f9fa",
+                            "on-tertiary": "#ffffff",
+                            "on-tertiary-container": "#730a1b",
+                            "error": "#fa5252",
+                            "secondary-fixed": "#e5e2e1",
+                            "on-surface-variant": "#495057",
+                            "error-container": "#ffe3e3",
+                            "on-primary-fixed": "#002108",
+                            "outline": "#adb5bd",
+                            "on-tertiary-fixed": "#400009",
+                            "surface-container-highest": "#dee2e6",
+                            "primary-fixed": "#ffedd5",
+                            "surface-tint": "#f97316",
+                            "on-primary-container": "#7c2d12",
+                            "on-secondary": "#ffffff",
+                            "on-error-container": "#491217",
+                            "surface-variant": "#f1f3f5",
+                            "on-secondary-container": "#343a40",
+                            "on-error": "#ffffff"
+                        },
+                        "borderRadius": {
+                            "DEFAULT": "0.25rem",
+                            "lg": "0.5rem",
+                            "xl": "0.75rem",
+                            "full": "9999px"
+                        },
+                        "spacing": {
+                            "unit": "8px",
+                            "container-padding-mobile": "16px",
+                            "container-padding-desktop": "32px",
+                            "stack-lg": "24px",
+                            "gutter": "16px",
+                            "stack-md": "16px",
+                            "stack-sm": "8px"
+                        },
+                        "fontFamily": {
+                            "label-sm": ["Inter"],
+                            "body-lg": ["Inter"],
+                            "display-lg-mobile": ["Inter"],
+                            "headline-md": ["Inter"],
+                            "body-sm": ["Inter"],
+                            "label-md": ["Inter"],
+                            "headline-sm": ["Inter"],
+                            "display-lg": ["Inter"]
+                        },
+                        "fontSize": {
+                            "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}],
+                            "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "500"}],
+                            "display-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "800"}],
+                            "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                            "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                            "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                            "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                            "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.04em", "fontWeight": "800"}]
+                        }
+                    },
+                },
+            }
+        } catch (_e) {}
+    </script>
+<style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background selection:bg-primary selection:text-on-primary">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between px-container-padding-mobile h-16 w-full z-40 sticky top-0 bg-background/80 backdrop-blur-md">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="User profile photo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjHs7TPpU_JPVAyVAwcUJ5DM3uuJC_VEARLn4PMUmTxepEfV9XC6h_cI2LYc4JeHAtuBxs_pozyzD0WtYE0F38uJ7SPSzazNXLjjwxOU1AI9UIusbM6TLWgbh4z8HpGGr-oT8qsarh1SrY6cjx0wygBVlTbw9dtQTDEhp9JsyyZP8jupfX1uXdrIXCrIa_6lCS2Z4QEyyCpdUMnjeEvrMMFxl7vA7vVMAMv1zJpHVjHsyhDuyOZ2gI"/>
+</div>
+<h1 class="text-on-surface text-headline-sm font-headline-sm font-bold">Good morning</h1>
+</div>
+<button class="material-symbols-outlined text-on-surface hover:opacity-80 transition-opacity active:scale-[0.98]">settings</button>
+</header>
+<main class="pb-32 px-container-padding-mobile">
+<section class="mt-stack-lg space-y-stack-md">
+<div class="mb-stack-lg">
+<h1 class="font-headline-md text-headline-md text-on-surface">Your Library</h1>
+<p class="font-body-sm text-body-sm text-secondary">128 Artists followed</p>
+</div>
+<div class="relative mb-stack-lg group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-secondary opacity-60 group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant/30 rounded-full h-12 pl-12 pr-4 font-body-sm focus:ring-1 focus:ring-primary focus:bg-white text-on-surface placeholder:text-secondary/50 transition-all" placeholder="Search your artists..." type="text"/>
+</div>
+<div class="flex overflow-x-auto gap-stack-sm no-scrollbar mb-stack-lg pb-1">
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-primary text-on-primary font-label-md text-label-md active:scale-95 shadow-sm shadow-primary/20">Recently Added</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-white border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-container-low active:scale-95">A-Z</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-white border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-container-low active:scale-95">Most Played</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-white border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-container-low active:scale-95">Curated</button>
+</div>
+<div class="flex flex-col gap-stack-md mb-stack-lg">
+<div class="flex items-center justify-between">
+<div class="flex bg-surface-container-low rounded-lg p-1 border border-outline-variant/50">
+<button class="p-2 rounded-md bg-white shadow-sm text-primary active:scale-95">
+<span class="material-symbols-outlined block">grid_view</span>
+</button>
+<button class="p-2 rounded-md text-secondary hover:text-on-surface active:scale-95">
+<span class="material-symbols-outlined block">list</span>
+</button>
+<button class="p-2 rounded-md text-secondary hover:text-on-surface active:scale-95">
+<span class="material-symbols-outlined block">calendar_view_day</span>
+</button>
+</div>
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-widest">Layout View</span>
+</div>
+<div class="flex overflow-x-auto gap-stack-sm no-scrollbar">
+<button class="px-4 py-1.5 rounded-full border border-primary text-primary font-label-md text-label-md bg-primary/5 active:scale-95">Standard</button>
+<button class="px-4 py-1.5 rounded-full border border-outline-variant text-secondary font-label-md text-label-md bg-white active:scale-95">Colored</button>
+<button class="px-4 py-1.5 rounded-full border border-outline-variant text-secondary font-label-md text-label-md bg-white active:scale-95">Circular</button>
+<button class="px-4 py-1.5 rounded-full border border-outline-variant text-secondary font-label-md text-label-md bg-white active:scale-95">Immersive</button>
+</div>
+</div>
+</section>
+<section class="mt-stack-lg">
+<div class="grid grid-cols-2 gap-4">
+<!-- Artist 1 -->
+<div class="flex flex-col gap-3 group active:scale-95 transition-transform duration-200">
+<div class="aspect-square rounded-full overflow-hidden bg-surface-container-low border border-outline-variant relative">
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKAcLG99uhWkkAuBLQ1n5mgyDpkQI6_SCdKmFO2Mtx0edTqCsqrDt8vzrT9a5QocSiAlVH0CUS5GCRx4AZi2o1M9607VTlRoIcL-6CIGy-JfAcHi99jTx91oX7Kvto61NwotEuQLPO31jIbHcZ0thGBD4nXKicXOLX4IonOxRKUvbx8F_MvP0hiFVTVjFxm6r_ec9S3saWcPxQpWjEYolu7bUriiMWKVZaIb2gg2L1lU5KlGfeDZpT"/>
+</div>
+<div class="px-1">
+<h3 class="font-body-lg text-body-lg text-on-surface truncate">Julian K.</h3>
+<p class="font-body-sm text-body-sm text-secondary">42 tracks</p>
+</div>
+</div>
+<!-- Artist 2 (Featured/Colored State) -->
+<div class="flex flex-col gap-3 p-3 rounded-2xl bg-primary/5 border border-primary/20 group active:scale-95 transition-transform duration-200">
+<div class="aspect-square rounded-full overflow-hidden bg-white relative border-2 border-primary/30">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBG3kVpllb5hsmskYCjUa_jkp5v8LjVTLY5pWM7FN6BOKZ_pCjq_IG-l1ZcA9HWkcH5ZwyQtcHhYROdczCgvlqBxJx3WREkRTtvHwgfIxuElvJhMqKilHniuFuLYLYHTeCpTkUwHW5FXTdLrKEv7VKpZ5wX_asdTE8vtE2CMTMwxxBRIlOUrylihpVLQ8xmlCPdbgzSIBEQ6w0r4Txmw1_BtVGK-FH4MkUjzktOwF5XH9Jdrci-5to"/>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg text-primary truncate">Neon Pulse</h3>
+<p class="font-body-sm text-body-sm text-on-primary-container/70">12 tracks</p>
+</div>
+</div>
+<!-- Album (Immersive) -->
+<div class="col-span-1 aspect-[1/1.2] rounded-2xl overflow-hidden relative group active:scale-98 transition-transform duration-300 shadow-lg shadow-black/10">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2r9cENWxl1aKNdd4iaCagHBbdpQ1xbG6LlKLNxZmcVZqlH2Q6FGTgNWfX40IubKNKWayIqEtNIdQU6YH41mh0BP-rNIifDZUhmINCZkOR77TVXJYVH_0-cjxe2tUeHLWdQe2XCxIcQAMMn6rp6tAv_UUZHpU045dBq9DJ7xGY55o2zw6qKQMcUvBKnMUXzDMQS3iLdMLQ2JYCKKtGfvPzAFZnvWqTs04OJ-S0jGKMWD1PXiQx0fRq"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+<div class="absolute bottom-4 left-4 right-4">
+<h3 class="font-headline-sm text-headline-sm text-white mb-1">The Echoes</h3>
+<p class="text-xs text-white/80">88 tracks</p>
+</div>
+</div>
+<!-- Artist 3 -->
+<div class="flex flex-col gap-3 group active:scale-95 transition-transform duration-200">
+<div class="aspect-square rounded-full overflow-hidden border border-outline-variant bg-white group-hover:border-primary transition-colors">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfk0YBRiJ-LNbE7KOvNi1e17bkexo7Phd9t7exP6ucSxwuFXJdhtsopOwcK9yDuXugN7cAzoeGWsbVeUHasshLToSminC6T-QlgmR0I6AkWT7v_Rx63SducrxyfAzrQkl9UTy7mI1jltSjyTCcABDOYr663IYHeZTKfZ-AFv1dcY3bhlZgypu70ai8o2eVYpd53CDzoENjdq9JVmhB2KitKlLrupJKsKfwI7mfvYWH28LtIEad7SmC"/>
+</div>
+<div class="px-1 text-center">
+<h3 class="font-body-lg text-body-lg text-on-surface truncate">Kairos</h3>
+<p class="font-body-sm text-body-sm text-secondary">24 tracks</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Mini Player (Light Glassmorphic) -->
+<div class="fixed bottom-20 left-4 right-4 z-40 glass-card rounded-xl p-3 flex items-center gap-3 transition-all active:scale-[0.98]">
+<div class="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 border border-black/5">
+<img class="w-full h-full object-cover" data-alt="Neon Pulse album art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB89hZSGhbHkarSaQPFiWgMQZtxZnDDvAKU9wYchTCJRkhK8LXhRxayVe2vLUIF1WJI3iDCebc2rFeCjAL9jPyylN8-Qu0pyX4V3voFo-viDqAqEUU-DV82y1sKVonvlELgGiOWLAtmylYUkrZO-hnrCW9OFzm1iyz1f5urusztpOizzxmh8Y4DUgcktw6Ni9KZpCHTfeUrUrCysOjzWVgeLENGre6DCKw81n3gP1VJPw-IzA5iB47T"/>
+</div>
+<div class="flex-1 overflow-hidden">
+<p class="text-on-surface font-label-md text-label-md truncate">Neon Pulse</p>
+<p class="text-secondary text-[10px] uppercase tracking-wider font-semibold">Synthetix</p>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-secondary hover:text-on-surface transition-colors">devices</button>
+<button class="material-symbols-outlined text-primary text-[32px] hover:scale-105 transition-transform" style="font-variation-settings: 'FILL' 1;">pause_circle</button>
+</div>
+<div class="absolute bottom-0 left-0 h-[3px] bg-primary rounded-full mx-3" style="width: calc(45% - 24px);"></div>
+</div>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 px-4 pb-safe bg-white border-t border-outline-variant/30 shadow-[0_-1px_10px_rgba(0,0,0,0.02)]">
+<button class="flex flex-col items-center gap-1 text-secondary hover:text-primary transition-all active:scale-90">
+<span class="material-symbols-outlined">home</span>
+<span class="text-label-sm font-label-sm">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-secondary hover:text-primary transition-all active:scale-90">
+<span class="material-symbols-outlined">search</span>
+<span class="text-label-sm font-label-sm">Search</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary transition-all active:scale-90">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">library_music</span>
+<span class="text-label-sm font-label-sm font-bold">Library</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-secondary hover:text-primary transition-all active:scale-90">
+<span class="material-symbols-outlined">explore</span>
+<span class="text-label-sm font-label-sm">Explore</span>
+</button>
+</nav>
+<script>
+    // Micro-interaction for filter chips
+    const chips = document.querySelectorAll('section button');
+    chips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            if(chip.parentElement.classList.contains('overflow-x-auto')){
+                const siblings = chip.parentElement.querySelectorAll('button');
+                siblings.forEach(s => {
+                    s.classList.remove('bg-primary', 'text-on-primary', 'font-bold', 'shadow-sm', 'shadow-primary/20', 'border-primary', 'bg-primary/5');
+                    s.classList.add('bg-white', 'text-on-surface', 'border', 'border-outline-variant');
+                });
+                if (chip.classList.contains('px-4') && chip.classList.contains('py-2')) {
+                    chip.classList.add('bg-primary', 'text-on-primary', 'font-bold', 'shadow-sm', 'shadow-primary/20');
+                    chip.classList.remove('bg-white', 'text-on-surface', 'border', 'border-outline-variant');
+                } else {
+                    chip.classList.add('border-primary', 'text-primary', 'bg-primary/5');
+                    chip.classList.remove('bg-white', 'text-on-surface', 'border-outline-variant');
+                }
+            }
+        });
+    });
+</script>
+</body></html>

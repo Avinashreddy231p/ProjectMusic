@@ -160,6 +160,10 @@
     <string name="action_move_to_current_track">Show current track</string>
     <string name="action_add_to_favorites">Add to Favorites</string>
     <string name="action_remove_from_favorites">Remove from Favorites</string>
+    <string name="action_toggle_favorite">Toggle Favorite</string>
+    <string name="action_hide_song">Hide Song</string>
+    <string name="action_copy_path">Copy File Path</string>
+    <string name="action_none">None</string>
     <string name="added_to_favorites_label">Added to Favorites</string>
     <string name="removed_from_favorites_label">Removed from Favorites</string>
     <string name="toggle_favorite">Add/Remove from Favorites</string>
@@ -205,7 +209,13 @@
     <string name="playlists_label">Playlists</string>
     <string name="playlist_label">Playlist</string>
     <string name="favorites_label">Favorites</string>
+    <string name="discovery_label">Discovery</string>
+    <string name="lyrics_label">Lyrics</string>
     <string name="last_added_label">Last added</string>
+    <string name="history_artists">Recent played artists</string>
+    <string name="history_albums">Recent played albums</string>
+    <string name="last_added_artists">Newly added artists</string>
+    <string name="last_added_albums">Newly added albums</string>
     <string name="top_tracks_label">Top Tracks</string>
     <string name="history_label">History</string>
     <string name="not_recently_played">Not Recently Played</string>
@@ -245,6 +255,8 @@
     <string name="sort_order_file_name">File name</string>
     <string name="sort_order_number_of_songs">Number of songs</string>
     <string name="sort_order_number_of_albums">Number of albums</string>
+    <string name="sort_order_play_count">Play count</string>
+    <string name="sort_order_listen_duration">Listen duration</string>
     <string name="sort_order_last_played_date">Last played date</string>
     <string name="sort_order_track_list">Track list</string>
     <string name="sort_order_descending">Descending</string>
@@ -517,6 +529,7 @@
 
     <!-- Lyrics viewer -->
     <string name="action_show_lyrics">Show lyrics</string>
+    <string name="action_full_screen_lyrics">Full screen lyrics</string>
     <string name="action_hide_lyrics">Hide lyrics</string>
     <string name="plain_lyrics">Plain</string>
     <string name="synced_lyrics">Synced</string>
@@ -539,6 +552,10 @@
     <string name="could_not_import_font">Could not import font.</string>
     <string name="cannot_edit_lyrics_file">You cannot edit the file content directly from Booming Music.</string>
     <string name="lyrics_by_x">Lyrics by %s</string>
+    <string name="no_song_playing">No song playing</string>
+    <string name="aa_lyrics_settings_title">Android Auto Lyrics</string>
+    <string name="aa_metadata_lyrics_title">Display lyrics in main player</string>
+    <string name="aa_metadata_lyrics_summary">Replace song title and artist with current lyric lines in the standard music player.</string>
 
     <!-- Scrobbling Service -->
     <string name="sign_in_to_x_title">Sign in to %s</string>
@@ -665,8 +682,12 @@
 
     <!-- Interface preferences -->
     <string name="general_theme_title">General theme</string>
+    <string name="ui_theme_title">UI Style</string>
+    <string name="ui_theme_material">Material Design</string>
+    <string name="ui_theme_spotify">Spotify</string>
     <string name="pure_black_theme_title">Pure Black</string>
-    <string name="material_you_title">Material You</string>
+    <string name="accent_color_title">Accent Color</string>`r`n    <string name="accent_color_summary">Choose a custom color to theme the app</string>`r`n    <string name="material_you_title">Material You</string>
+
     <string name="use_custom_font_title">Use custom font</string>
     <string name="appbar_mode_title">Header style</string>
     <string name="library_categories_title">Library categories</string>
@@ -688,6 +709,35 @@
     <string name="widget_image_corner_radius_summary">Change the rounding for the album art.</string>
     <string name="widget_third_line_title">Third info line</string>
     <string name="widget_third_line_summary">Select what to display in the third row of text.</string>
+
+    <!-- New Era Customization -->
+    <string name="era_header">New Era Customization</string>
+    <string name="era_primary_seed_title">Primary Seed Color</string>
+    <string name="era_secondary_seed_title">Secondary Seed Color</string>
+    <string name="era_tertiary_seed_title">Tertiary Seed Color</string>
+    <string name="era_error_seed_title">Error Seed Color</string>
+    <string name="era_harmony_mode_title">Harmony Mode</string>
+    <string name="era_harmony_mode_summary">Automatically generate a balanced palette based on the primary color.</string>
+    <string name="era_vibrancy_title">Color Vibrancy</string>
+    <string name="era_contrast_title">Visual Contrast</string>
+    <string name="era_shape_scale_title">Shape Roundness Scale</string>
+    <string name="era_shape_family_title">Shape Family</string>
+    <string name="era_shape_family_rounded">Rounded</string>
+    <string name="era_shape_family_cut">Cut (Expressive)</string>
+    <string name="era_asymmetric_shapes_title">Asymmetric Shapes</string>
+    <string name="era_asymmetric_shapes_summary">Use different radii for corners for an organic feel.</string>
+    <string name="era_type_scale_title">Typography Scale</string>
+    <string name="era_motion_intensity_title">Motion Intensity</string>
+    <string name="era_motion_none">Static</string>
+    <string name="era_motion_fluid">Fluid</string>
+    <string name="era_motion_expressive">Strictly Expressive</string>
+    <string name="era_surface_material_title">Surface Material</string>
+    <string name="era_surface_solid">Solid Tonal</string>
+    <string name="era_surface_glass">Frosted Glass</string>
+    <string name="era_surface_vibrant">Vibrant Tint</string>
+    <string name="era_adaptive_iconography_title">Adaptive Icons</string>
+    <string name="era_adaptive_iconography_summary">Match icon style to chosen shape family.</string>
+
     <string name="lyrics_center_current_line_title">Center current line</string>
     <string name="lyrics_center_current_line_summary">Keep the current lyric line centered on screen instead of aligned to the top.</string>
     <string name="lyrics_center_horizontally_title">Center lyrics horizontally</string>
@@ -709,6 +759,21 @@
     <string name="lyrics_progressive_coloring_summary">Animate active lines with a gradual color transition instead of coloring them instantly.</string>
     <string name="lyrics_karaoke_style_title">Karaoke-style lyrics</string>
     <string name="lyrics_karaoke_style_summary">Enables a Karaoke-style effect for word-by-word synced lyrics. Please note that this is an experimental feature.</string>
+    <string name="pref_lyrics_accent_color_title">Lyrics accent color</string>
+    <string name="pref_lyrics_accent_color_summary">Sets a custom color for active lyrics</string>
+
+    <string name="swipe_actions_title">Swipe Actions</string>
+    <string name="swipe_left_title">Swipe Left</string>
+    <string name="swipe_right_title">Swipe Right</string>
+    <string name="pref_swipe_actions_songs">Songs Swipe Actions</string>
+    <string name="pref_swipe_actions_albums">Albums Swipe Actions</string>
+    <string name="pref_swipe_actions_artists">Artists Swipe Actions</string>
+    <string name="pref_swipe_actions_playlists">Playlists Swipe Actions</string>
+    <string name="pref_swipe_actions_queue">Queue Swipe Actions</string>
+    <string name="pref_swipe_actions_stats">Stats Swipe Actions</string>
+    <string name="action_download_lyrics">Download lyrics</string>
+    <string name="lyrics_accent_color_title">Lyrics accent color</string>
+    <string name="lyrics_accent_color_summary">Custom color for active lyrics. Leave default to use the app\'s accent color.</string>
     <string name="lyrics_show_translation_title">Show translation</string>
     <string name="lyrics_show_translation_summary">Display translated lyrics if available.</string>
     <string name="lyrics_show_transliteration_title">Show transliteration</string>
@@ -890,6 +955,10 @@
     <string name="lastfm_now_playing_summary">Show the currently playing track on your Last.fm profile in real time.</string>
     <string name="lastfm_biography_title">Download artist and album biographies</string>
     <string name="lastfm_biography_summary">Fetch artist and album biographies from Last.fm.</string>
+    <string name="lastfm_sync_favorites_title">Sync favorites to Last.fm</string>
+    <string name="lastfm_sync_favorites_summary">Automatically love or unlove tracks on Last.fm when toggling favorite in the app.</string>
+    <string name="lastfm_offline_scrobble_title">Cache offline scrobbles</string>
+    <string name="lastfm_offline_scrobble_summary">Save scrobbles when offline and sync them when you reconnect.</string>
     <string name="listenbrainz_title">ListenBrainz</string>
     <string name="listenbrainz_login_title">Sign in to ListenBrainz</string>
     <string name="listenbrainz_login_summary">Authenticate with your user token to enable scrobbling and now playing updates. You can find your token in your ListenBrainz profile settings.</string>
@@ -980,6 +1049,10 @@
     <string name="player_color_mode_material_you_description">Use Material You tones based on the album color</string>
     <string name="player_color_mode_blur_title">Blur</string>
     <string name="player_color_mode_blur_description">Blurred background with Material You colors</string>
+    <string name="player_color_mode_monochrome_title">Monochrome</string>
+    <string name="player_color_mode_monochrome_description">Use a black and white color scheme</string>
+    <string name="online_music_provider_title">Music source</string>
+    <string name="online_music_provider_ytmusic">YouTube Music</string>
 
     <!-- Update -->
     <string name="auto_update_title">Auto update search</string>
@@ -1035,4 +1108,59 @@
     <string name="stats_skipped">Skipped</string>
     <string name="stats_completed">Completed</string>
     <string name="stats_time_listened">Time listened</string>
+    <string name="stats_card_title">Listening Summary</string>
+    <string name="stats_card_plays">Plays</string>
+    <string name="stats_card_songs">Songs</string>
+    <string name="stats_card_artists">Artists</string>
+    <string name="stats_view_all">View all stats</string>
+    
+    <!-- Online Play -->
+    <string name="online_play_label">Online Play</string>
+    <string name="online_search_hint">Search songs, albums, artists…</string>
+    <string name="online_empty_message">Search for music or browse recommendations</string>
+    <string name="online_loading">Loading…</string>
+    <string name="online_error">Something went wrong. Please try again.</string>
+    <string name="online_no_results">No results found</string>
+    <string name="online_recommendations">Recommendations</string>
+    <string name="online_search_results">Search Results</string>
+    <string name="downloading_song">Downloading: %s</string>
+    <string name="download_complete">Download complete</string>
+    <string name="download_failed">Download failed</string>
+    <string name="select_download_location">Select download location</string>
+    <string name="online_tab_songs">Songs</string>
+    <string name="online_tab_albums">Albums</string>
+    <string name="online_tab_artists">Artists</string>
+    <string name="downloads">Downloads</string>
+    <string name="no_downloads">No active downloads</string>
+    <string name="download_in_progress">Downloading…</string>
+    <string name="download_progress">Downloading… %1$d%%</string>
+    <string name="download_cancel">Cancel download</string>
+    <string name="stream_quality">Stream Quality</string>
+    <string name="api_settings">API Settings</string>
+    <string name="api_url_label">API URL</string>
+    <string name="api_url_summary">Set your self-hosted HiFi API URL</string>
+    <string name="api_url_hint">https://your-worker.workers.dev</string>
+    <string name="stream_quality_label">Stream Quality</string>
+    <string name="current_quality">Current: %1$s</string>
+    <string name="retry_download">Retry</string>
+    <string name="clear_completed">Clear completed</string>
+    <string name="now_playing_image_corner_radius_title">Album art corner radius</string>
+    <string name="lyrics_card_corner_radius_title">Lyrics card corner radius</string>
+    <string name="now_playing_lyrics_corner_radius_title">Lyrics card corner radius</string>
+    <string name="vibrant_style">Vibrant</string>
+    <string name="vibrant_bg_mode_title">Vibrant Background</string>
+    <string name="vibrant_bg_mode_gradient">Gradient</string>
+    <string name="vibrant_bg_mode_grid">Grid Lines</string>
+    <string name="vibrant_bg_mode_smoke">Smoke</string>
+    <string name="vibrant_bg_mode_fluid">Fluid</string>
+    <string name="vibrant_bg_mode_solid">Solid</string>
+    <string name="vibrant_bg_mode_flow">Flow</string>
+    <string name="vibrant_bg_mode_glow">Glow</string>
+    <string name="vibrant_bg_mode_particles">Particles</string>
+    <string name="vibrant_background_animations_title">Vibrant Background Animations</string>
+    <string name="vibrant_background_animations_summary">Enable rhythmic movements and beat-responsive effects.</string>
+    <string name="vibrant_background_high_quality_title">High Quality Backgrounds</string>
+    <string name="vibrant_background_high_quality_summary">Use more complex layers and effects. Turn off to save battery.</string>
+    <string name="vibrant_background_global_title">Global Vibrant Background</string>
+    <string name="vibrant_background_global_summary">Apply the animated background across all app screens.</string>
 </resources>

@@ -25,6 +25,7 @@ import com.google.android.material.color.DynamicColors
 import com.mardous.booming.R
 import com.mardous.booming.util.GeneralTheme
 import com.mardous.booming.util.Preferences
+import com.mardous.booming.util.UITheme
 
 class AppTheme private constructor(
     val id: String,
@@ -48,20 +49,22 @@ class AppTheme private constructor(
         fun createAppTheme(context: Context): AppTheme {
             val generalTheme = Preferences.generalTheme
             val themeMode = Preferences.getThemeMode(generalTheme)
-            if (DynamicColors.isDynamicColorAvailable()) {
-                if (Preferences.isMaterialYouTheme) {
+            val eraPrimarySeed = Preferences.eraPrimarySeed
+            
+            if (DynamicColors.isDynamicColorAvailable() || eraPrimarySeed != 0) {
+                if (Preferences.isMaterialYouTheme && Preferences.accentColor == null && !Preferences.eraHarmonyMode) {
                     return AppTheme(
                         id = generalTheme,
                         themeRes = themeMode.themeRes,
                         applyDynamicColors = true
                     )
                 }
-                if (context is ContextThemeWrapper) {
+                if (context is ContextThemeWrapper || eraPrimarySeed != 0) {
                     return AppTheme(
                         id = generalTheme,
                         themeRes = themeMode.themeRes,
                         applyDynamicColors = true,
-                        seedColor = ContextCompat.getColor(context, R.color.md_theme_primary)
+                        seedColor = Preferences.accentColor ?: eraPrimarySeed
                     )
                 }
             }

@@ -27,6 +27,7 @@ import androidx.annotation.OptIn
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.core.content.ContextCompat
 import androidx.core.content.IntentCompat
+import androidx.core.content.edit
 import androidx.core.content.getSystemService
 import androidx.core.os.postDelayed
 import androidx.glance.appwidget.GlanceAppWidgetManager
@@ -39,6 +40,7 @@ import androidx.media3.common.PlaybackException
 import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
 import androidx.media3.common.Timeline
+import androidx.media3.common.Tracks
 import androidx.media3.common.TrackSelectionParameters.AudioOffloadPreferences
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.DefaultRenderersFactory
@@ -86,6 +88,7 @@ import com.mardous.booming.data.model.network.NetworkFeature
 import com.mardous.booming.data.model.network.ScrobblingService
 import com.mardous.booming.extensions.isBluetoothA2dpConnected
 import com.mardous.booming.extensions.isBluetoothA2dpDisconnected
+import com.mardous.booming.extensions.media.displayArtistName
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.playback.equalizer.EqualizerManager
 import com.mardous.booming.playback.library.LibraryProvider
@@ -94,7 +97,9 @@ import com.mardous.booming.playback.processor.BalanceAudioProcessor
 import com.mardous.booming.playback.processor.ReplayGainAudioProcessor
 import com.mardous.booming.playback.renderer.AlacWorkaroundCodecSelector
 import com.mardous.booming.playback.renderer.BoomingMusicRenderersFactory
+import com.mardous.booming.playback.stats.DeviceContextCollector
 import com.mardous.booming.playback.stats.RealTimeStatsTracker
+import com.mardous.booming.playback.stats.SessionCoordinator
 import com.mardous.booming.playback.stats.StatsFlusher
 import com.mardous.booming.ui.screen.MainActivity
 import com.mardous.booming.util.CLEAR_QUEUE_ON_COMPLETION
@@ -122,6 +127,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.guava.future
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
@@ -146,11 +152,18 @@ class PlaybackService :
     private val audioOutputObserver: AudioOutputObserver by inject()
     private val repository: Repository by inject()
     private val statsRepository: StatsRepository by inject()
+    private val lyricsRepository: com.mardous.booming.data.local.repository.LyricsRepository by inject()
 
-    private val libraryProvider = LibraryProvider(repository)
+    private val libraryProvider by lazy { LibraryProvider(repository, lyricsRepository) }
     private val songPlayCountHelper = SongPlayCountHelper()
-    private val statsTracker = RealTimeStatsTracker()
-    private val statsFlusher = StatsFlusher(statsTracker, statsRepository)
+    private val deviceContextCollector by lazy {
+        DeviceContextCollector(applicationContext, audioOutputObserver, equalizerManager)
+    }
+    private val sessionCoordinator = SessionCoordinator()
+    private val statsTracker by lazy {
+        RealTimeStatsTracker(deviceContextCollector, sessionCoordinator)
+    }
+    private val statsFlusher by lazy { StatsFlusher(statsTracker, statsRepository) }
     private val mediaStoreObserver = MediaStoreObserver(uiHandler) {
         mediaSession?.broadcastCustomCommand(
             SessionCommand(Playback.EVENT_MEDIA_CONTENT_CHANGED, Bundle.EMPTY),
@@ -161,6 +174,7 @@ class PlaybackService :
     private val playerThread = HandlerThread("Booming-ExoPlayer", Process.THREAD_PRIORITY_AUDIO)
     private val balanceProcessor: BalanceAudioProcessor by inject()
     private val replayGainProcessor: ReplayGainAudioProcessor by inject()
+    private val beatProcessor: com.mardous.booming.playback.processor.BeatAudioProcessor by inject()
 
     private lateinit var nm: NotificationManager
     private lateinit var persistentStorage: PersistentStorage
@@ -168,13 +182,20 @@ class PlaybackService :
     private lateinit var player: AdvancedForwardingPlayer
     private var mediaSession: MediaLibrarySession? = null
 
+    private var isLyricsMetadataEnabled = false
+    private var currentSyncedLyrics: com.mardous.booming.data.model.lyrics.SyncedLyrics? = null
+    private var lyricsMetadataUpdateJob: Job? = null
+    private var lastLyricsLineIndex = -2
+
     private var eqStateHandler: Handler? = Handler(Looper.getMainLooper())
 
     private var errorRecoveryRetryCount = 0
     private var pausedByZeroVolume = false
     private var hasSetUnshuffledOrder = false
+    private var isCurrentSongFavorite = false
     private var stopIndex = -1
 
+    private var lastTransitionMediaId: String? = null
     private var headsetClickCount = 0
     private val headsetClickRunnable = Runnable {
         if (!::player.isInitialized) return@Runnable
@@ -209,6 +230,24 @@ class PlaybackService :
             Player.REPEAT_MODE_ALL -> customCommands[3]
             Player.REPEAT_MODE_ONE -> customCommands[4]
             else -> customCommands[2]
+        }
+
+    private val favoriteCommand: CommandButton
+        get() = if (isCurrentSongFavorite) customCommands[5] else customCommands[6]
+
+    private val lyricsCommand: CommandButton
+        get() = if (isLyricsMetadataEnabled) {
+            CommandButton.Builder(CommandButton.ICON_UNDEFINED)
+                .setSessionCommand(SessionCommand(Playback.SHOW_LYRICS, Bundle.EMPTY))
+                .setIconResId(R.drawable.ic_lyrics_24dp)
+                .setDisplayName(getString(R.string.action_hide_lyrics))
+                .build()
+        } else {
+            CommandButton.Builder(CommandButton.ICON_UNDEFINED)
+                .setSessionCommand(SessionCommand(Playback.SHOW_LYRICS, Bundle.EMPTY))
+                .setIconResId(R.drawable.ic_lyrics_outline_24dp)
+                .setDisplayName(getString(R.string.action_show_lyrics))
+                .build()
         }
 
     private val pauseOnZeroVolume: Boolean
@@ -247,6 +286,19 @@ class PlaybackService :
             CommandButton.Builder(CommandButton.ICON_REPEAT_ONE)
                 .setDisplayName(getString(R.string.repeat_mode))
                 .setPlayerCommand(Player.COMMAND_SET_REPEAT_MODE, Player.REPEAT_MODE_OFF)
+                .build(),
+            CommandButton.Builder(CommandButton.ICON_HEART_FILLED)
+                .setSessionCommand(SessionCommand(Playback.TOGGLE_FAVORITE, Bundle.EMPTY))
+                .setDisplayName(getString(R.string.action_remove_from_favorites))
+                .build(),
+            CommandButton.Builder(CommandButton.ICON_HEART_UNFILLED)
+                .setSessionCommand(SessionCommand(Playback.TOGGLE_FAVORITE, Bundle.EMPTY))
+                .setDisplayName(getString(R.string.action_add_to_favorites))
+                .build(),
+            CommandButton.Builder(CommandButton.ICON_UNDEFINED)
+                .setSessionCommand(SessionCommand(Playback.SHOW_LYRICS, Bundle.EMPTY))
+                .setIconResId(R.drawable.ic_lyrics_24dp)
+                .setDisplayName(getString(R.string.action_show_lyrics))
                 .build()
         )
 
@@ -261,7 +313,7 @@ class PlaybackService :
                         .build(), handleAudioFocus
                 )
                 .setRenderersFactory(
-                    BoomingMusicRenderersFactory(this, balanceProcessor, replayGainProcessor)
+                    BoomingMusicRenderersFactory(this, balanceProcessor, replayGainProcessor, beatProcessor)
                         .setEnableAudioFloatOutput(equalizerManager.audioFloatOutput.value)
                         .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
                         .setMediaCodecSelector(AlacWorkaroundCodecSelector())
@@ -323,6 +375,7 @@ class PlaybackService :
 
         sleepTimer.addFinishListener { sleepParams ->
             if (player.playWhenReady && player.isPlaying) {
+                statsFlusher.setEndReason("sleep_timer")
                 if (sleepParams.pendingQuit) {
                     player.exoPlayer.pauseAtEndOfMediaItems = true
                 } else {
@@ -404,12 +457,19 @@ class PlaybackService :
         controller: MediaSession.ControllerInfo
     ): MediaSession.ConnectionResult {
         val connectionResult = super.onConnect(session, controller)
+        
+        if (preferences.getBoolean("aa_metadata_lyrics", false)) {
+            isLyricsMetadataEnabled = true
+            startLyricsMetadataUpdate()
+        }
+
         val availableCommands = MediaSession.ConnectionResult.DEFAULT_SESSION_AND_LIBRARY_COMMANDS
             .buildUpon()
 
         availableCommands.add(SessionCommand(Playback.CYCLE_REPEAT, Bundle.EMPTY))
         availableCommands.add(SessionCommand(Playback.TOGGLE_SHUFFLE, Bundle.EMPTY))
         availableCommands.add(SessionCommand(Playback.TOGGLE_FAVORITE, Bundle.EMPTY))
+        availableCommands.add(SessionCommand(Playback.SHOW_LYRICS, Bundle.EMPTY))
         availableCommands.add(SessionCommand(Playback.RESTORE_PLAYBACK, Bundle.EMPTY))
         availableCommands.add(SessionCommand(Playback.SET_UNSHUFFLED_ORDER, Bundle.EMPTY))
         availableCommands.add(SessionCommand(Playback.SET_STOP_POSITION, Bundle.EMPTY))
@@ -494,7 +554,7 @@ class PlaybackService :
     ): ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> {
         return serviceScope.future(IO) {
             val result = runCatching {
-                libraryProvider.getChildren(this@PlaybackService, parentId)
+                libraryProvider.getChildren(this@PlaybackService, parentId, player.currentMediaItem)
             }
             if (result.isSuccess) {
                 LibraryResult.ofItemList(result.getOrThrow(), params)
@@ -636,6 +696,27 @@ class PlaybackService :
                 Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
             }
 
+            Playback.SHOW_LYRICS -> {
+                isLyricsMetadataEnabled = !isLyricsMetadataEnabled
+                if (isLyricsMetadataEnabled) {
+                    startLyricsMetadataUpdate()
+                } else {
+                    stopLyricsMetadataUpdate()
+                }
+                
+                // Persist the state if we want it to be remembered
+                preferences.edit {
+                    putBoolean("aa_metadata_lyrics", isLyricsMetadataEnabled)
+                }
+                
+                refreshMediaButtonCustomLayout()
+                mediaSession?.broadcastCustomCommand(
+                    SessionCommand(Playback.EVENT_SHOW_LYRICS, Bundle.EMPTY),
+                    Bundle.EMPTY
+                )
+                Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
+            }
+
             Playback.RESTORE_PLAYBACK -> {
                 val playOnStartupMode = preferences.requireString(PLAY_ON_STARTUP_MODE, PlayOnStartupMode.NEVER)
                 if (playOnStartupMode != PlayOnStartupMode.NEVER) {
@@ -733,6 +814,9 @@ class PlaybackService :
                 stopIndex = -1
             }
         }
+        if (reason == Player.PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY) {
+            statsFlusher.setEndReason("audio_focus_loss")
+        }
     }
 
     override fun onIsPlayingChanged(isPlaying: Boolean) {
@@ -755,7 +839,7 @@ class PlaybackService :
         reason: Int
     ) {
         if (reason == Player.DISCONTINUITY_REASON_SEEK) {
-            statsFlusher.onSeek()
+            statsFlusher.onSeek(oldPosition.positionMs, newPosition.positionMs)
         }
     }
 
@@ -772,7 +856,20 @@ class PlaybackService :
     }
 
     override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+        if (mediaItem?.mediaId == lastTransitionMediaId) return
+        lastTransitionMediaId = mediaItem?.mediaId
+        lastLyricsLineIndex = -2
+
         val isPlaying = player.isPlaying
+        val currentPositionMs = player.currentPosition
+
+        val repeatModeStr = when (player.repeatMode) {
+            Player.REPEAT_MODE_ONE -> "one"
+            Player.REPEAT_MODE_ALL -> "all"
+            else -> "off"
+        }
+        val shuffleEnabled = player.shuffleModeEnabled
+        val queuePosition = player.currentMediaItemIndex
 
         serviceScope.launch(IO) {
             val newSong = repository.songByMediaItem(mediaItem)
@@ -781,15 +878,51 @@ class PlaybackService :
             val shouldBumpPlayCount = songPlayCountHelper.shouldBumpPlayCount()
             songPlayCountHelper.notifySongChanged(newSong, isPlaying)
 
+            val isFavorite = if (newSong != Song.emptySong) {
+                runCatching { repository.isSongFavorite(newSong.id) }.getOrDefault(false)
+            } else false
+
+            isCurrentSongFavorite = isFavorite
+
+            // Pre-fetch synced lyrics for metadata if enabled
+            launch {
+                val rawLyrics = lyricsRepository.fileLyrics(newSong)
+                    ?: lyricsRepository.embeddedLyrics(newSong)
+                    ?: lyricsRepository.storedLyrics(newSong, false)
+                currentSyncedLyrics = rawLyrics?.let { lyricsRepository.parseRawLyrics(newSong, it) }
+
+                if (isLyricsMetadataEnabled) {
+                    startLyricsMetadataUpdate()
+                }
+            }
+
+            val extras = mediaItem?.mediaMetadata?.extras
+            val queueSource = extras?.getString(Playback.EXTRA_QUEUE_SOURCE) ?: ""
+            val playlistId = extras?.getString(Playback.EXTRA_PLAYLIST_ID) ?: ""
+            val playlistName = extras?.getString(Playback.EXTRA_PLAYLIST_NAME) ?: ""
+            val playbackOrigin = extras?.getString(Playback.EXTRA_PLAYBACK_ORIGIN) ?: "unknown"
+
+            statsFlusher.setPlaybackContext(
+                shuffleEnabled = shuffleEnabled,
+                repeatMode = repeatModeStr,
+                queuePosition = queuePosition,
+                queueSource = queueSource,
+                playbackOrigin = playbackOrigin,
+                playlistId = playlistId,
+                playlistName = playlistName,
+                isFavorite = isFavorite
+            )
+
             statsFlusher.onSongTransition(
                 currentSong = previousSong,
                 nextSong = newSong,
-                currentPositionMs = player.currentPosition,
+                currentPositionMs = currentPositionMs,
                 transitionReason = transitionReasonToString(reason),
                 maxDurationMs = previousSong.duration
             )
 
             if (newSong != Song.emptySong) {
+                statsFlusher.onSongStarted(newSong, 0L)
                 replayGainProcessor.currentGain = ReplayGainTagExtractor.getReplayGain(newSong)
                 if (preferences.getBoolean(ENABLE_HISTORY, true)) {
                     repository.upsertSongInHistory(newSong)
@@ -800,6 +933,9 @@ class PlaybackService :
                 if (NetworkFeature.ListenBrainz.NowPlaying.isAvailable) {
                     launch { repository.updateNowPlaying(ScrobblingService.ListenBrainz, newSong) }
                 }
+            }
+            withContext(Main) {
+                refreshMediaButtonCustomLayout()
             }
             if (previousSong != Song.emptySong) {
                 val timestampMillis = System.currentTimeMillis()
@@ -863,25 +999,28 @@ class PlaybackService :
         }
     }
 
-    /*
     override fun onTracksChanged(tracks: Tracks) {
         var sampleRate = -1
         var channelCount = -1
+        var bitrate = 0
+        var format = ""
         for (group in tracks.groups) {
             if (group.type == C.TRACK_TYPE_AUDIO) {
                 for (i in 0 until group.length) {
                     if (group.isTrackSelected(i)) {
-                        val format = group.getTrackFormat(i)
-                        sampleRate = format.sampleRate
-                        channelCount = format.channelCount
+                        val trackFormat = group.getTrackFormat(i)
+                        sampleRate = trackFormat.sampleRate
+                        channelCount = trackFormat.channelCount
+                        bitrate = if (trackFormat.bitrate > 0) trackFormat.bitrate / 1000 else 0
+                        format = trackFormat.sampleMimeType ?: ""
                         break
                     }
                 }
             }
         }
-        audioOutputObserver.updatePlaybackFormat(sampleRate, channelCount)
+        audioOutputObserver.updatePlaybackFormat(sampleRate, channelCount, bitrate, format)
     }
-     */
+
 
     override fun onSharedPreferenceChanged(preferences: SharedPreferences, key: String?) {
         when (key) {
@@ -916,6 +1055,17 @@ class PlaybackService :
             WIDGET_THIRD_LINE_CONTENT -> {
                 updateWidgets()
             }
+
+            "aa_metadata_lyrics" -> {
+                val enabled = preferences.getBoolean(key, false)
+                isLyricsMetadataEnabled = enabled
+                if (enabled) {
+                    startLyricsMetadataUpdate()
+                } else {
+                    stopLyricsMetadataUpdate()
+                }
+                refreshMediaButtonCustomLayout()
+            }
         }
     }
 
@@ -939,6 +1089,7 @@ class PlaybackService :
         withContext(IO) {
             val song = repository.songByMediaItem(currentMediaItem)
             repository.toggleFavorite(song)
+            isCurrentSongFavorite = repository.isSongFavorite(song.id)
         }
 
         updateWidgets()
@@ -1089,12 +1240,14 @@ class PlaybackService :
         val hasTimeline = !player.currentTimeline.isEmpty
         mediaSession?.connectedControllers?.forEach { controllerInfo ->
             if (mediaSession?.isRemoteController(controllerInfo) == true) {
-                val buttonLayout = if (hasTimeline) {
-                    ImmutableList.of(repeatCommand, shuffleCommand)
-                } else {
-                    emptyList()
+                val buttonLayout = mutableListOf<CommandButton>()
+                if (hasTimeline) {
+                    buttonLayout.add(repeatCommand)
+                    buttonLayout.add(lyricsCommand)
                 }
-                mediaSession?.setMediaButtonPreferences(controllerInfo, buttonLayout)
+                buttonLayout.add(favoriteCommand)
+
+                mediaSession?.setMediaButtonPreferences(controllerInfo, ImmutableList.copyOf(buttonLayout))
             }
         }
     }
@@ -1211,6 +1364,108 @@ class PlaybackService :
         }
     }
 
+    private fun startLyricsMetadataUpdate() {
+        lyricsMetadataUpdateJob?.cancel()
+        lyricsMetadataUpdateJob = serviceScope.launch {
+            while (isActive) {
+                updateMetadataWithLyrics()
+                delay(500) // Update frequency
+            }
+        }
+    }
+
+    private fun stopLyricsMetadataUpdate() {
+        lyricsMetadataUpdateJob?.cancel()
+        lyricsMetadataUpdateJob = null
+        lastLyricsLineIndex = -2
+        restoreOriginalMetadata()
+    }
+
+    private suspend fun updateMetadataWithLyrics() {
+        val currentPosition = player.currentPosition
+        val lyrics = currentSyncedLyrics
+        val currentSong = player.currentSong
+        
+        val currentLine: String
+        val nextLine: String
+        val lineIndex: Int
+
+        if (lyrics != null && lyrics.hasContent) {
+            lineIndex = findLineIndexAt(currentPosition, lyrics)
+            if (lineIndex == lastLyricsLineIndex) return
+            
+            val lineText = if (lineIndex in lyrics.lines.indices) {
+                lyrics.lines[lineIndex].content.content
+            } else {
+                currentSong.title
+            }
+
+            currentLine = "▶ ${lineText.uppercase()}"
+
+            nextLine = if (lineIndex + 1 in lyrics.lines.indices) {
+                lyrics.lines[lineIndex + 1].content.content
+            } else {
+                currentSong.displayArtistName()
+            }
+        } else {
+            lineIndex = -1
+            if (lineIndex == lastLyricsLineIndex) return
+            currentLine = currentSong.title
+            nextLine = currentSong.displayArtistName()
+        }
+
+        lastLyricsLineIndex = lineIndex
+
+        withContext(Main) {
+            val currentItem = player.currentMediaItem
+            if (currentItem != null && isLyricsMetadataEnabled) {
+                val updatedMetadata = currentItem.mediaMetadata.buildUpon()
+                    .setTitle(currentLine)
+                    .setArtist(nextLine)
+                    .setSubtitle(nextLine) // Some cars use subtitle instead of artist
+                    .build()
+                val updatedItem = currentItem.buildUpon()
+                    .setMediaMetadata(updatedMetadata)
+                    .build()
+                
+                // Use a more direct way to update if possible, but replaceMediaItem is standard
+                if (player.currentMediaItemIndex != C.INDEX_UNSET) {
+                    player.exoPlayer.replaceMediaItem(player.currentMediaItemIndex, updatedItem)
+                }
+            }
+        }
+    }
+
+    private fun restoreOriginalMetadata() {
+        serviceScope.launch {
+            val currentItem = player.currentMediaItem
+            val currentSong = player.currentSong
+            if (currentItem != null && currentSong != Song.emptySong) {
+                val updatedMetadata = currentItem.mediaMetadata.buildUpon()
+                    .setTitle(currentSong.title)
+                    .setArtist(currentSong.displayArtistName())
+                    .build()
+                val updatedItem = currentItem.buildUpon()
+                    .setMediaMetadata(updatedMetadata)
+                    .build()
+                withContext(Main) {
+                    player.exoPlayer.replaceMediaItem(player.currentMediaItemIndex, updatedItem)
+                }
+            }
+        }
+    }
+
+    private fun findLineIndexAt(position: Long, lyrics: com.mardous.booming.data.model.lyrics.SyncedLyrics): Int {
+        if (position < 0) return -1
+        val lines = lyrics.lines
+        for (i in lines.lastIndex downTo 0) {
+            if (position >= lines[i].start) {
+                return i
+            }
+        }
+        return -1
+    }
+
     private var bluetoothConnectedRegistered = false
     private val bluetoothConnectedIntentFilter = IntentFilter().apply {
         addAction(BluetoothA2dp.ACTION_CONNECTION_STATE_CHANGED)
@@ -1225,8 +1480,11 @@ class PlaybackService :
                         BluetoothA2dp.STATE_CONNECTED -> if (Preferences.isResumeOnConnect(true)) {
                             player.play()
                         }
-                        BluetoothA2dp.STATE_DISCONNECTED -> if (Preferences.isPauseOnDisconnect(true)) {
-                            player.pause()
+                        BluetoothA2dp.STATE_DISCONNECTED -> {
+                            statsFlusher.setEndReason("bluetooth_disconnect")
+                            if (Preferences.isPauseOnDisconnect(true)) {
+                                player.pause()
+                            }
                         }
                     }
                 }
@@ -1234,10 +1492,12 @@ class PlaybackService :
                     if (context.isBluetoothA2dpConnected() && Preferences.isResumeOnConnect(true)) {
                         player.play()
                     }
-                BluetoothDevice.ACTION_ACL_DISCONNECTED ->
+                BluetoothDevice.ACTION_ACL_DISCONNECTED -> {
+                    statsFlusher.setEndReason("bluetooth_disconnect")
                     if (context.isBluetoothA2dpDisconnected() && Preferences.isPauseOnDisconnect(true)) {
                         player.pause()
                     }
+                }
             }
         }
     }
@@ -1285,11 +1545,9 @@ class PlaybackService :
 
 private fun transitionReasonToString(reason: Int): String {
     return when (reason) {
-        Player.MEDIA_ITEM_TRANSITION_REASON_AUDIO_FOCUS -> "audio_focus"
         Player.MEDIA_ITEM_TRANSITION_REASON_SEEK -> "seek"
         Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT -> "repeat"
         Player.MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED -> "playlist_changed"
-        Player.MEDIA_ITEM_TRANSITION_REASON_ADAPTIVE -> "adaptive"
         else -> "track_finished"
     }
 }

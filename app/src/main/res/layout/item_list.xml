@@ -20,7 +20,7 @@
         android:layout_height="@dimen/list_item_image_size"
         android:layout_gravity="center_vertical"
         android:scaleType="centerCrop"
-        app:shapeAppearanceOverlay="?shapeAppearanceCornerSmall"
+        app:shapeAppearanceOverlay="?shapeAppearanceCornerMedium"
         tools:src="@tools:sample/avatars"/>
 
     <LinearLayout

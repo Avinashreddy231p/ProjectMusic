@@ -7,6 +7,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/globalBackgroundView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -25,7 +31,6 @@
             android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="?attr/colorSurface"
             app:defaultNavHost="true"
             tools:layout="@layout/fragment_home" />
     </LinearLayout>
@@ -37,6 +42,8 @@
         android:layout_height="match_parent"
         app:behavior_hideable="true"
         app:behavior_peekHeight="@dimen/mini_player_height"
+        android:background="@null"
+        app:elevation="0dp"
         app:enableEdgeToEdge="true"
         app:gestureInsetBottomIgnored="true"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
@@ -44,7 +51,9 @@
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/player_container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"/>
+
 
         <fragment
             android:id="@+id/mini_player_container"

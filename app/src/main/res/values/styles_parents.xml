@@ -2,8 +2,11 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="Base.Theme.Booming" parent="Theme.Material3Expressive.Dark.NoActionBar">
-        <item name="colorPrimary">@color/md_theme_primary</item>
-        <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
+        <item name="colorPrimary">?attr/eraPrimary</item>
+        <item name="colorOnPrimary">?attr/eraOnPrimary</item>
+        <item name="shapeAppearanceSmallComponent">?attr/eraShapeSmall</item>
+        <item name="shapeAppearanceMediumComponent">?attr/eraShapeMedium</item>
+        <item name="shapeAppearanceLargeComponent">?attr/eraShapeLarge</item>
         <item name="colorPrimaryContainer">@color/md_theme_primaryContainer</item>
         <item name="colorOnPrimaryContainer">@color/md_theme_onPrimaryContainer</item>
         <item name="colorSecondary">@color/md_theme_secondary</item>
@@ -219,7 +222,8 @@
              - Notification icon badge tinting
              - Overview “now playing” icon tinting
          -->
-        <item name="colorPrimaryDark">#0C222F</item>
+        <item name="colorPrimary">#4D5C92</item>
+        <item name="colorPrimaryDark">#1A1C2E</item>
 
         <!-- colorSecondary is used in Android Auto for:
              - Spinner

@@ -87,7 +87,7 @@ class GenreDetailFragment : AbsMainActivityFragment(R.layout.fragment_detail_lis
 
     private fun setupButtons() {
         binding.playAction.setOnClickListener {
-            playerViewModel.openQueue(songAdapter.dataSet, shuffleMode = OpenShuffleMode.Off)
+            playerViewModel.openQueue(songAdapter.dataSet, shuffleMode = OpenShuffleMode.Off, queueSource = "genre")
         }
         binding.shuffleAction.setOnClickListener {
             playerViewModel.openAndShuffleQueue(songAdapter.dataSet)

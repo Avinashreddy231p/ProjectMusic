@@ -71,4 +71,10 @@
     <color name="md_theme_surfaceContainer">#EFEDF4</color>
     <color name="md_theme_surfaceContainerHigh">#E9E7EF</color>
     <color name="md_theme_surfaceContainerHighest">#E3E1E9</color>
+
+    <color name="spotifyGreen">#1DB954</color>
+    <color name="spotifyBlack">#121212</color>
+    <color name="spotifyDarkGrey">#191414</color>
+    <color name="spotifyGrey">#282828</color>
+    <color name="spotifyLightGrey">#B3B3B3</color>
 </resources>

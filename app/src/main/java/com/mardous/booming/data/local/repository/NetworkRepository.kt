@@ -53,6 +53,8 @@ interface NetworkRepository {
     suspend fun deezerTrack(artist: String, title: String): DeezerTrack?
     suspend fun deezerArtist(name: String, limit: Int, index: Int): DeezerArtist?
     suspend fun deezerAlbum(artist: String, name: String): DeezerAlbum?
+    suspend fun syncLastFmFavorite(song: Song, isFavorite: Boolean): Boolean
+    suspend fun triggerOfflineScrobbleSync()
 }
 
 class NetworkRepositoryImpl(
@@ -60,7 +62,8 @@ class NetworkRepositoryImpl(
     private val preferences: SharedPreferences,
     private val lastFmService: LastFmService,
     private val listenBrainzService: ListenBrainzService,
-    private val deezerService: DeezerService
+    private val deezerService: DeezerService,
+    private val pendingScrobbleDao: com.mardous.booming.data.local.room.PendingScrobbleDao
 ) : NetworkRepository {
 
     private val lastFmLoginStateFlow = MutableStateFlow<LoginState>(LoginState.Empty)
@@ -270,6 +273,8 @@ class NetworkRepositoryImpl(
                     val scrobbleData = response.scrobbles.scrobble.firstOrNull()
                     val ignoredMessage = scrobbleData?.ignoredMessage
                     if (response.scrobbles.attr.accepted > 0 && ignoredMessage?.code == "0") {
+                        // Success, try to sync any pending ones
+                        syncPendingScrobbles(sessionInfo.key)
                         ScrobblingResult.Success(song.id)
                     } else {
                         ScrobblingResult.Failure(ignoredMessage?.text)
@@ -288,7 +293,55 @@ class NetworkRepositoryImpl(
             return result
         } catch (e: Exception) {
             Log.e(TAG, "Last.fm: scrobble call failed!", e)
+            if (com.mardous.booming.util.Preferences.lastfmOfflineScrobbling) {
+                pendingScrobbleDao.insert(
+                    com.mardous.booming.data.local.room.PendingScrobbleEntity(
+                        artist = song.displayArtistName(),
+                        track = song.title,
+                        album = song.albumName,
+                        timestamp = timestamp
+                    )
+                )
+                return ScrobblingResult.Failure(context.getString(R.string.lastfm_offline_scrobble_summary))
+            }
             return ScrobblingResult.Failure()
+        }
+    }
+
+    override suspend fun triggerOfflineScrobbleSync() {
+        val sessionInfo = getLastFmSessionInfoOrLogout() ?: return
+        syncPendingScrobbles(sessionInfo.key)
+    }
+
+    private suspend fun syncPendingScrobbles(sk: String) {
+        if (!com.mardous.booming.util.Preferences.lastfmOfflineScrobbling) return
+        try {
+            val pending = pendingScrobbleDao.getAll()
+            if (pending.isEmpty()) return
+            
+            var totalAccepted = 0
+            
+            // Last.fm supports up to 50 scrobbles per batch
+            pending.chunked(50).forEach { batch ->
+                val response = lastFmService.scrobbleBatch(batch, sk)
+                if (response is com.mardous.booming.data.remote.lastfm.model.ScrobbleResponse) {
+                    val accepted = response.scrobbles.attr.accepted
+                    if (accepted > 0) {
+                        pendingScrobbleDao.deleteByIds(batch.map { it.id })
+                        totalAccepted += accepted
+                    }
+                }
+            }
+            if (totalAccepted > 0) {
+                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                    android.widget.Toast.makeText(context, "Successfully synced $totalAccepted offline scrobbles to Last.fm", android.widget.Toast.LENGTH_SHORT).show()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Last.fm: Failed to sync offline scrobbles", e)
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                android.widget.Toast.makeText(context, "Failed to sync offline scrobbles to Last.fm", android.widget.Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -531,6 +584,24 @@ class NetworkRepositoryImpl(
             }
         }
         return null
+    }
+
+    override suspend fun syncLastFmFavorite(song: Song, isFavorite: Boolean): Boolean {
+        val sessionInfo = getLastFmSessionInfo() ?: return false
+        return try {
+            val artist = song.displayArtistName()
+            val track = song.title
+            val sk = sessionInfo.key
+            if (isFavorite) {
+                lastFmService.loveTrack(artist, track, sk)
+            } else {
+                lastFmService.unloveTrack(artist, track, sk)
+            }
+            true
+        } catch (e: Exception) {
+            Log.e(TAG, "Last.fm: sync favorite failed!", e)
+            false
+        }
     }
 
     @Serializable

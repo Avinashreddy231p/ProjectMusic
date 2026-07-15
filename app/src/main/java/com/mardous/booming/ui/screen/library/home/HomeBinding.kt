@@ -17,6 +17,9 @@
 
 package com.mardous.booming.ui.screen.library.home
 
+import com.google.android.material.card.MaterialCardView
+import com.google.android.material.textview.MaterialTextView
+import com.mardous.booming.R
 import com.mardous.booming.databinding.FragmentHomeBinding
 
 class HomeBinding(homeBinding: FragmentHomeBinding) {
@@ -31,4 +34,11 @@ class HomeBinding(homeBinding: FragmentHomeBinding) {
     val recyclerView = homeBinding.homeContent.recyclerView
     val progressIndicator = homeBinding.homeContent.progressIndicator
     val empty = homeBinding.homeContent.empty
+    val spotifyHomeChips = homeBinding.homeContent.spotifyHomeChips
+
+    val statsCard: MaterialCardView = root.findViewById(R.id.stats_card)
+    val statsTime: MaterialTextView = root.findViewById(R.id.stats_time)
+    val statsPlays: MaterialTextView = root.findViewById(R.id.stats_plays)
+    val statsSongs: MaterialTextView = root.findViewById(R.id.stats_songs)
+    val statsArtists: MaterialTextView = root.findViewById(R.id.stats_artists)
 }

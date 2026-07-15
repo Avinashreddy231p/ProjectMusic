@@ -45,6 +45,8 @@ interface SmartRepository {
     suspend fun recentSongs(query: String, contentType: ContentType): List<Song>
     suspend fun recentAlbums(): List<Album>
     suspend fun recentAlbumArtists(): List<Artist>
+    suspend fun historyAlbums(): List<Album>
+    suspend fun historyAlbumArtists(): List<Artist>
     suspend fun notRecentlyPlayedSongs(): List<Song>
     suspend fun playCountSongs(): List<Song>
     fun playCountSongsFlow(): Flow<List<Song>>
@@ -89,6 +91,12 @@ class RealSmartRepository(
 
     override suspend fun recentAlbumArtists(): List<Artist> =
         artistRepository.splitIntoAlbumArtists(recentAlbums())
+
+    override suspend fun historyAlbums(): List<Album> =
+        albumRepository.splitIntoAlbums(historySongs(), sorted = false)
+
+    override suspend fun historyAlbumArtists(): List<Artist> =
+        artistRepository.splitIntoAlbumArtists(historyAlbums())
 
     override suspend fun notRecentlyPlayedSongs(): List<Song> {
         return buildList {

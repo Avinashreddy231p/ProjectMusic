@@ -73,6 +73,21 @@ import com.mardous.booming.ui.screen.lyrics.LyricsViewModel
 import com.mardous.booming.ui.screen.update.UpdateSearchResult
 import com.mardous.booming.ui.screen.update.UpdateViewModel
 import com.mardous.booming.util.ADD_EXTRA_CONTROLS
+import com.mardous.booming.util.ACCENT_COLOR
+import com.mardous.booming.util.LYRICS_ACCENT_COLOR
+import com.mardous.booming.util.ERA_PRIMARY_SEED
+import com.mardous.booming.util.ERA_SECONDARY_SEED
+import com.mardous.booming.util.ERA_TERTIARY_SEED
+import com.mardous.booming.util.ERA_ERROR_SEED
+import com.mardous.booming.util.ERA_ASYMMETRIC_SHAPES
+import com.mardous.booming.util.ERA_CONTRAST
+import com.mardous.booming.util.ERA_HARMONY_MODE
+import com.mardous.booming.util.ERA_MOTION_INTENSITY
+import com.mardous.booming.util.ERA_SHAPE_FAMILY
+import com.mardous.booming.util.ERA_SHAPE_SCALE
+import com.mardous.booming.util.ERA_SURFACE_MATERIAL
+import com.mardous.booming.util.ERA_TYPE_SCALE
+import com.mardous.booming.ui.component.preferences.dialog.AccentColorPreferenceDialog
 import com.mardous.booming.util.BACKUP_DATA
 import com.mardous.booming.util.BLACKLIST_ENABLED
 import com.mardous.booming.util.BLACK_THEME
@@ -87,6 +102,7 @@ import com.mardous.booming.util.ENABLE_ROTATION_LOCK
 import com.mardous.booming.util.GENERAL_THEME
 import com.mardous.booming.util.IGNORE_MEDIA_STORE
 import com.mardous.booming.util.LANGUAGE_NAME
+import com.mardous.booming.util.UI_THEME
 import com.mardous.booming.util.LASTFM_LOGIN
 import com.mardous.booming.util.LAST_ADDED_CUTOFF
 import com.mardous.booming.util.LIBRARY_CATEGORIES
@@ -105,6 +121,9 @@ import com.mardous.booming.util.USE_FOLDER_ART
 import com.mardous.booming.util.WHITELIST_ENABLED
 import com.mardous.booming.util.WIDGET_IMAGE_CORNER_RADIUS
 import com.mardous.booming.util.WIDGET_THIRD_LINE_CONTENT
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -117,6 +136,13 @@ class AppearancePreferencesFragment : PreferenceScreenFragment() {
         addPreferencesFromResource(R.xml.preferences_screen_appearance)
     }
 }
+
+class SwipeActionsPreferencesFragment : PreferenceScreenFragment() {
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        addPreferencesFromResource(R.xml.preferences_screen_swipe_actions)
+    }
+}
+
 
 class NowPlayingPreferencesFragment : PreferenceScreenFragment() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -145,6 +171,10 @@ class LibraryPreferencesFragment : PreferenceScreenFragment() {
 class NetworkPreferencesFragment : PreferenceScreenFragment() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.preferences_screen_network)
+        findPreference<androidx.preference.Preference>("manage_pending_scrobbles")?.setOnPreferenceClickListener {
+            findNavController().navigate(R.id.action_to_pendingScrobbles)
+            true
+        }
     }
 }
 
@@ -223,6 +253,13 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
         setDivider(Color.TRANSPARENT.toDrawable())
         materialSharedAxis(view)
         preparePreferences()
+
+        arguments?.getString("highlightKey")?.let { key ->
+            arguments?.remove("highlightKey")
+            view.postDelayed({
+                scrollToPreference(key)
+            }, 100)
+        }
     }
 
     fun preparePreferences() {
@@ -261,6 +298,11 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
         }
 
         findPreference<Preference>(USE_CUSTOM_FONT)?.setOnPreferenceChangeListener { _, _ ->
+            requireActivity().recreate()
+            true
+        }
+
+        findPreference<Preference>(UI_THEME)?.setOnPreferenceChangeListener { _, _ ->
             requireActivity().recreate()
             true
         }
@@ -396,6 +438,25 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
         }
 
         onUpdateNowPlayingScreen()
+
+        // New Era Customization Listeners
+        val eraKeys = arrayOf(
+            ERA_HARMONY_MODE,
+            ERA_SHAPE_FAMILY,
+            ERA_SHAPE_SCALE,
+            ERA_ASYMMETRIC_SHAPES,
+            ERA_TYPE_SCALE,
+            ERA_CONTRAST,
+            ERA_SURFACE_MATERIAL,
+            ERA_MOTION_INTENSITY
+        )
+        eraKeys.forEach { key ->
+            findPreference<Preference>(key)?.setOnPreferenceChangeListener { _, _ ->
+                restartActivity()
+                true
+            }
+        }
+
         onUpdateCoverActions()
         onUpdateLyricsPreferences()
         onUpdateQueuePreferences()
@@ -409,6 +470,12 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
             dialogFragment.show(parentFragmentManager, "androidx.preference.PreferenceFragment.DIALOG")
         } else {
             val dialogFragment: DialogFragment? = when (preference.key) {
+                ACCENT_COLOR,
+                LYRICS_ACCENT_COLOR,
+                ERA_PRIMARY_SEED,
+                ERA_SECONDARY_SEED,
+                ERA_TERTIARY_SEED,
+                ERA_ERROR_SEED -> AccentColorPreferenceDialog.newInstance(preference.key)
                 LIBRARY_CATEGORIES -> CategoriesPreferenceDialog()
                 NOW_PLAYING_SCREEN -> NowPlayingScreenPreferenceDialog()
                 NOW_PLAYING_EXTRA_INFO -> ExtraInfoPreferenceDialog.nowPlaying(requireContext())
@@ -422,7 +489,13 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
                 COVER_RIGHT_DOUBLE_TAP_ACTION -> ActionOnCoverPreferenceDialog.newInstance(preference.key)
                 LASTFM_LOGIN -> ScrobblingServiceLoginFragment.create(ScrobblingService.Lastfm)
                 LISTENBRAINZ_LOGIN -> ScrobblingServiceLoginFragment.create(ScrobblingService.ListenBrainz)
-                else -> null
+                else -> {
+                    if (preference.key.startsWith("swipe_action_")) {
+                        com.mardous.booming.ui.component.preferences.dialog.SwipeActionPreferenceDialog.newInstance(preference.key)
+                    } else {
+                        null
+                    }
+                }
             }
             if (dialogFragment != null) {
                 dialogFragment.show(childFragmentManager, "androidx.preference.PreferenceFragment.DIALOG")

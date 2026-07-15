@@ -138,8 +138,10 @@ class DetailListFragment : AbsMainActivityFragment(R.layout.fragment_detail_list
         when (contentType) {
             ContentType.TopArtists -> loadArtists(ContentType.TopArtists)
             ContentType.RecentArtists -> loadArtists(ContentType.RecentArtists)
+            ContentType.HistoryArtists -> loadArtists(ContentType.HistoryArtists)
             ContentType.TopAlbums -> loadAlbums(ContentType.TopAlbums)
             ContentType.RecentAlbums -> loadAlbums(ContentType.RecentAlbums)
+            ContentType.HistoryAlbums -> loadAlbums(ContentType.HistoryAlbums)
             ContentType.TopTracks -> topPlayed()
             ContentType.History -> loadHistory()
             ContentType.RecentSongs -> lastAddedSongs()

@@ -168,6 +168,14 @@
         app:title="@string/visuals_header"
         app:layout="@layout/preference_category_title">
 
+        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+            app:icon="@drawable/ic_palette_24dp"
+            app:title="@string/lyrics_accent_color_title"
+            app:summary="@string/lyrics_accent_color_summary"
+            app:layout="@layout/list_item_view"
+            app:persistent="false"
+            app:key="lyrics_accent_color"/>
+
         <ListPreference
             app:iconSpaceReserved="true"
             app:title="@string/lyrics_background_effect_title"
@@ -221,6 +229,21 @@
             app:persistent="false"
             app:selectable="false"
             app:layout="@layout/list_item_view"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:title="@string/aa_lyrics_settings_title"
+        app:layout="@layout/preference_category_title">
+
+        <SwitchPreferenceCompat
+            app:icon="@drawable/ic_lyrics_24dp"
+            app:title="@string/aa_metadata_lyrics_title"
+            app:summary="@string/aa_metadata_lyrics_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="aa_metadata_lyrics" />
 
     </PreferenceCategory>
 

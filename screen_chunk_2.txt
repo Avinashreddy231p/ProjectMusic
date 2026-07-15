@@ -1,0 +1,208 @@
+Created At: 2026-07-11T20:33:50Z
+Completed At: 2026-07-11T20:33:50Z
+File Path: `file:///c:/Users/Avina/Downloads/BoomingMusic-master/BoomingMusic-master/app/src/main/java/com/mardous/booming/ui/screen/librarystats/LibraryStatsScreen.kt`
+Total Lines: 613
+Total Bytes: 25358
+Showing lines 1 to 200
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1: package com.mardous.booming.ui.screen.librarystats
+2: 
+3: import android.text.format.Formatter
+4: import androidx.compose.foundation.Canvas
+5: import androidx.compose.foundation.ExperimentalFoundationApi
+6: import androidx.compose.foundation.background
+7: import androidx.compose.foundation.clickable
+8: import androidx.compose.foundation.gestures.detectTapGestures
+9: import androidx.compose.foundation.horizontalScroll
+10: import androidx.compose.foundation.layout.*
+11: import androidx.compose.foundation.lazy.LazyColumn
+12: import androidx.compose.foundation.lazy.itemsIndexed
+13: import androidx.compose.foundation.pager.HorizontalPager
+14: import androidx.compose.foundation.pager.rememberPagerState
+15: import androidx.compose.foundation.rememberScrollState
+16: import androidx.compose.foundation.shape.CircleShape
+17: import androidx.compose.foundation.shape.RoundedCornerShape
+18: import androidx.compose.ui.geometry.Offset
+19: import androidx.compose.ui.geometry.Size
+20: import androidx.compose.ui.graphics.Color
+21: import androidx.compose.ui.graphics.toArgb
+22: import androidx.compose.ui.graphics.StrokeCap
+23: import androidx.compose.ui.graphics.drawscope.Stroke
+24: import androidx.compose.ui.input.pointer.pointerInput
+25: import kotlin.math.atan2
+26: import androidx.compose.ui.viewinterop.AndroidView
+27: import androidx.fragment.app.FragmentActivity
+28: import androidx.recyclerview.widget.LinearLayoutManager
+29: import androidx.recyclerview.widget.RecyclerView
+30: import com.mardous.booming.ui.ISongCallback
+31: import com.mardous.booming.ui.adapters.song.SongAdapter
+32: import androidx.compose.material3.*
+33: import androidx.compose.runtime.*
+34: import androidx.compose.ui.Alignment
+35: import androidx.compose.ui.Modifier
+36: import androidx.compose.ui.draw.clip
+37: import androidx.compose.ui.platform.LocalContext
+38: import androidx.compose.ui.res.painterResource
+39: import androidx.compose.ui.text.font.FontWeight
+40: import androidx.compose.ui.text.style.TextAlign
+41: import androidx.compose.ui.text.style.TextOverflow
+42: import androidx.compose.ui.unit.dp
+43: import com.mardous.booming.R
+44: import com.mardous.booming.data.model.Song
+45: import com.mardous.booming.ui.component.compose.CollapsibleAppBarScaffold
+46: import com.mardous.booming.ui.screen.stats.StatsViewModel
+47: import kotlinx.coroutines.launch
+48: 
+49: @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+50: @Composable
+51: fun LibraryStatsScreen(
+52:     viewModel: LibraryStatsViewModel,
+53:     onBackClick: () -> Unit,
+54:     songCallback: ISongCallback,
+55:     activity: FragmentActivity
+56: ) {
+57:     val uiState by viewModel.uiState.collectAsState()
+58: 
+59:     if (uiState.selectedDistributionType == DistributionType.NONE) {
+60:         CollapsibleAppBarScaffold(
+61:             title = "Library Stats",
+62:             onBackClick = onBackClick,
+63:             actions = {}
+64:         ) { padding ->
+65:             if (uiState.isLoading) {
+66:                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+67:                     CircularProgressIndicator()
+68:                 }
+69:             } else {
+70:                 LibraryStatsMainView(
+71:                     uiState = uiState,
+72:                     modifier = Modifier.padding(padding),
+73:                     onDistributionClick = { type, index ->
+74:                         viewModel.selectDistribution(type, index)
+75:                     }
+76:                 )
+77:             }
+78:         }
+79:     } else {
+80:         LibraryStatsDetailView(
+81:             uiState = uiState,
+82:             onBackClick = { viewModel.clearSelection() },
+83:             onPageChange = { type, index ->
+84:                 viewModel.selectDistribution(type, index)
+85:             },
+86:             songCallback = songCallback,
+87:             activity = activity
+88:         )
+89:     }
+90: }
+91: 
+92: enum class MainTab(val label: String) {
+93:     OVERVIEW("Overview"),
+94:     METADATA("Metadata"),
+95:     TECHNICAL("Technical")
+96: }
+97: 
+98: @OptIn(ExperimentalFoundationApi::class)
+99: @Composable
+100: fun LibraryStatsMainView(
+101:     uiState: LibraryStatsUiState,
+102:     modifier: Modifier = Modifier,
+103:     onDistributionClick: (DistributionType, Int) -> Unit
+104: ) {
+105:     val pagerState = rememberPagerState(pageCount = { MainTab.entries.size })
+106:     val coroutineScope = rememberCoroutineScope()
+107:     
+108:     Column(modifier = modifier.fillMaxSize()) {
+109:         ScrollablePillTabRow(
+110:             tabs = MainTab.entries.map { it.label },
+111:             selectedIndex = pagerState.currentPage,
+112:             onSelect = { index ->
+113:                 coroutineScope.launch { pagerState.animateScrollToPage(index) }
+114:             }
+115:         )
+116:         
+117:         HorizontalPager(state = pagerState, modifier = Modifier.weight(1f)) { page ->
+118:              when (MainTab.entries[page]) {
+119:                  MainTab.OVERVIEW -> OverviewTab(uiState, onDistributionClick)
+120:                  MainTab.METADATA -> MetadataTab(uiState, onDistributionClick)
+121:                  MainTab.TECHNICAL -> TechnicalTab(uiState, onDistributionClick)
+122:              }
+123:         }
+124:     }
+125: }
+126: 
+127: @Composable
+128: fun OverviewTab(uiState: LibraryStatsUiState, onDistributionClick: (DistributionType, Int) -> Unit) {
+129:     val context = LocalContext.current
+130:     LazyColumn(
+131:         modifier = Modifier.fillMaxSize(),
+132:         contentPadding = PaddingValues(bottom = 16.dp),
+133:         verticalArrangement = Arrangement.spacedBy(12.dp)
+134:     ) {
+135:         item {
+136:             Card(
+137:                 modifier = Modifier
+138:                     .fillMaxWidth()
+139:                     .padding(horizontal = 16.dp, vertical = 4.dp),
+140:                 shape = RoundedCornerShape(16.dp),
+141:                 colors = CardDefaults.cardColors(
+142:                     containerColor = MaterialTheme.colorScheme.primaryContainer
+143:                 )
+144:             ) {
+145:                 Column(modifier = Modifier.padding(20.dp)) {
+146:                     Text(
+147:                         text = "Library Overview",
+148:                         style = MaterialTheme.typography.titleMedium,
+149:                         color = MaterialTheme.colorScheme.onPrimaryContainer,
+150:                         fontWeight = FontWeight.SemiBold
+151:                     )
+152:                     Spacer(modifier = Modifier.height(4.dp))
+153:                     Text(
+154:                         text = Formatter.formatFileSize(context, uiState.totalSizeBytes),
+155:                         style = MaterialTheme.typography.displaySmall,
+156:                         color = MaterialTheme.colorScheme.onPrimaryContainer,
+157:                         fontWeight = FontWeight.Bold
+158:                     )
+159:                     Spacer(modifier = Modifier.height(16.dp))
+160:                     Row(
+161:                         modifier = Modifier.fillMaxWidth(),
+162:                         horizontalArrangement = Arrangement.SpaceEvenly
+163:                     ) {
+164:                         HeroStat(value = "${uiState.totalSongs}", label = "Songs")
+165:                         HeroStat(value = "${uiState.totalAlbums}", label = "Albums")
+166:                         HeroStat(value = "${uiState.totalArtists}", label = "Artists")
+167:                     }
+168:                     Spacer(modifier = Modifier.height(12.dp))
+169:                     Text(
+170:                         text = "Total Playtime: ${StatsViewModel.formatDurationProgressive(uiState.totalDurationMs)}",
+171:                         style = MaterialTheme.typography.bodySmall,
+172:                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+173:                     )
+174:                 }
+175:             }
+176:         }
+177: 
+178:         if (uiState.genreDistribution.isNotEmpty()) {
+179:             item { SectionHeader("Genre Distribution") }
+180:             item {
+181:                 InteractiveDonutChart(
+182:                     distributions = uiState.genreDistribution.take(10),
+183:                     type = DistributionType.GENRE,
+184:                     onSliceClick = onDistributionClick
+185:                 )
+186:             }
+187:         }
+188:         
+189:         if (uiState.dateAddedDistribution.isNotEmpty()) {
+190:             item { SectionHeader("Date Added") }
+191:             item {
+192:                 InteractiveDonutChart(
+193:                     distributions = uiState.dateAddedDistribution,
+194:                     type = DistributionType.DATE_ADDED,
+195:                     onSliceClick = onDistributionClick
+196:                 )
+197:             }
+198:         }
+199: 
+200:         if (uiState.unplayedDistribution.isNotEmpty()) {
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.

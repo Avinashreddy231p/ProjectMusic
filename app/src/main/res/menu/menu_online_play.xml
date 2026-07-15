@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_quality"
+        android:icon="@drawable/ic_music_note_24dp"
+        android:title="@string/stream_quality"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_settings"
+        android:icon="@drawable/ic_settings_24dp"
+        android:title="@string/api_settings"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_downloads"
+        android:icon="@drawable/ic_download_24dp"
+        android:title="@string/downloads"
+        app:showAsAction="ifRoom"/>
+
+</menu>

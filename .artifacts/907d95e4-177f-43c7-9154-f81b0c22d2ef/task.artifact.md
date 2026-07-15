@@ -1,0 +1,4 @@
+- `[x]` Enhance `ensureContrastAgainst` in `ColorExt.kt`
+- `[x]` Update `LyricsSurface` in `LyricsScreen.kt` to enforce high contrast
+- `[x]` Implement contrast safety pass in `EraThemeEngine.kt`
+- `[ ]` Verify contrast adjustments across themes and background effects

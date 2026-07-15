@@ -68,6 +68,13 @@ class AudioOutputObserver(private val context: Context) : BroadcastReceiver() {
     private var userEnabledBitPerfect = false
     private var activeSampleRate: Int = -1
     private var activeChannelCount: Int = -1
+    private var activeBitrate: Int = 0
+    private var activeFormat: String = ""
+
+    val currentSampleRate: Int get() = activeSampleRate
+    val currentChannelCount: Int get() = activeChannelCount
+    val currentBitrate: Int get() = activeBitrate
+    val currentFormat: String get() = activeFormat
 
     init {
         requestVolume()
@@ -148,11 +155,18 @@ class AudioOutputObserver(private val context: Context) : BroadcastReceiver() {
         }
     }
 
-    fun updatePlaybackFormat(sampleRate: Int, channelCount: Int) {
-        if (activeSampleRate != sampleRate || activeChannelCount != channelCount) {
-            activeSampleRate = sampleRate
-            activeChannelCount = channelCount
-            if (userEnabledBitPerfect) {
+    fun updatePlaybackFormat(
+        sampleRate: Int,
+        channelCount: Int,
+        bitrate: Int = 0,
+        format: String = ""
+    ) {
+        activeSampleRate = sampleRate
+        activeChannelCount = channelCount
+        activeBitrate = bitrate
+        activeFormat = format
+        if (userEnabledBitPerfect) {
+            if (activeSampleRate > 0 && activeChannelCount > 0) {
                 checkAndConfigureBitPerfect()
             }
         }

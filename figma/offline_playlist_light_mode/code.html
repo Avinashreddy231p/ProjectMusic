@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Midnight Melodies | Premium Offline Player</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Playfair+Display:ital,wght@0,700;1,700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed-dim": "#ffb3b3",
+                    "on-tertiary-container": "#730a1b",
+                    "on-secondary-fixed": "#1c1b1b",
+                    "background": "#f8f9fa",
+                    "primary-fixed": "#72fe8f",
+                    "surface-container-highest": "#e9ecef",
+                    "secondary": "#495057",
+                    "outline-variant": "#dee2e6",
+                    "on-secondary-container": "#343a40",
+                    "on-secondary": "#ffffff",
+                    "surface-container-low": "#ffffff",
+                    "on-tertiary-fixed-variant": "#881d28",
+                    "on-surface-variant": "#495057",
+                    "on-error": "#ffffff",
+                    "outline": "#adb5bd",
+                    "surface-container-lowest": "#ffffff",
+                    "on-background": "#1a1a1a",
+                    "secondary-fixed": "#f1f3f5",
+                    "surface-container-high": "#f1f3f5",
+                    "inverse-on-surface": "#f8f9fa",
+                    "surface-tint": "#f97316",
+                    "inverse-surface": "#1a1a1a",
+                    "surface-variant": "#f1f3f5",
+                    "on-tertiary": "#ffffff",
+                    "surface-dim": "#e9ecef",
+                    "primary-fixed-dim": "#f97316",
+                    "secondary-container": "#e9ecef",
+                    "on-primary-fixed-variant": "#7c2d12",
+                    "inverse-primary": "#f97316",
+                    "on-surface": "#1a1a1a",
+                    "surface-container": "#f1f3f5",
+                    "tertiary-container": "#ffedd5",
+                    "surface-bright": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "on-secondary-fixed-variant": "#212529",
+                    "error": "#dc3545",
+                    "on-tertiary-fixed": "#400009",
+                    "error-container": "#f8d7da",
+                    "primary-container": "#ffedd5",
+                    "primary": "#f97316",
+                    "tertiary-fixed": "#ffdad9",
+                    "on-primary-fixed": "#431407",
+                    "on-primary-container": "#431407",
+                    "on-primary": "#ffffff",
+                    "tertiary": "#f97316",
+                    "surface": "#f8f9fa",
+                    "secondary-fixed-dim": "#dee2e6"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "16px",
+                    "container-padding-mobile": "16px",
+                    "unit": "8px",
+                    "stack-lg": "24px",
+                    "container-padding-desktop": "32px",
+                    "stack-sm": "8px",
+                    "stack-md": "16px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "display-lg-mobile": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "label-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "serif": ["Playfair Display", "serif"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "display-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "800"}],
+                    "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.04em", "fontWeight": "800"}],
+                    "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #f8f9fa;
+            color: #1a1a1a;
+            -webkit-font-smoothing: antialiased;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .text-glow {
+            text-shadow: 0 0 10px rgba(249, 115, 22, 0.2);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+          min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="font-body-lg">
+<!-- Top App Bar -->
+<header class="flex justify-between items-center w-full px-container-padding-mobile h-16 sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-black/5">
+<div class="flex items-center">
+<span class="text-body-lg font-bold text-on-surface tracking-tight">Midnight Melodies</span>
+</div>
+<button class="hover:opacity-80 transition-opacity active:scale-95 p-2">
+<span class="material-symbols-outlined text-primary">settings</span>
+</button>
+</header>
+<main class="pb-40">
+<!-- Playlist Header Hero -->
+<section class="relative">
+<!-- Large Cover Image -->
+<div class="w-full aspect-square relative">
+<img class="w-full h-full object-cover" data-alt="Premium abstract musical aesthetic cover art with emerald waves and dark glass textures" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUo8hOe0aRxQ3fs59GIWSLKv5eB2npkT_9QbVfV2kFP1JQiTjryajtBwpjlrNhaI89lr4YyDgIXmF2Nh-8ZD-YhV6OeN0q3PTmcqQv0QtnZGn2F7LfE5AP1gtWSqmcpImlMGt4fpZLK0jrJX0rPHowEEPiIRVSVEO1i6nTzwg0z9XSbFzBd_TZPZXKUs1vQFg6CNSb89Lvpr8yHzp1ejhL0WGA-6BBJYDne5tqShLxPxCg2bS6-ZIG"/>
+<div class="absolute inset-0 bg-gradient-to-t from-[#f8f9fa] via-transparent to-transparent"></div>
+</div>
+<!-- Header Content Overlay -->
+<div class="px-container-padding-mobile -mt-24 relative z-10">
+<h1 class="font-serif italic text-[40px] leading-tight text-on-surface mb-4 tracking-tight">Midnight Melodies</h1>
+<!-- Revamped Stats Row -->
+<div class="flex items-center gap-2 mb-8 overflow-x-auto hide-scrollbar -mx-container-padding-mobile px-container-padding-mobile pb-2">
+<div class="flex items-center gap-1.5 px-4 py-2 glass-effect rounded-full shrink-0"><span class="material-symbols-outlined text-[18px] text-primary">schedule</span><span class="text-label-md font-label-md text-on-surface">4h 20m</span></div>
+<div class="flex items-center gap-1.5 px-4 py-2 glass-effect rounded-full shrink-0"><span class="material-symbols-outlined text-[18px] text-primary">play_circle</span><span class="text-label-md font-label-md text-on-surface">86</span></div>
+<div class="flex items-center gap-1.5 px-4 py-2 glass-effect rounded-full shrink-0"><span class="material-symbols-outlined text-[18px] text-primary">trending_up</span><span class="text-label-md font-label-md text-primary">#2 Top</span></div>
+<div class="flex items-center gap-1.5 px-4 py-2 glass-effect rounded-full shrink-0"><span class="material-symbols-outlined text-[18px] text-primary">history</span><span class="text-label-md font-label-md text-on-surface">12h 45m</span></div>
+<div class="flex items-center gap-1.5 px-4 py-2 glass-effect rounded-full shrink-0"><span class="material-symbols-outlined text-[18px] text-primary">library_music</span><span class="text-label-md font-label-md text-on-surface">42 songs</span></div>
+</div>
+<!-- Primary Actions -->
+<div class="flex gap-4 mb-10">
+<button class="flex-1 flex items-center justify-center gap-2 bg-primary text-on-primary py-4 px-6 rounded-full font-bold active:scale-[0.98] transition-all shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+                    Play
+                </button>
+<button class="flex-1 flex items-center justify-center gap-2 bg-surface-container-highest text-on-surface py-4 px-6 rounded-full font-bold active:scale-[0.98] transition-all border border-outline/10">
+<span class="material-symbols-outlined">shuffle</span>
+                    Shuffle
+                </button>
+</div>
+</div>
+</section>
+<!-- Featured Artists -->
+<section class="px-container-padding-mobile mb-10">
+<h2 class="text-headline-sm font-headline-sm text-on-surface mb-6">Featured Artists</h2>
+<div class="flex gap-6 overflow-x-auto hide-scrollbar pb-2">
+<div class="flex flex-col items-center gap-2 shrink-0">
+<div class="w-16 h-16 rounded-full overflow-hidden border border-outline/20">
+<img alt="Julian K." class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJpo6OJsKBGkbuB3f0lEFGcVfQTN5KDvA0pDhdofJzHr-dNivqFxI_e16CKwu7yVZU-8rCpYYPGy2N78IfYPtpu6qff1uhkWzTRHgg8JUJqHVqoBI58BqOGTSxyFT8avsibAW8O-EQZyXKg9g6Ij9wPrHOnafkoABh1DFlQaZru9ge4DryleGk-3bBWmfbpan9uECXuG9qXkc92hJwz472h9xKxnP09vk0XBFpr0djEzM2VLY_3sM8"/>
+</div>
+<span class="text-label-md font-label-md text-on-surface">Julian K.</span>
+</div>
+<div class="flex flex-col items-center gap-2 shrink-0">
+<div class="w-16 h-16 rounded-full overflow-hidden border border-outline/20">
+<img alt="Elena Vox" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUQSV6kQYfH5GYjsqu4heqXEk-eksKBqrFUU3XHH9epNGBqhnSKGmgB-QVDT7K-kmYq5h0G4dpi6KTs59KOCudY-NgWVjnlqQUIFudfTiGk6GmmaM0Z_V7f9N2MYqPANY3hLXyuHua2C26NNxqD9LH7aMqIyw4w1L1aSTU16qmOG5GTNSTBLgtW6ytIqetFD0cpfEVIVEW5rwAkFkfKCanbjHaeYbL66GglBbIP4jP8L7ymWcaqi1O"/>
+</div>
+<span class="text-label-md font-label-md text-on-surface">Elena Vox</span>
+</div>
+<div class="flex flex-col items-center gap-2 shrink-0">
+<div class="w-16 h-16 rounded-full overflow-hidden border border-outline/20">
+<img alt="Synth Orbit" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBFKhMbRo303VrkQtKYEXoMRD0K_uGcld3HR2aT-tR-V65x8Np5G3YwRHzhOyUfYjJsolaAioxz5nv-ktEoBrqq8PLBS20IxLu2bV5Jh7OG4gYVWbVBTGVF69ZFwE75HXNuqXI7aOuTcjEKGC5UTDfgMMzekxIuV1GdLUQDWcjRsYXF4WVSim9l6_pIBtKW4cDdTxVUXlGTkgAGKaRr0bdW2_WEChBowt2S86VKneroTWKO7JB53lp"/>
+</div>
+<span class="text-label-md font-label-md text-on-surface">Synth Orbit</span>
+</div>
+</div>
+</section>
+<!-- Track List: The Journey -->
+<section class="px-container-padding-mobile mb-10">
+<div class="flex justify-between items-center mb-6">
+<h2 class="text-headline-md font-headline-md text-on-surface">The Journey</h2>
+<span class="text-label-sm font-label-sm text-primary uppercase tracking-widest bg-primary/10 px-2 py-0.5 rounded">Manual Order</span>
+</div>
+<div class="space-y-3">
+<!-- Track 1 (Active/Now Playing) -->
+<div class="flex items-center gap-4 p-3 rounded-xl bg-white border border-primary/20 shadow-sm transition-all active:scale-[0.98]">
+<div class="w-14 h-14 rounded-lg overflow-hidden relative group shrink-0">
+<img class="w-full h-full object-cover" data-alt="Neon Horizon album art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUo8hOe0aRxQ3fs59GIWSLKv5eB2npkT_9QbVfV2kFP1JQiTjryajtBwpjlrNhaI89lr4YyDgIXmF2Nh-8ZD-YhV6OeN0q3PTmcqQv0QtnZGn2F7LfE5AP1gtWSqmcpImlMGt4fpZLK0jrJX0rPHowEEPiIRVSVEO1i6nTzwg0z9XSbFzBd_TZPZXKUs1vQFg6CNSb89Lvpr8yHzp1ejhL0WGA-6BBJYDne5tqShLxPxCg2bS6-ZIG"/>
+<div class="absolute inset-0 bg-primary/10 flex items-center justify-center backdrop-blur-[2px]">
+<div class="flex gap-1 items-end h-4">
+<div class="w-1 bg-primary animate-[bounce_1s_infinite]"></div>
+<div class="w-1 bg-primary animate-[bounce_0.6s_infinite] h-full"></div>
+<div class="w-1 bg-primary animate-[bounce_0.8s_infinite] h-2/3"></div>
+</div>
+</div>
+</div>
+<div class="flex-1 flex flex-col justify-center min-w-0">
+<h4 class="text-body-lg font-bold text-primary truncate">Neon Horizon</h4>
+<p class="text-body-sm text-on-surface-variant truncate">Julian K. • 4:12</p>
+</div>
+<button class="p-2 text-on-surface-variant">
+<span class="material-symbols-outlined">drag_handle</span>
+</button>
+</div>
+<!-- Track 2 -->
+<div class="flex items-center gap-4 p-3 rounded-xl hover:bg-white transition-all active:scale-[0.98]">
+<div class="w-14 h-14 rounded-lg overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Silent Signal album art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUQSV6kQYfH5GYjsqu4heqXEk-eksKBqrFUU3XHH9epNGBqhnSKGmgB-QVDT7K-kmYq5h0G4dpi6KTs59KOCudY-NgWVjnlqQUIFudfTiGk6GmmaM0Z_V7f9N2MYqPANY3hLXyuHua2C26NNxqD9LH7aMqIyw4w1L1aSTU16qmOG5GTNSTBLgtW6ytIqetFD0cpfEVIVEW5rwAkFkfKCanbjHaeYbL66GglBbIP4jP8L7ymWcaqi1O"/>
+</div>
+<div class="flex-1 flex flex-col justify-center min-w-0">
+<h4 class="text-body-lg font-bold text-on-surface truncate">Silent Signal</h4>
+<p class="text-body-sm text-on-surface-variant truncate">Elena Vox • 3:45</p>
+</div>
+<button class="p-2 text-outline">
+<span class="material-symbols-outlined">drag_handle</span>
+</button>
+</div>
+<!-- Track 3 -->
+<div class="flex items-center gap-4 p-3 rounded-xl hover:bg-white transition-all active:scale-[0.98]">
+<div class="w-14 h-14 rounded-lg overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Aether Flow album art" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBFKhMbRo303VrkQtKYEXoMRD0K_uGcld3HR2aT-tR-V65x8Np5G3YwRHzhOyUfYjJsolaAioxz5nv-ktEoBrqq8PLBS20IxLu2bV5Jh7OG4gYVWbVBTGVF69ZFwE75HXNuqXI7aOuTcjEKGC5UTDfgMMzekxIuV1GdLUQDWcjRsYXF4WVSim9l6_pIBtKW4cDdTxVUXlGTkgAGKaRr0bdW2_WEChBowt2S86VKneroTWKO7JB53lp"/>
+</div>
+<div class="flex-1 flex flex-col justify-center min-w-0">
+<h4 class="text-body-lg font-bold text-on-surface truncate">Aether Flow</h4>
+<p class="text-body-sm text-on-surface-variant truncate">Synth Orbit • 5:20</p>
+</div>
+<button class="p-2 text-outline">
+<span class="material-symbols-outlined">drag_handle</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Associated Albums -->
+<section class="px-container-padding-mobile mb-10">
+<h2 class="text-headline-sm font-headline-sm text-on-surface mb-6">From These Albums</h2>
+<div class="grid grid-cols-2 gap-4">
+<!-- Album 1 -->
+<div class="flex flex-col gap-3 group">
+<div class="aspect-square rounded-lg overflow-hidden relative shadow-sm border border-black/5">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="The Zenith Project" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfaTCIl89Dp4GkeytRVhYS-E-6J3hsdtNmyyNEtWyQjbXhEZiOh7JcAg53tDOpolnOv3OX-Vx-IF7YvlfBgnB1zKPlMV4Ep4S2ic6TvPKiN296IXzoSweHpvIUavVXEVBeMqt3rctJdVzk3sCI3cyvKgqgLgA-O7VRJguLQuDlCPE5zPY-uQMdzrZ9XrSanhANWrc5Q1PXzTfWXhIwxr7JSTPG3AbLiUWPx1WhReMtmOf4pv1Nmsul"/>
+</div>
+<div>
+<h4 class="text-body-lg font-bold text-on-surface leading-snug truncate">The Zenith Project</h4>
+<p class="text-body-sm text-on-surface-variant">Julian K.</p>
+</div>
+</div>
+<!-- Album 2 -->
+<div class="flex flex-col gap-3 group">
+<div class="aspect-square rounded-lg overflow-hidden relative shadow-sm border border-black/5">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Prism Theory" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDe2nSNmld86wWSvIadpS8Lp__pUiISCPhLdqNPjjVBYbDDWvF3rm-PKFarTVJ0QHatM-sEJ8MKbR9RyZorm0wyq3UeWBHhQxF0-y_YRLArwntxReV-QOcPp3mOdpJUVGtqCsuPoN8kivK12udT5AidiCiu8FByyeqGmXFCEY17POmr-6jCq831P5R7xH5hTtLM5vloNM837w3ucggM0mkncqVI5Twz4Egyv_XqmAmNKSr7iO20kxJx"/>
+</div>
+<div>
+<h4 class="text-body-lg font-bold text-on-surface leading-snug truncate">Prism Theory</h4>
+<p class="text-body-sm text-on-surface-variant">Julian K.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Mini-Player -->
+<div class="fixed bottom-[72px] left-4 right-4 z-50">
+<div class="glass-effect rounded-2xl p-3 flex items-center gap-3 shadow-xl shadow-black/5">
+<div class="w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-black/5">
+<img class="w-full h-full object-cover" data-alt="Neon Horizon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdYS5hVHUoqfYGpJ3FEgoNC5BjqnI6t4whlUT2COoWamRe6I1bbjUu38sk6ncIUWAdyAa8Iu2vTNQjs2ULtGb4M65KOMEuSqqnrBmb_DrV-43bfJJGp7EzFsY8_OSRHrfYuuSbafCUUAvmSkCXGYlrKX_tZHb_-o_gwdE3LvqaU6X2HZ2LAVBf3Ud3I_TW6upriP0iw3_r5ofBusPIK03zZ7MSQ0B8quscTk98tPPGLyAsc_OZf2ZF"/>
+</div>
+<div class="flex-1 min-w-0">
+<h5 class="text-body-sm font-bold text-on-surface truncate">Neon Horizon</h5>
+<p class="text-[11px] text-primary font-bold uppercase tracking-widest flex items-center gap-1">
+<span class="w-1 h-1 rounded-full bg-primary animate-pulse"></span>
+                Now Playing
+            </p>
+</div>
+<div class="flex items-center gap-1">
+<button class="p-2 text-on-surface active:scale-90 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">pause</span>
+</button>
+<button class="p-2 text-on-surface active:scale-90 transition-transform">
+<span class="material-symbols-outlined">skip_next</span>
+</button>
+</div>
+</div>
+<!-- Progress Bar -->
+<div class="absolute bottom-0 left-6 right-6 h-[2px] bg-black/5 rounded-full overflow-hidden">
+<div class="h-full bg-primary w-1/3 shadow-[0_0_8px_rgba(249,115,22,0.3)]"></div>
+</div>
+</div>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 px-4 pb-safe bg-white/95 backdrop-blur-sm border-t border-black/5">
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-label-sm font-label-sm">Home</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">search</span>
+<span class="text-label-sm font-label-sm">Search</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">library_music</span>
+<span class="text-label-sm font-label-sm">Library</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">explore</span>
+<span class="text-label-sm font-label-sm">Explore</span>
+</button>
+</nav>
+<script>
+    // Simple scroll behavior for top bar shadow
+    window.addEventListener('scroll', () => {
+        const header = document.querySelector('header');
+        if (window.scrollY > 20) {
+            header.classList.add('shadow-sm');
+        } else {
+            header.classList.remove('shadow-sm');
+        }
+    });
+</script>
+</body></html>

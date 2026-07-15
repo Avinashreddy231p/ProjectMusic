@@ -18,118 +18,194 @@
 package com.mardous.booming.ui.component.compose.decoration
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.withFrameMillis
+import androidx.compose.animation.core.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import kotlin.math.cos
-import kotlin.math.sin
+import androidx.compose.ui.graphics.TileMode
+import kotlin.math.*
 
 @Composable
 fun Modifier.animatedGradient(
     colors: List<Color>,
-    animating: Boolean
+    animating: Boolean,
+    beatPulse: Float = 1f,
+    motionIntensity: Float = 1f,
+    highQuality: Boolean = true
 ): Modifier = composed {
     val time = remember { Animatable(0f) }
 
-    LaunchedEffect(animating) {
-        if (animating) {
-            val period = (2f * Math.PI.toFloat() * 10f)
+    LaunchedEffect(animating, motionIntensity) {
+        if (motionIntensity > 0.01f) {
+            val period = (2f * PI.toFloat() * 10f)
             val speed = period / 120000f
             var lastFrameTime = -1L
 
             while (true) {
-                val frameTime = withFrameMillis { it }
-                if (lastFrameTime != -1L) {
-                    val deltaMillis = frameTime - lastFrameTime
-                    val nextValue = (time.value + (deltaMillis * speed)) % period
-                    time.snapTo(nextValue)
+                val nextValue = withFrameMillis { frameTime ->
+                    var value = time.value
+                    if (lastFrameTime != -1L) {
+                        val deltaMillis = frameTime - lastFrameTime
+                        // Speed based on motion intensity and beat
+                        val speedMultiplier = motionIntensity * (1f + (beatPulse - 1f) * 2f)
+                        value = (time.value + (deltaMillis * speed * speedMultiplier)) % period
+                    }
+                    lastFrameTime = frameTime
+                    value
                 }
-                lastFrameTime = frameTime
+                time.snapTo(nextValue)
             }
         }
     }
 
     val effectiveTime = time.value
-
     val safeSize = colors.size.coerceAtLeast(1)
     val rawBase = colors.getOrNull(0) ?: Color.Transparent
 
     val targetBase = remember(colors, rawBase) {
-        if (rawBase != Color.Transparent) adjustColorForBackground(rawBase) else rawBase
+        if (rawBase != Color.Transparent) adjustColorForBackground(rawBase, lightnessFactor = 0.8f) else rawBase
     }
-    val target1 = remember(colors, safeSize, targetBase) {
-        val c = colors.getOrElse(1 % safeSize) { targetBase }
-        if (c != Color.Transparent) adjustColorForBackground(c) else c
-    }
-    val target2 = remember(colors, safeSize, targetBase) {
-        val c = colors.getOrElse(2 % safeSize) { targetBase }
-        if (c != Color.Transparent) adjustColorForBackground(c) else c
-    }
-    val target3 = remember(colors, safeSize, targetBase) {
-        val c = colors.getOrElse(3 % safeSize) { targetBase }
-        if (c != Color.Transparent) adjustColorForBackground(c) else c
+    
+    // 6 circles for high quality, 3 for high performance
+    val circleCount = if (highQuality) 6 else 3
+    val targetColors = List(circleCount) { i ->
+        val c = colors.getOrElse(i % safeSize) { targetBase }
+        if (c != Color.Transparent) adjustColorForBackground(c, 
+            lightnessFactor = if (i % 2 == 0) 1.1f else 0.9f,
+            saturationFactor = if (i % 3 == 0) 1.2f else 0.8f
+        ) else c
     }
 
     val baseColor by animateColorAsState(targetBase, tween(1500), label = "baseColor")
-    val color1 by animateColorAsState(target1, tween(1500), label = "color1")
-    val color2 by animateColorAsState(target2, tween(1500), label = "color2")
-    val color3 by animateColorAsState(target3, tween(1500), label = "color3")
+    val animatedColors = targetColors.mapIndexed { i, color ->
+        animateColorAsState(color, tween(1500 + i * 100), label = "color$i")
+    }
 
     this.drawBehind {
-        if (baseColor == Color.Transparent && color1 == Color.Transparent && 
-            color2 == Color.Transparent && color3 == Color.Transparent) return@drawBehind
+        if (baseColor == Color.Transparent) return@drawBehind
 
         drawRect(baseColor)
 
-        val x1 = (0.5f + 0.35f * sin(effectiveTime * 0.5f)).coerceIn(0f, 1f)
-        val y1 = (0.5f + 0.35f * cos(effectiveTime * 0.3f)).coerceIn(0f, 1f)
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(color1.copy(alpha = 0.8f), Color.Transparent),
-                center = Offset(x1 * size.width, y1 * size.height),
-                radius = size.minDimension * 0.9f
-            ),
-            center = Offset(x1 * size.width, y1 * size.height),
-            radius = size.minDimension * 0.9f
-        )
-
-        val x2 = (0.5f + 0.4f * cos(effectiveTime * 0.2f)).coerceIn(0f, 1f)
-        val y2 = (0.5f + 0.4f * sin(effectiveTime * 0.4f)).coerceIn(0f, 1f)
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(color2.copy(alpha = 0.7f), Color.Transparent),
-                center = Offset(x2 * size.width, y2 * size.height),
-                radius = size.minDimension * 1.1f
-            ),
-            center = Offset(x2 * size.width, y2 * size.height),
-            radius = size.minDimension * 1.1f
-        )
-
-        val x3 = (0.5f + 0.3f * sin(effectiveTime * 0.7f + 2f)).coerceIn(0f, 1f)
-        val y3 = (0.5f + 0.3f * cos(effectiveTime * 0.6f + 1f)).coerceIn(0f, 1f)
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(color3.copy(alpha = 0.6f), Color.Transparent),
-                center = Offset(x3 * size.width, y3 * size.height),
-                radius = size.minDimension * 0.8f
-            ),
-            center = Offset(x3 * size.width, y3 * size.height),
-            radius = size.minDimension * 0.8f
-        )
+        for (i in 0 until circleCount) {
+            val phase = i * (PI.toFloat() / (circleCount / 2f))
+            val color = animatedColors[i].value
+            
+            val x = (0.5f + 0.35f * sin(effectiveTime * (0.4f + i * 0.05f) + phase)).coerceIn(0f, 1f)
+            val y = (0.5f + 0.35f * cos(effectiveTime * (0.3f + i * 0.07f) + phase * 1.5f)).coerceIn(0f, 1f)
+            
+            val baseRadius = size.minDimension * (0.7f + i * 0.1f)
+            val pulseMultiplier = 1f + (beatPulse - 1f) * motionIntensity * (0.2f + i * 0.05f)
+            val radius = baseRadius * pulseMultiplier
+            
+            // Advanced Blending for high quality "Hotspots"
+            // Note: Standard DrawScope doesn't support BlendMode in drawCircle directly without Paint
+            // We use simple alpha layering for now to keep performance high
+            val alpha = (0.15f / (i * 0.2f + 1f)) * motionIntensity.coerceAtLeast(0.1f)
+            
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(color.copy(alpha = alpha), Color.Transparent),
+                    center = Offset(x * size.width, y * size.height),
+                    radius = radius
+                ),
+                center = Offset(x * size.width, y * size.height),
+                radius = radius
+            )
+        }
     }
 }
 
-private fun adjustColorForBackground(color: Color): Color {
+@Composable
+fun Modifier.flowingGradient(
+    dominantColor: Color,
+    beatPulse: Float = 1f,
+    motionIntensity: Float = 1f
+): Modifier = composed {
+    val infiniteTransition = rememberInfiniteTransition(label = "flowingGradient")
+    
+    val offset by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(12000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "offset"
+    )
+
+    val color1 = remember(dominantColor) { adjustColorForBackground(dominantColor, lightnessFactor = 1.3f) }
+    val color2 = remember(dominantColor) { adjustColorForBackground(dominantColor, lightnessFactor = 0.7f) }
+    val color3 = remember(dominantColor) { adjustColorForBackground(dominantColor, saturationFactor = 1.4f) }
+    val color4 = remember(dominantColor) { adjustColorForBackground(dominantColor, lightnessFactor = 0.5f, saturationFactor = 0.6f) }
+    
+    val aColor1 by animateColorAsState(color1, tween(1500), label = "c1")
+    val aColor2 by animateColorAsState(color2, tween(1500), label = "c2")
+    val aColor3 by animateColorAsState(color3, tween(1500), label = "c3")
+    val aColor4 by animateColorAsState(color4, tween(1500), label = "c4")
+
+    this.drawBehind {
+        val width = size.width
+        val height = size.height
+        
+        // "Kick" the offset on beat
+        val beatKick = (beatPulse - 1f) * motionIntensity * 0.05f
+        val effectiveOffset = (offset * motionIntensity) + beatKick
+
+        val brush = Brush.linearGradient(
+            colors = listOf(
+                aColor1, aColor2, aColor3, aColor4, aColor1
+            ),
+            start = Offset(width * (effectiveOffset - 1f), height * (effectiveOffset - 1f)),
+            end = Offset(width * (effectiveOffset + 1f), height * (effectiveOffset + 1f)),
+            tileMode = TileMode.Mirror
+        )
+        
+        drawRect(brush = brush)
+    }
+}
+
+@Composable
+fun Modifier.glowBackground(
+    dominantColor: Color,
+    beatPulse: Float = 1f,
+    motionIntensity: Float = 1f
+): Modifier = composed {
+    val animatedColor by animateColorAsState(
+        targetValue = adjustColorForBackground(dominantColor, lightnessFactor = 0.5f),
+        animationSpec = tween(1500),
+        label = "glowColor"
+    )
+
+    this.drawBehind {
+        drawRect(Color.Black)
+        
+        for (i in 1..3) {
+            val layerPulse = 1f + (beatPulse - 1f) * motionIntensity * (0.1f * i)
+            val radius = size.minDimension * (1.0f + i * 0.3f) * layerPulse
+            val alpha = (0.3f / i) * motionIntensity.coerceAtLeast(0.1f)
+            
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(animatedColor.copy(alpha = alpha.coerceIn(0f, 1f)), Color.Transparent),
+                    center = center,
+                    radius = radius
+                ),
+                center = center,
+                radius = radius
+            )
+        }
+    }
+}
+
+private fun adjustColorForBackground(
+    color: Color, 
+    lightnessFactor: Float = 1.0f,
+    saturationFactor: Float = 1.0f
+): Color {
     val r = color.red
     val g = color.green
     val b = color.blue
@@ -152,40 +228,34 @@ private fun adjustColorForBackground(color: Color): Color {
         h *= 60f
     }
 
-    // Clamp saturation to avoid oversaturation (like harsh purple)
-    val targetS = s.coerceIn(0.15f, 0.45f)
-
-    // Adjust lightness to be in a pleasant visible-but-dark range
-    // Under dark mode, we want a soft glow, so lightness around 0.18f to 0.28f is ideal.
-    val targetL = l.coerceIn(0.18f, 0.28f)
+    val targetS = (s * saturationFactor).coerceIn(0.10f, 0.25f)
+    val targetL = (l * lightnessFactor).coerceIn(0.08f, 0.20f)
 
     return hslToColor(h, targetS, targetL, color.alpha)
 }
 
 private fun hslToColor(h: Float, s: Float, l: Float, a: Float): Color {
-    if (s == 0f) {
-        return Color(red = l, green = l, blue = l, alpha = a)
-    }
+    if (s == 0f) return Color(red = l, green = l, blue = l, alpha = a)
 
     val q = if (l < 0.5f) l * (1f + s) else l + s - l * s
     val p = 2f * l - q
 
-    val hueNormalized = h / 360f
-    val r = hueToRgbComponent(p, q, hueNormalized + 1f / 3f)
-    val g = hueToRgbComponent(p, q, hueNormalized)
-    val b = hueToRgbComponent(p, q, hueNormalized - 1f / 3f)
+    val hNorm = h / 360f
+    val r = hueToRgb(p, q, hNorm + 1f / 3f)
+    val g = hueToRgb(p, q, hNorm)
+    val b = hueToRgb(p, q, hNorm - 1f / 3f)
 
     return Color(red = r, green = g, blue = b, alpha = a)
 }
 
-private fun hueToRgbComponent(p: Float, q: Float, t: Float): Float {
-    var tempT = t
-    if (tempT < 0f) tempT += 1f
-    if (tempT > 1f) tempT -= 1f
+private fun hueToRgb(p: Float, q: Float, t: Float): Float {
+    var tt = t
+    if (tt < 0f) tt += 1f
+    if (tt > 1f) tt -= 1f
     return when {
-        tempT < 1f / 6f -> p + (q - p) * 6f * tempT
-        tempT < 1f / 2f -> q
-        tempT < 2f / 3f -> p + (q - p) * (2f / 3f - tempT) * 6f
+        tt < 1f / 6f -> p + (q - p) * 6f * tt
+        tt < 1f / 2f -> q
+        tt < 2f / 3f -> p + (q - p) * (2f / 3f - tt) * 6f
         else -> p
     }
 }

@@ -50,7 +50,9 @@ open class Song(
     open val artistName: String,
     open val albumArtistName: String?,
     open val genreName: String?,
-    open val volumeName: String? = null
+    open val volumeName: String? = null,
+    open val composer: String? = null,
+    open val bitrate: Int = 0
 ) : Parcelable, FileSystemItem {
 
     val uri: Uri
@@ -97,7 +99,9 @@ open class Song(
         song.artistName,
         song.albumArtistName,
         song.genreName,
-        song.volumeName
+        song.volumeName,
+        song.composer,
+        song.bitrate
     )
 
     fun toMediaItem(itemId: String = id.toString()): MediaItem =
@@ -145,7 +149,9 @@ open class Song(
         if (title != song.title) return false
         if (albumArtistName != song.albumArtistName) return false
         if (genreName != song.genreName) return false
-        return volumeName == song.volumeName
+        if (volumeName != song.volumeName) return false
+        if (composer != song.composer) return false
+        return bitrate == song.bitrate
     }
 
     override fun hashCode(): Int {
@@ -165,7 +171,9 @@ open class Song(
             artistName,
             albumArtistName,
             genreName,
-            volumeName
+            volumeName,
+            composer,
+            bitrate
         )
     }
 

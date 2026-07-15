@@ -15,8 +15,10 @@ import com.mardous.booming.data.model.*
 import com.mardous.booming.extensions.media.albumArtistName
 import com.mardous.booming.extensions.media.asReadableTrackNumber
 import com.mardous.booming.extensions.media.normalizeForSorting
+import com.mardous.booming.data.local.repository.StatsCache
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
+import org.koin.core.component.inject
 import java.text.Collator
 import java.util.Locale
 
@@ -29,6 +31,8 @@ sealed class SortMode(
     protected val collator: Collator by lazy {
         Collator.getInstance(Locale.getDefault()).apply { strength = Collator.PRIMARY }
     }
+
+    protected val statsCache: StatsCache by inject()
 
     val ignoreArticles: Boolean
         get() =  get<SharedPreferences>().getBoolean("ignore_articles_when_sorting", false)
@@ -129,6 +133,8 @@ sealed class SongSortMode(
             KeySortItem.DateAdded,
             KeySortItem.DateModified,
             KeySortItem.FileName,
+            KeySortItem.PlayCount,
+            KeySortItem.ListenDuration,
             DescendingItem
         )
     )
@@ -140,6 +146,8 @@ sealed class SongSortMode(
             KeySortItem.Title,
             KeySortItem.Track,
             KeySortItem.Duration,
+            KeySortItem.PlayCount,
+            KeySortItem.ListenDuration,
             DescendingItem
         )
     )
@@ -153,6 +161,8 @@ sealed class SongSortMode(
             KeySortItem.Duration,
             KeySortItem.Year,
             KeySortItem.DateAdded,
+            KeySortItem.PlayCount,
+            KeySortItem.ListenDuration,
             DescendingItem
         )
     )
@@ -165,6 +175,8 @@ sealed class SongSortMode(
             KeySortItem.Artist,
             KeySortItem.Album,
             KeySortItem.Duration,
+            KeySortItem.PlayCount,
+            KeySortItem.ListenDuration,
             DescendingItem
         )
     )
@@ -177,6 +189,8 @@ sealed class SongSortMode(
             KeySortItem.Artist,
             KeySortItem.Album,
             KeySortItem.Duration,
+            KeySortItem.PlayCount,
+            KeySortItem.ListenDuration,
             DescendingItem
         )
     )
@@ -192,6 +206,8 @@ sealed class SongSortMode(
             KeySortItem.DateAdded,
             KeySortItem.DateModified,
             KeySortItem.FileName,
+            KeySortItem.PlayCount,
+            KeySortItem.ListenDuration,
             DescendingItem
         )
     )
@@ -225,6 +241,8 @@ sealed class SongSortMode(
             SortKey.DateAdded -> sortedWith(compareBy { it.dateAdded })
             SortKey.DateModified -> sortedWith(compareBy { it.rawDateModified })
             SortKey.FileName -> sortedWith(compareBy { it.fileName })
+            SortKey.PlayCount -> sortedWith(compareBy { statsCache.getSongPlayCount(it.id) })
+            SortKey.ListenDuration -> sortedWith(compareBy { statsCache.getSongDuration(it.id) })
             else -> this
         }
         return if (selectedDescending) songs.reversed() else songs
@@ -246,6 +264,8 @@ sealed class AlbumSortMode(
             KeySortItem.Year,
             KeySortItem.SongCount,
             KeySortItem.DateAdded,
+            KeySortItem.PlayCount,
+            KeySortItem.ListenDuration,
             DescendingItem
         )
     )
@@ -258,6 +278,8 @@ sealed class AlbumSortMode(
             KeySortItem.Year,
             KeySortItem.SongCount,
             KeySortItem.DateAdded,
+            KeySortItem.PlayCount,
+            KeySortItem.ListenDuration,
             DescendingItem
         )
     )
@@ -270,6 +292,8 @@ sealed class AlbumSortMode(
             KeySortItem.Year,
             KeySortItem.SongCount,
             KeySortItem.DateAdded,
+            KeySortItem.PlayCount,
+            KeySortItem.ListenDuration,
             DescendingItem
         )
     )
@@ -287,6 +311,8 @@ sealed class AlbumSortMode(
             SortKey.Year -> sortedWith(compareBy { it.year })
             SortKey.SongCount -> sortedWith(compareBy { it.songCount })
             SortKey.DateAdded -> sortedWith(compareBy { it.dateAdded })
+            SortKey.PlayCount -> sortedWith(compareBy { statsCache.getAlbumPlayCount(it.id) })
+            SortKey.ListenDuration -> sortedWith(compareBy { statsCache.getAlbumDuration(it.id) })
             else -> this
         }
         return if (selectedDescending) albums.reversed() else albums
@@ -306,6 +332,8 @@ sealed class ArtistSortMode(
             KeySortItem.Title,
             KeySortItem.SongCount,
             KeySortItem.AlbumCount,
+            KeySortItem.PlayCount,
+            KeySortItem.ListenDuration,
             DescendingItem
         )
     )
@@ -317,6 +345,8 @@ sealed class ArtistSortMode(
             })
             SortKey.SongCount -> sortedWith(compareBy({ it.songCount }, { it.name.normalize() }))
             SortKey.AlbumCount -> sortedWith(compareBy({ it.albumCount }, { it.name.normalize() }))
+            SortKey.PlayCount -> sortedWith(compareBy { statsCache.getArtistPlayCount(it.name) })
+            SortKey.ListenDuration -> sortedWith(compareBy { statsCache.getArtistDuration(it.name) })
             else -> this
         }
         return if (selectedDescending) artists.reversed() else artists

@@ -18,6 +18,8 @@
 package com.mardous.booming.ui.screen.other
 
 import android.annotation.SuppressLint
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.text.style.ForegroundColorSpan
 import android.view.GestureDetector
@@ -26,6 +28,7 @@ import android.view.View
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import coil3.request.Disposable
+import com.google.android.material.color.MaterialColors
 import com.mardous.booming.R
 import com.mardous.booming.coil.songImage
 import com.mardous.booming.core.model.player.ProgressState
@@ -40,6 +43,11 @@ import com.mardous.booming.ui.component.base.SkipButtonTouchHandler.Companion.DI
 import com.mardous.booming.ui.component.base.SkipButtonTouchHandler.Companion.DIRECTION_PREVIOUS
 import com.mardous.booming.ui.screen.player.PlayerViewModel
 import com.mardous.booming.util.Preferences
+import com.mardous.booming.util.UITheme
+import com.mardous.booming.ui.theme.spotifyGreen
+import com.mardous.booming.ui.theme.spotifyGrey
+import com.mardous.booming.ui.theme.spotifyLightGrey
+import androidx.compose.ui.graphics.toArgb
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
@@ -70,6 +78,28 @@ class MiniPlayerFragment : Fragment(R.layout.fragment_mini_player),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentMiniPlayerBinding.bind(view)
+        
+        if (Preferences.uiTheme == UITheme.SPOTIFY) {
+            val onSurface = Color.WHITE
+            val onSurfaceVariant = spotifyLightGrey.toArgb()
+            val primary = spotifyGreen.toArgb()
+            
+            view.setBackgroundColor(Color.TRANSPARENT) // Let the parent handle background and corners
+            binding.miniPlayerCard.setCardBackgroundColor(spotifyGrey.toArgb())
+
+            binding.songTitle.setTextColor(onSurface)
+            binding.songArtist.setTextColor(onSurfaceVariant)
+            binding.actionPlayPause.iconTint = ColorStateList.valueOf(onSurface)
+            binding.actionNext.iconTint = ColorStateList.valueOf(onSurface)
+            binding.actionPrevious.iconTint = ColorStateList.valueOf(onSurface)
+            binding.bottomProgressBar.setTrackColor(Color.TRANSPARENT)
+            binding.bottomProgressBar.setIndicatorColor(primary)
+            
+            // In Spotify theme, Play and Next are shown in mini player
+            binding.actionPrevious.hide()
+            binding.actionNext.show()
+        }
+
         binding.progressBar.installWavyAnimatorCleanup()
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
             playerViewModel.currentSongFlow.collect { currentSong ->
@@ -89,6 +119,8 @@ class MiniPlayerFragment : Fragment(R.layout.fragment_mini_player),
                 .collectLatest {
                     binding.progressBar.max = it.total.toInt()
                     binding.progressBar.setProgressCompat(it.progress.toInt(), true)
+                    binding.bottomProgressBar.max = it.total.toInt()
+                    binding.bottomProgressBar.setProgressCompat(it.progress.toInt(), true)
                 }
         }
         viewLifecycleOwner.launchAndRepeatWithViewLifecycle {
@@ -126,13 +158,30 @@ class MiniPlayerFragment : Fragment(R.layout.fragment_mini_player),
     }
 
     fun setupButtonStyle() {
+        val isSpotify = Preferences.uiTheme == UITheme.SPOTIFY
         val buttonStyle = this.buttonStyle
+        
+        if (isSpotify) {
+            binding.progressBar.isVisible = false
+            binding.bottomProgressBar.isVisible = true
+            binding.actionPlayPause.setIconResource(R.drawable.ic_play_24dp) // default
+            // Add device button logic if needed, for now just use play/pause
+        } else {
+            binding.progressBar.isVisible = true
+            binding.bottomProgressBar.isVisible = false
+        }
+
         binding.actionNext.setIconResource(buttonStyle.skipNext)
         binding.actionPrevious.setIconResource(buttonStyle.skipPrevious)
         updatePlayPause(playerViewModel.isPlaying, buttonStyle)
     }
 
     fun setupExtraControls() {
+        if (Preferences.uiTheme == UITheme.SPOTIFY) {
+            binding.actionNext.show()
+            binding.actionPrevious.hide()
+            return
+        }
         if (resources.isTablet) {
             binding.actionNext.show()
             binding.actionPrevious.show()

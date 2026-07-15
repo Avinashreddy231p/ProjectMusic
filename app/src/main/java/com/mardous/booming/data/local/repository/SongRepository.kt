@@ -314,6 +314,8 @@ class RealSongRepository(
         val albumArtistName = cursor.getStringSafe(AudioColumns.ALBUM_ARTIST)
         val genreName = cursor.getStringSafe(AudioColumns.GENRE)
         val volumeName = cursor.getStringSafe(AudioColumns.VOLUME_NAME)
+        val composer = cursor.getStringSafe(AudioColumns.COMPOSER)
+        val bitrate = if (hasR()) cursor.getInt(cursor.getColumnIndexOrThrow(AudioColumns.BITRATE)) else 0
         return Song(
             id,
             data,
@@ -330,7 +332,9 @@ class RealSongRepository(
             artistName,
             albumArtistName,
             genreName,
-            volumeName
+            volumeName,
+            composer,
+            bitrate
         )
     }
 
@@ -356,6 +360,7 @@ class RealSongRepository(
             AudioColumns.ARTIST_ID, //11
             AudioColumns.ARTIST, //12
             AudioColumns.ALBUM_ARTIST, //13
+            AudioColumns.COMPOSER, //14
         )
 
         fun getAudioContentUri(): Uri = if (hasQ())
@@ -366,6 +371,7 @@ class RealSongRepository(
             var baseProjection = BASE_PROJECTION
             if (hasR()) {
                 baseProjection += AudioColumns.GENRE
+                baseProjection += AudioColumns.BITRATE
             }
             if (hasQ()) {
                 baseProjection += AudioColumns.VOLUME_NAME

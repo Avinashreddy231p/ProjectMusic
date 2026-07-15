@@ -26,17 +26,21 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.mardous.booming.databinding.ItemDetailHeaderBinding
+import com.mardous.booming.databinding.ItemSpotifyDetailHeaderBinding
 import com.mardous.booming.databinding.ItemDetailHorizontalListBinding
 import com.mardous.booming.databinding.ItemDetailSectionHeaderBinding
 import com.mardous.booming.databinding.ItemDetailWikiBinding
 import com.mardous.booming.extensions.resources.setMarkdownText
 import com.mardous.booming.extensions.resources.show
+import com.mardous.booming.util.Preferences
+import com.mardous.booming.util.UITheme
 
 class HeaderAdapter(
-    private val onBind: (ItemDetailHeaderBinding) -> Unit
-) : RecyclerView.Adapter<HeaderAdapter.ViewHolder>() {
+    private val onBind: (View) -> Unit
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     class ViewHolder(val binding: ItemDetailHeaderBinding) : RecyclerView.ViewHolder(binding.root)
+    class SpotifyViewHolder(val binding: ItemSpotifyDetailHeaderBinding) : RecyclerView.ViewHolder(binding.root)
 
     private val stableId = View.generateViewId().toLong()
 
@@ -44,12 +48,20 @@ class HeaderAdapter(
         setHasStableIds(true)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(ItemDetailHeaderBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+    override fun getItemViewType(position: Int): Int {
+        return if (Preferences.uiTheme == UITheme.SPOTIFY) 1 else 0
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        onBind(holder.binding)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return if (viewType == 1) {
+            SpotifyViewHolder(ItemSpotifyDetailHeaderBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+        } else {
+            ViewHolder(ItemDetailHeaderBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        onBind(holder.itemView)
     }
 
     override fun getItemCount(): Int = 1

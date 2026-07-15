@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <attr name="bottomNavigationStyle" format="reference"/>
+
+    <attr name="eraPrimary" format="color"/>
+    <attr name="eraOnPrimary" format="color"/>
+    <attr name="eraShapeSmall" format="reference"/>
+    <attr name="eraShapeMedium" format="reference"/>
+    <attr name="eraShapeLarge" format="reference"/>
+
     <declare-styleable name="InfoView">
         <attr name="infoTitle" format="string"/>
         <attr name="infoTitleColor" format="color"/>

@@ -145,7 +145,8 @@ class CoverPagerFragment : Fragment(R.layout.fragment_player_album_cover),
                     GestureType.DoubleTap(GestureType.DoubleTap.TYPE_CENTER),
                     GestureType.DoubleTap(GestureType.DoubleTap.TYPE_LEFT_EDGE),
                     GestureType.DoubleTap(GestureType.DoubleTap.TYPE_RIGHT_EDGE),
-                    GestureType.LongPress
+                    GestureType.LongPress,
+                    GestureType.Fling(GestureType.Fling.DIRECTION_UP)
                 ),
                 listener = gesturesListener
             )

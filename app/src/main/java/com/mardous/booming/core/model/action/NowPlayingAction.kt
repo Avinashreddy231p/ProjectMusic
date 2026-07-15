@@ -32,6 +32,10 @@ enum class NowPlayingAction(
         iconRes = R.drawable.ic_lyrics_outline_24dp,
         titleRes = R.string.action_show_lyrics
     ),
+    FullScreenLyrics(
+        iconRes = R.drawable.ic_lyrics_24dp,
+        titleRes = R.string.action_full_screen_lyrics
+    ),
     LyricsEditor(
         iconRes = R.drawable.ic_edit_note_24dp,
         titleRes = R.string.action_lyrics_editor
@@ -87,6 +91,10 @@ enum class NowPlayingAction(
     SeekForward(
         iconRes = R.drawable.ic_fast_forward_24dp,
         titleRes = R.string.action_seek_forward
+    ),
+    Share(
+        iconRes = R.drawable.ic_share_24dp,
+        titleRes = R.string.action_share
     ),
     Nothing(
         iconRes = R.drawable.ic_close_24dp,

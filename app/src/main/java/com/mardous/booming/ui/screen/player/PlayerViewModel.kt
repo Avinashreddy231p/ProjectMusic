@@ -41,6 +41,7 @@ import com.mardous.booming.playback.ProgressObserver
 import com.mardous.booming.playback.getQueueItems
 import com.mardous.booming.playback.shuffle.ShuffleManager
 import com.mardous.booming.playback.toMediaItems
+import com.mardous.booming.playback.withExtras
 import com.mardous.booming.util.NOW_PLAYING_EXTRA_INFO
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.REMEMBER_SHUFFLE_MODE
@@ -404,14 +405,27 @@ class PlayerViewModel(
         queue: List<Song>,
         position: Int = 0,
         startPlaying: Boolean = true,
-        shuffleMode: OpenShuffleMode = OpenShuffleMode.Remember
+        shuffleMode: OpenShuffleMode = OpenShuffleMode.Remember,
+        queueSource: String = "",
+        playlistId: String = "",
+        playlistName: String = "",
+        playbackOrigin: String = "ui"
     ) = viewModelScope.launch {
         mediaController?.let { controller ->
             var shuffleModeEnabled = controller.shuffleModeEnabled
             if (!preferences.getBoolean(REMEMBER_SHUFFLE_MODE, true)) {
                 shuffleModeEnabled = false
             }
-            val mediaItems = withContext(IO) { queue.toMediaItems() }
+            val mediaItems = withContext(IO) {
+                queue.toMediaItems().map { item ->
+                    item.withExtras {
+                        if (queueSource.isNotEmpty()) putString(Playback.EXTRA_QUEUE_SOURCE, queueSource)
+                        if (playlistId.isNotEmpty()) putString(Playback.EXTRA_PLAYLIST_ID, playlistId)
+                        if (playlistName.isNotEmpty()) putString(Playback.EXTRA_PLAYLIST_NAME, playlistName)
+                        if (playbackOrigin.isNotEmpty()) putString(Playback.EXTRA_PLAYBACK_ORIGIN, playbackOrigin)
+                    }
+                }
+            }
             val shuffleMode = when (shuffleMode) {
                 OpenShuffleMode.On -> true
                 OpenShuffleMode.Off -> false
@@ -502,7 +516,15 @@ class PlayerViewModel(
         val songs = withContext(IO) {
             repository.playlistSongs(playlist.playListId).toSongs()
         }
-        openQueue(songs, startPlaying = startPlaying, shuffleMode = shuffleMode)
+        openQueue(
+            songs,
+            startPlaying = startPlaying,
+            shuffleMode = shuffleMode,
+            queueSource = "playlist",
+            playlistId = playlist.playListId.toString(),
+            playlistName = playlist.playlistName,
+            playbackOrigin = "playlist_detail"
+        )
     }
 
     fun openSongs(
@@ -688,6 +710,17 @@ class PlayerViewModel(
             _colorScheme.value = result.getOrThrow()
         } else if (result.isFailure) {
             Log.e(TAG, "Failed to load color scheme", result.exceptionOrNull())
+        }
+    }
+
+    fun refreshAppThemeScheme(context: Context) {
+        if (colorScheme.mode == PlayerColorScheme.Mode.AppTheme && !colorScheme.appThemeToken.isValid(context)) {
+            val result = runCatching {
+                PlayerColorScheme.themeColorScheme(context)
+            }
+            if (result.isSuccess) {
+                _colorScheme.value = result.getOrThrow()
+            }
         }
     }
 

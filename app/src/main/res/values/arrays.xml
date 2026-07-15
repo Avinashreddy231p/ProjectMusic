@@ -6,6 +6,16 @@
         <item>@string/expanded</item>
     </string-array>
 
+    <string-array name="pref_ui_theme_entries">
+        <item>@string/ui_theme_material</item>
+        <item>@string/ui_theme_spotify</item>
+    </string-array>
+
+    <string-array name="pref_ui_theme_values">
+        <item>material</item>
+        <item>spotify</item>
+    </string-array>
+
     <string-array name="pref_appbar_mode_values">
         <item>compact</item>
         <item>expanded</item>
@@ -241,6 +251,70 @@
         <item>tr</item>
         <item>uk</item>
         <item>vi</item>
+    </string-array>
+    <string-array name="pref_online_provider_entries">
+        <item>@string/online_music_provider_ytmusic</item>
+    </string-array>
+
+    <string-array name="pref_online_provider_values">
+        <item>ytmusic</item>
+    </string-array>
+
+    <!-- New Era Customization -->
+    <string-array name="pref_era_shape_family_entries">
+        <item>@string/era_shape_family_rounded</item>
+        <item>@string/era_shape_family_cut</item>
+    </string-array>
+
+    <string-array name="pref_era_shape_family_values">
+        <item>ROUNDED</item>
+        <item>CUT</item>
+    </string-array>
+
+    <string-array name="pref_era_motion_intensity_entries">
+        <item>@string/era_motion_none</item>
+        <item>@string/era_motion_fluid</item>
+        <item>@string/era_motion_expressive</item>
+    </string-array>
+
+    <string-array name="pref_era_motion_intensity_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="pref_era_surface_material_entries">
+        <item>@string/era_surface_solid</item>
+        <item>@string/era_surface_glass</item>
+        <item>@string/era_surface_vibrant</item>
+    </string-array>
+
+    <string-array name="pref_era_surface_material_values">
+        <item>SOLID</item>
+        <item>GLASS</item>
+        <item>VIBRANT</item>
+    </string-array>
+
+    <string-array name="vibrant_bg_mode_entries">
+        <item>@string/vibrant_bg_mode_gradient</item>
+        <item>@string/vibrant_bg_mode_grid</item>
+        <item>@string/vibrant_bg_mode_smoke</item>
+        <item>@string/vibrant_bg_mode_fluid</item>
+        <item>@string/vibrant_bg_mode_solid</item>
+        <item>@string/vibrant_bg_mode_flow</item>
+        <item>@string/vibrant_bg_mode_glow</item>
+        <item>@string/vibrant_bg_mode_particles</item>
+    </string-array>
+
+    <string-array name="vibrant_bg_mode_values">
+        <item>Gradient</item>
+        <item>GridLines</item>
+        <item>Smoke</item>
+        <item>Fluid</item>
+        <item>Solid</item>
+        <item>Flow</item>
+        <item>Glow</item>
+        <item>Particles</item>
     </string-array>
 
 </resources>

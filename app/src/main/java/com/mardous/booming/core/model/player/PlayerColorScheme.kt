@@ -107,6 +107,10 @@ data class PlayerColorScheme(
         Blur(
             R.string.player_color_mode_blur_title,
             R.string.player_color_mode_blur_description
+        ),
+        Monochrome(
+            R.string.player_color_mode_monochrome_title,
+            R.string.player_color_mode_monochrome_description
         )
     }
 
@@ -116,13 +120,13 @@ data class PlayerColorScheme(
         }
     }
 
-    class AppThemeToken(private val isDark: Boolean, private val isMaterialYou: Boolean) {
+    class AppThemeToken(private val isDark: Boolean, private val isMaterialYou: Boolean, private val accentColor: Int?) {
         fun isValid(context: Context): Boolean {
-            return context.isNightMode == isDark && Preferences.isMaterialYouTheme == isMaterialYou
+            return context.isNightMode == isDark && Preferences.isMaterialYouTheme == isMaterialYou && Preferences.accentColor == accentColor
         }
 
         companion object {
-            val None = AppThemeToken(isDark = false, isMaterialYou = false)
+            val None = AppThemeToken(isDark = false, isMaterialYou = false, accentColor = null)
         }
     }
 
@@ -151,17 +155,19 @@ data class PlayerColorScheme(
         fun themeColorScheme(context: Context): PlayerColorScheme {
             val onSurfaceColor = context.onSurfaceColor()
             val onSurfaceVariantColor = onSurfaceColor.withAlpha(0.6f)
+            val exactAccent = Preferences.accentColor
             return PlayerColorScheme(
                 mode = Mode.AppTheme,
                 appThemeToken = AppThemeToken(
                     isDark = context.isNightMode,
-                    isMaterialYou = Preferences.isMaterialYouTheme
+                    isMaterialYou = Preferences.isMaterialYouTheme,
+                    accentColor = exactAccent
                 ),
                 blurToken = BlurToken.None,
                 surfaceColor = context.surfaceColor(),
                 surfaceContainerColor = context.resolveColor(M3R.attr.colorSurfaceContainerHigh),
-                primaryColor = context.primaryColor(),
-                secondaryContainerColor = context.resolveColor(M3R.attr.colorSecondaryContainer),
+                primaryColor = exactAccent ?: context.primaryColor(),
+                secondaryContainerColor = exactAccent?.withAlpha(0.2f) ?: context.resolveColor(M3R.attr.colorSecondaryContainer),
                 onSurfaceColor = onSurfaceColor,
                 onSurfaceVariantColor = onSurfaceVariantColor
             )
@@ -196,7 +202,7 @@ data class PlayerColorScheme(
                 blurToken = BlurToken.None,
                 surfaceColor = color.backgroundColor,
                 surfaceContainerColor = ColorUtils.blendARGB(color.backgroundColor, color.primaryTextColor, 0.7f),
-                primaryColor = color.backgroundColor,
+                primaryColor = color.primaryColor,
                 secondaryContainerColor = ColorUtils.blendARGB(color.backgroundColor, color.secondaryTextColor, 0.4f),
                 onSurfaceColor = color.primaryTextColor,
                 onSurfaceVariantColor = color.secondaryTextColor.withAlpha(0.6f)
@@ -253,6 +259,24 @@ data class PlayerColorScheme(
             )
         }
 
+        private fun monochromeColorScheme(context: Context): PlayerColorScheme {
+            val isDark = context.isNightMode
+            val surface = if (isDark) Color.BLACK else Color.WHITE
+            val onSurface = if (isDark) Color.WHITE else Color.BLACK
+
+            return PlayerColorScheme(
+                mode = Mode.Monochrome,
+                appThemeToken = AppThemeToken.None,
+                blurToken = BlurToken.None,
+                surfaceColor = surface,
+                surfaceContainerColor = if (isDark) Color.parseColor("#121212") else Color.parseColor("#F5F5F5"),
+                primaryColor = onSurface,
+                secondaryContainerColor = if (isDark) Color.parseColor("#121212") else Color.parseColor("#F5F5F5"),
+                onSurfaceColor = onSurface,
+                onSurfaceVariantColor = ColorUtils.setAlphaComponent(onSurface, 178)
+            )
+        }
+
         suspend fun autoColorScheme(
             context: Context,
             color: PaletteColor,
@@ -264,6 +288,7 @@ data class PlayerColorScheme(
                 Mode.VibrantColor -> vibrantColorScheme(color)
                 Mode.MaterialYou -> dynamicColorScheme(context, color.primaryColor)
                 Mode.Blur -> blurColorScheme(context, color)
+                Mode.Monochrome -> monochromeColorScheme(context)
             }
             check(mode == colorScheme.mode)
             return colorScheme

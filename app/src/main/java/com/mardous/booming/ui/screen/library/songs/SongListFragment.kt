@@ -80,13 +80,16 @@ class SongListFragment : AbsRecyclerViewCustomGridSizeFragment<SongAdapter, Grid
     override fun createAdapter(): SongAdapter {
         notifyLayoutResChanged(itemLayoutRes)
         val dataSet = adapter?.dataSet ?: ArrayList()
-        return SongAdapter(
+        val adapter = SongAdapter(
             activity = mainActivity,
             dataSet = dataSet,
             itemLayoutRes = itemLayoutRes,
             sortMode = SongSortMode.AllSongs,
+            swipeContext = com.mardous.booming.core.model.swipe.SwipeContext.SONGS,
             callback = this
         )
+        adapter.attachToRecyclerView(recyclerView)
+        return adapter
     }
 
     override fun songMenuItemClick(

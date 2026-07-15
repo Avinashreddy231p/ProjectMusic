@@ -107,11 +107,32 @@ enum class NowPlayingScreen(
         supportsCarouselEffect = false,
         supportsCustomCornerRadius = false,
         supportsSmallImage = false
+    ),
+    Spotify(
+        R.string.ui_theme_spotify,
+        R.drawable.ic_palette_24dp,
+        R.layout.fragment_album_cover_default,
+        buttonStyle = NowPlayingButtonStyle.Normal,
+        supportsCoverLyrics = true,
+        supportsCarouselEffect = true,
+        supportsCustomCornerRadius = true,
+        supportsSmallImage = true
+    ),
+    Vibrant(
+        R.string.vibrant_style,
+        R.drawable.ic_palette_24dp,
+        R.layout.fragment_album_cover_default,
+        buttonStyle = NowPlayingButtonStyle.Normal,
+        supportsCoverLyrics = true,
+        supportsCarouselEffect = true,
+        supportsCustomCornerRadius = true,
+        supportsSmallImage = true
     );
 
     val defaultColorScheme: PlayerColorSchemeMode
         get() = when (this) {
             Default, Plain, Peek -> PlayerColorSchemeMode.AppTheme
+            Spotify, Vibrant -> PlayerColorSchemeMode.VibrantColor
             M3 -> PlayerColorSchemeMode.MaterialYou
             Expressive -> PlayerColorSchemeMode.Blur
             FullCover, Gradient -> PlayerColorSchemeMode.VibrantColor
@@ -120,7 +141,9 @@ enum class NowPlayingScreen(
     val supportedColorSchemes: PlayerColorSchemeList
         get() = when (this) {
             Default,
-            Plain -> listOf(
+            Plain,
+            Spotify,
+            Vibrant -> listOf(
                 PlayerColorSchemeMode.AppTheme,
                 PlayerColorSchemeMode.SimpleColor,
                 PlayerColorSchemeMode.MaterialYou,
@@ -160,7 +183,9 @@ enum class NowPlayingScreen(
             Default,
             Plain,
             M3,
-            Expressive -> listOf(
+            Expressive,
+            Spotify,
+            Vibrant -> listOf(
                 PlayerTransition.Simple,
                 PlayerTransition.Cascading,
                 PlayerTransition.Depth,

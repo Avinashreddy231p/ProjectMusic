@@ -47,7 +47,7 @@ class PlaylistSongAdapter(
     itemLayoutRes: Int,
     isLockDrag: Boolean,
     callback: ISongCallback? = null
-) : SongAdapter(activity, dataSet, itemLayoutRes, null, callback),
+) : SongAdapter(activity, dataSet, itemLayoutRes, null, com.mardous.booming.core.model.swipe.SwipeContext.PLAYLISTS, callback),
     DraggableItemAdapter<PlaylistSongAdapter.ViewHolder> {
 
     var isLockDrag = isLockDrag

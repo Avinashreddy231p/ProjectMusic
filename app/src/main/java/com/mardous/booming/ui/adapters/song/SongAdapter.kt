@@ -23,12 +23,19 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import android.widget.PopupMenu
+import android.widget.TextView
 import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
 import androidx.annotation.MenuRes
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.mardous.booming.R
 import com.mardous.booming.coil.DEFAULT_SONG_IMAGE
 import com.mardous.booming.core.model.action.SongClickBehavior
@@ -42,6 +49,7 @@ import com.mardous.booming.extensions.media.displayArtistName
 import com.mardous.booming.extensions.media.songInfo
 import com.mardous.booming.extensions.resources.hide
 import com.mardous.booming.extensions.showToast
+import com.mardous.booming.extensions.files.getCanonicalPathSafe
 import com.mardous.booming.extensions.utilities.buildInfoString
 import com.mardous.booming.ui.ISongCallback
 import com.mardous.booming.ui.component.base.AbsMultiSelectAdapter
@@ -59,8 +67,18 @@ open class SongAdapter(
     dataSet: List<Song>,
     @LayoutRes protected val itemLayoutRes: Int = R.layout.item_list,
     protected val sortMode: SongSortMode? = null,
+    protected val swipeContext: com.mardous.booming.core.model.swipe.SwipeContext? = null,
     protected val callback: ISongCallback? = null,
-) : AbsMultiSelectAdapter<SongAdapter.ViewHolder, Song>(activity, R.menu.menu_media_selection), PopupTextProvider {
+) : AbsMultiSelectAdapter<SongAdapter.ViewHolder, Song>(activity, R.menu.menu_media_selection), PopupTextProvider,
+    com.mardous.booming.util.SwipeAndDragHelper.ActionCompletionContract {
+
+    private val touchHelper = androidx.recyclerview.widget.ItemTouchHelper(
+        com.mardous.booming.util.SwipeAndDragHelper(this, swipeContext, false)
+    )
+
+    fun attachToRecyclerView(recyclerView: RecyclerView?) {
+        touchHelper.attachToRecyclerView(recyclerView)
+    }
 
     open var dataSet: List<Song> = dataSet
         set(value) {
@@ -144,6 +162,108 @@ open class SongAdapter(
             SortKey.Year -> ""
             SortKey.FileName -> song.fileName.asSectionName(sortMode)
             else -> song.title.asSectionName(sortMode)
+        }
+    }
+
+    override fun onViewSwiped(position: Int, direction: Int) {
+        val song = dataSet.getOrNull(position) ?: return
+        val action = if (direction == androidx.recyclerview.widget.ItemTouchHelper.LEFT) {
+            Preferences.getSwipeLeftAction(swipeContext!!)
+        } else {
+            Preferences.getSwipeRightAction(swipeContext!!)
+        }
+        
+        if (action != com.mardous.booming.core.model.swipe.SwipeAction.NONE) {
+            val menuId = getMenuIdForSwipeAction(action)
+            if (menuId != 0) {
+                val menuItem = android.widget.PopupMenu(activity, null).menu.add(0, menuId, 0, "")
+                onSongMenuItemClick(song, menuItem, position)
+                activity.showToast(action.titleRes)
+            } else {
+                // Handle custom actions that do not map directly to a menu item
+                when (action) {
+                    com.mardous.booming.core.model.swipe.SwipeAction.TOGGLE_FAVORITE -> {
+                        if (activity is androidx.lifecycle.LifecycleOwner) {
+                            val repository: com.mardous.booming.data.local.repository.Repository by org.koin.java.KoinJavaComponent.inject(com.mardous.booming.data.local.repository.Repository::class.java)
+                            activity.lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                                val isFav = repository.toggleFavorite(song)
+                                val msgRes = if (isFav) R.string.added_to_favorites_label else R.string.removed_from_favorites_label
+                                kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                                    activity.showToast(msgRes)
+                                }
+                            }
+                        }
+                    }
+                    com.mardous.booming.core.model.swipe.SwipeAction.REMOVE_FROM_QUEUE -> {
+                        val playerViewModel = activity.getViewModel<PlayerViewModel>()
+                        playerViewModel.removePosition(position)
+                        activity.showToast(action.titleRes)
+                        return // Skip notifyItemChanged so the item stays swiped out until the queue updates
+                    }
+                    com.mardous.booming.core.model.swipe.SwipeAction.REMOVE_FROM_PLAYLIST,
+                    com.mardous.booming.core.model.swipe.SwipeAction.HIDE_SONG,
+                    com.mardous.booming.core.model.swipe.SwipeAction.DELETE_FILE -> {
+                        val menuId = when (action) {
+                            com.mardous.booming.core.model.swipe.SwipeAction.REMOVE_FROM_PLAYLIST -> R.id.action_remove_from_playlist
+                            com.mardous.booming.core.model.swipe.SwipeAction.DELETE_FILE -> R.id.action_delete_from_device
+                            // HIDE_SONG has no XML action, so we can use a custom logic if implemented, or just 0
+                            else -> 0 
+                        }
+                        
+                        if (menuId != 0) {
+                            val menuItem = android.widget.PopupMenu(activity, null).menu.add(0, menuId, 0, "")
+                            onSongMenuItemClick(song, menuItem, position)
+                        } else if (action == com.mardous.booming.core.model.swipe.SwipeAction.HIDE_SONG) {
+                            if (activity is androidx.lifecycle.LifecycleOwner) {
+                                val inclExclDao: com.mardous.booming.data.local.room.InclExclDao by org.koin.java.KoinJavaComponent.inject(com.mardous.booming.data.local.room.InclExclDao::class.java)
+                                activity.lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                                    val safePath = java.io.File(song.data).getCanonicalPathSafe()
+                                    inclExclDao.insertPath(com.mardous.booming.data.local.room.InclExclEntity(safePath, com.mardous.booming.data.local.room.InclExclDao.BLACKLIST))
+                                }
+                            }
+                        }
+                        activity.showToast(action.titleRes)
+                        return // Skip notifyItemChanged
+                    }
+                    else -> {
+                        activity.showToast(action.titleRes)
+                    }
+                }
+            }
+        }
+        android.os.Handler(android.os.Looper.getMainLooper()).post {
+            notifyItemChanged(position)
+        }
+    }
+
+    private fun onSongMenuItemClick(song: Song, item: MenuItem, position: Int): Boolean {
+        if (item.itemId == R.id.action_play) {
+            val playerViewModel = activity.getViewModel<PlayerViewModel>()
+            val playOptionBehavior = Preferences.playOptionClickBehavior
+            playerViewModel.openSongs(position, dataSet, playOptionBehavior)
+            return true
+        }
+        return callback?.songMenuItemClick(song, item, null) ?: false
+    }
+
+    private fun getMenuIdForSwipeAction(action: com.mardous.booming.core.model.swipe.SwipeAction): Int {
+        return when (action) {
+            com.mardous.booming.core.model.swipe.SwipeAction.PLAY_NEXT -> R.id.action_play_next
+            com.mardous.booming.core.model.swipe.SwipeAction.ADD_TO_QUEUE -> R.id.action_add_to_playing_queue
+            com.mardous.booming.core.model.swipe.SwipeAction.ADD_TO_PLAYLIST -> R.id.action_add_to_playlist
+            com.mardous.booming.core.model.swipe.SwipeAction.TOGGLE_FAVORITE -> 0 // Handle custom if needed
+            com.mardous.booming.core.model.swipe.SwipeAction.REMOVE_FROM_PLAYLIST -> 0 // Handled in onViewSwiped
+            com.mardous.booming.core.model.swipe.SwipeAction.REMOVE_FROM_QUEUE -> 0 // Handled in onViewSwiped
+            com.mardous.booming.core.model.swipe.SwipeAction.DELETE_FILE -> 0 // Handled in onViewSwiped
+            com.mardous.booming.core.model.swipe.SwipeAction.SHARE -> R.id.action_share
+            com.mardous.booming.core.model.swipe.SwipeAction.SONG_INFO -> R.id.action_details
+            com.mardous.booming.core.model.swipe.SwipeAction.EDIT_TAGS -> R.id.action_tag_editor
+            com.mardous.booming.core.model.swipe.SwipeAction.OPEN_ALBUM -> R.id.action_go_to_album
+            com.mardous.booming.core.model.swipe.SwipeAction.OPEN_ARTIST -> R.id.action_go_to_artist
+            com.mardous.booming.core.model.swipe.SwipeAction.NONE,
+            com.mardous.booming.core.model.swipe.SwipeAction.HIDE_SONG,
+            com.mardous.booming.core.model.swipe.SwipeAction.COPY_FILE_PATH,
+            com.mardous.booming.core.model.swipe.SwipeAction.GO_TO_FOLDER -> 0
         }
     }
 

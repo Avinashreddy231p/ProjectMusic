@@ -150,7 +150,13 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
     private fun setupButtons() {
         binding.header.playAction.setOnClickListener {
             playlistSongAdapter?.dataSet?.let {
-                playerViewModel.openQueue(it, shuffleMode = OpenShuffleMode.Off)
+                playerViewModel.openQueue(
+                    it,
+                    shuffleMode = OpenShuffleMode.Off,
+                    queueSource = "playlist",
+                    playlistId = playlist.playlistEntity.playListId.toString(),
+                    playlistName = playlist.playlistEntity.playlistName
+                )
             }
         }
         binding.header.shuffleAction.setOnClickListener {
@@ -182,6 +188,7 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
         binding.recyclerView.itemAnimator = RefactoredDefaultItemAnimator()
         binding.recyclerView.createFastScroller()
         recyclerViewDragDropManager?.attachRecyclerView(binding.recyclerView)
+        playlistSongAdapter!!.attachToRecyclerView(binding.recyclerView)
         playlistSongAdapter!!.registerAdapterDataObserver(adapterDataObserver)
     }
 

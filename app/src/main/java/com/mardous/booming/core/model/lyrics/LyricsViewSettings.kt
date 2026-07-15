@@ -4,7 +4,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.TextStyle
 
 @Immutable
-class LyricsViewSettings(
+data class LyricsViewSettings(
     val mode: Mode,
     val isCenterCurrentLine: Boolean,
     val isCenterHorizontally: Boolean,

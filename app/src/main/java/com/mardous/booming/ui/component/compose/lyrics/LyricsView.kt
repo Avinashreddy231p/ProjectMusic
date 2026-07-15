@@ -10,6 +10,8 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
@@ -52,9 +54,11 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.stringResource
@@ -88,6 +92,7 @@ fun LyricsView(
     isPowerSaveMode: Boolean,
     hasBackgroundEffects: Boolean,
     modifier: Modifier = Modifier,
+    userScrollEnabled: Boolean = true,
     onLineClick: (SyncedLyrics.Line) -> Unit
 ) {
     val density = LocalDensity.current
@@ -121,14 +126,9 @@ fun LyricsView(
                     }
                     listState.animateScrollBy(
                         value = activeItem.offset - targetOffset,
-                        animationSpec = tween(
-                            durationMillis = run {
-                                (state.lyrics?.lines?.getOrNull(state.currentLineIndex + 1)?.start ?: 0) -
-                                        (state.lyrics?.lines?.getOrNull(state.currentLineIndex)?.start ?: 0)
-                            }.let {
-                                (it / 2).coerceIn(100, 1000).toInt()
-                            },
-                            easing = FastOutSlowInEasing
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioLowBouncy,
+                            stiffness = Spring.StiffnessLow
                         )
                     )
                 } else {
@@ -152,6 +152,7 @@ fun LyricsView(
         state = listState,
         contentPadding = contentPadding,
         verticalArrangement = Arrangement.spacedBy(settings.lineSpacing.dp),
+        userScrollEnabled = userScrollEnabled,
         modifier = modifier
             .nestedScroll(rememberNestedScrollInteropConnection())
             .fadingEdges(edges = fadingEdges)
@@ -224,8 +225,11 @@ private fun LyricsLineView(
     onClick: () -> Unit
 ) {
     val scale by animateFloatAsState(
-        targetValue = if (selectedLine) 1.1f else 1f,
-        animationSpec = tween(durationMillis = 700),
+        targetValue = if (selectedLine) 1.05f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
         label = "current-line-scale-animation"
     )
 

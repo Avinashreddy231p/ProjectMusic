@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Soundscape | Your Music Universe</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary": "#ff5a00", 
+                    "surface": "#f8f9fa",
+                    "surface-dim": "#d9dadb",
+                    "surface-bright": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-low": "#f3f4f5",
+                    "surface-container": "#f1f3f4",
+                    "surface-container-high": "#e9ecef",
+                    "surface-container-highest": "#dee2e6",
+                    "on-surface": "#1e2020",
+                    "on-surface-variant": "#444746",
+                    "outline": "#747775",
+                    "outline-variant": "#c4c7c5",
+                    "background": "#f8f9fa",
+                    "on-background": "#1e2020",
+                    "primary-container": "#ff5a00",
+                    "on-primary-container": "#ffffff",
+                    "secondary-container": "#e0e0e0",
+                    "on-secondary-container": "#1d1d1d"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "1rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "unit": "8px",
+                    "stack-lg": "24px",
+                    "container-padding-desktop": "32px",
+                    "stack-md": "16px",
+                    "gutter": "16px",
+                    "container-padding-mobile": "16px",
+                    "stack-sm": "8px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "display-lg-mobile": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.04em", "fontWeight": "800"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}],
+                    "display-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "800"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "500"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface flex flex-col min-h-screen selection:bg-primary/20">
+<!-- Top App Bar -->
+<header class="bg-background/80 backdrop-blur-lg sticky top-0 z-50 flex items-center justify-between px-container-padding-mobile h-16 w-full">
+<div class="flex items-center gap-3">
+<h1 class="font-display-lg-mobile text-display-lg-mobile tracking-tight">Good morning</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-on-surface">settings</span>
+</button>
+</div>
+</header>
+<main class="flex-1 px-container-padding-mobile pb-44">
+<!-- Quick Actions Grid -->
+<section class="grid grid-cols-2 gap-4 mt-4">
+<button class="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl border border-outline-variant/20 hover:bg-surface-container-high transition-all group active:scale-[0.98] w-full">
+<div class="w-8 h-8 flex items-center justify-center bg-primary/5 rounded-lg group-hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-primary text-lg" style="font-variation-settings: 'FILL' 1">trending_up</span>
+</div>
+<span class="font-label-md text-on-surface font-bold tracking-tight">Top Tracks</span>
+</button>
+<button class="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl border border-outline-variant/20 hover:bg-surface-container-high transition-all group active:scale-[0.98] w-full">
+<div class="w-8 h-8 flex items-center justify-center bg-secondary-container/10 rounded-lg group-hover:bg-secondary-container/20 transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant text-lg" style="font-variation-settings: 'FILL' 1">add_box</span>
+</div>
+<span class="font-label-md text-on-surface font-bold tracking-tight">Last added</span>
+</button>
+<button class="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl border border-outline-variant/20 hover:bg-surface-container-high transition-all group active:scale-[0.98] w-full">
+<div class="w-8 h-8 flex items-center justify-center bg-secondary-container/10 rounded-lg group-hover:bg-secondary-container/20 transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant text-lg" style="font-variation-settings: 'FILL' 1">history</span>
+</div>
+<span class="font-label-md text-on-surface font-bold tracking-tight">History</span>
+</button>
+<button class="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl border border-outline-variant/20 hover:bg-surface-container-high transition-all group active:scale-[0.98] w-full">
+<div class="w-8 h-8 flex items-center justify-center bg-primary/5 rounded-lg group-hover:bg-primary/10 transition-colors">
+<span class="material-symbols-outlined text-primary text-lg" style="font-variation-settings: 'FILL' 1">shuffle</span>
+</div>
+<span class="font-label-md text-on-surface font-bold tracking-tight">Shuffle</span>
+</button>
+</section>
+<!-- Quick Picks Section -->
+<section class="mt-8">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-headline-sm text-on-surface">Quick picks</h3>
+<button class="text-primary font-label-md font-bold hover:underline">See all</button>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div class="flex items-center gap-3 p-2 bg-surface-container-low rounded-lg border border-outline-variant/10 hover:bg-surface-container transition-colors group">
+<img alt="Sita Ramam" class="w-12 h-12 rounded object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwxtpEfOm2tsQXrvDZBwpV6fgwzxl4P5T8tPJ1W5zLrTaErp8-LQ-TELYwkWP_WQKLn-d0wdJ8jvXdavX3HuvXYA4nXH5K7AFONJePJ49Pl7YM_kO5YEpPW7usBt5e_lFEI_8hCR4g-9VWUUI1jFMtw_HmOvu9ZbIvKTdbVRwGVCn-0K1vsaqo00HHNvSHT09JHFIW2Fs4guQgT7jnnYIw4HVW4S-FBCZKP2iW0VvbEoqrq_COnIa1"/>
+<div class="overflow-hidden">
+<p class="font-label-md text-on-surface font-bold truncate">Sita Ramam</p>
+<p class="font-label-sm text-on-surface-variant truncate">Vishal Chandrashekhar</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-2 bg-surface-container-low rounded-lg border border-outline-variant/10 hover:bg-surface-container transition-colors group">
+<img alt="Neon Pulse" class="w-12 h-12 rounded object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrzeXciUdolPU-HzCyjvr5G4r_xfaRMyNOLWXdvoTmsr3Fqu9Ru4daw9deRQ2ZPsNqM8xkq8w7RQsbCwqnnIgR3cPtNInppbffIucljbLG3CgqgjcPnIYXFsO9hhwULFQkp7SQaCTcTeTwgDxwWjlFZDKonpNZbsCUB7FCEY6yk1yXmW6BKO6Qg8wkg1JFgv1YEFjophQRcFqyqIEsbxAlSIQUMabOSqrTwj7bM6mcMe0STN9nIoyG"/>
+<div class="overflow-hidden">
+<p class="font-label-md text-on-surface font-bold truncate">Neon Pulse</p>
+<p class="font-label-sm text-on-surface-variant truncate">Thaman S.</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-2 bg-surface-container-low rounded-lg border border-outline-variant/10 hover:bg-surface-container transition-colors group">
+<img alt="Midnight Rain" class="w-12 h-12 rounded object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdVXpoJOGJpNqmK1FaXy_stBEKH4anO7bCgY-k3Wgl0SvzCHbww_fqzgi9RW6ZaOpNTIe8O7-ZMxiQtAGQrTT4f3a-faXJbs9tP9swi_RBSbciA5Ut4AmyWD1BMnnL68rflx2EuJkmo-GpMYMNUtWK-U60oPUc1L44IiSbC7pyGB7KcP8PxpeKeNSPZ76rd3jeYo4EycI6T1cV1E9747u5h23rS_A2ja4gHoBUDeEAb2Eq2_ppeNAk"/>
+<div class="overflow-hidden">
+<p class="font-label-md text-on-surface font-bold truncate">Midnight Rain</p>
+<p class="font-label-sm text-on-surface-variant truncate">Lo-fi Beats</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-2 bg-surface-container-low rounded-lg border border-outline-variant/10 hover:bg-surface-container transition-colors group">
+<img alt="A Thousand Years" class="w-12 h-12 rounded object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBk47Bgb5bli7uoFlplJJc2RoqmMmHed5Z2WnJk-KD1Wq87nGPj2rSgKunaUOSPCU-fd2_h4kR0J0bRVGr6WxVeIBxFqT-FkYkfGVoHi65ilntqSCFT71r7W2bYwgJMNbO2IDr7sMonLc4cqS1DabCAJqod6l6vyjfdfkbP6MyOihrLcP1WFavCWi-GMglFxggh_xiwt0K2eZW872zLAMyQPuTutMxTZF3omeNEyNDGrPc0qxOlqgqn"/>
+<div class="overflow-hidden">
+<p class="font-label-md text-on-surface font-bold truncate">A Thousand Years</p>
+<p class="font-label-sm text-on-surface-variant truncate">Christina Perri</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-2 bg-surface-container-low rounded-lg border border-outline-variant/10 hover:bg-surface-container transition-colors group">
+<img alt="Chandra" class="w-12 h-12 rounded object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcGvb6zHpsvpz7tT2tDPRk8bsHh4dgkor0hU8RWC8EL1bDyJlbUPYEKGre_jZrAdbOjqKMMjRHv4aAp9_g7dxiYUcYoazGr2_wmJdyHWrDVEbk-xwEuQdcTfDezDfEExh5YXVbVUOgH3oQEw_0O8nkKKEY99aCWHc9unhr9nDmmJCYuyNCKvU7hiPBFI235fwki-ee3gK2Ob0jZmt_3jV72AQfHRBaUEwpl5lunEt68QBiLxY4Ny9e"/>
+<div class="overflow-hidden">
+<p class="font-label-md text-on-surface font-bold truncate">Chandra</p>
+<p class="font-label-sm text-on-surface-variant truncate">Artist</p>
+</div>
+</div>
+<div class="flex items-center gap-3 p-2 bg-surface-container-low rounded-lg border border-outline-variant/10 hover:bg-surface-container transition-colors group">
+<img alt="Tharnan S." class="w-12 h-12 rounded object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDv7PNMgiSSOTasdJihmGsOR4EB-ynI807N_RZZFIxyGRQcViZJJIX8ojGUQMJOJKzoX6WorjFBK7wsYQHVouDic48bEk7AOvZCcxsB1onQ3gxgQhmGW7nLlLW92XpiQ3Hx6hcu0_KjQ4m3tC5XJjCm6UqVA4GfWK_JFb7swxQDcQ3x6RwYvGpHmqESA6JmUoZqbPquJ_sG5i7m3ttps0lEPNO2dqENsn5ndWHeQpYNb0k9sQ13qkp3"/>
+<div class="overflow-hidden">
+<p class="font-label-md text-on-surface font-bold truncate">Tharnan S.</p>
+<p class="font-label-sm text-on-surface-variant truncate">Artist</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Chips Section -->
+<section class="flex gap-2 mt-8 overflow-x-auto hide-scrollbar py-2">
+<button class="px-6 py-2 rounded-full bg-primary text-white font-label-md font-bold transition-transform active:scale-95 shadow-md shadow-primary/20">Top</button>
+<button class="px-6 py-2 rounded-full bg-surface-container-highest/50 text-on-surface font-label-md font-semibold hover:bg-surface-container-highest transition-all active:scale-95">Recent</button>
+<button class="px-6 py-2 rounded-full bg-surface-container-highest/50 text-on-surface font-label-md font-semibold hover:bg-surface-container-highest transition-all active:scale-95">New</button>
+</section>
+<!-- Top Artists Section -->
+<section class="mt-10">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-headline-sm text-on-surface">Top artists</h3>
+<button class="text-primary font-label-md font-bold hover:underline">See all</button>
+</div>
+<div class="flex gap-6 overflow-x-auto hide-scrollbar pb-2 -mx-container-padding-mobile px-container-padding-mobile">
+<div class="flex flex-col items-center gap-3 min-w-[100px] group">
+<div class="w-24 h-24 rounded-full overflow-hidden border-2 border-primary/20 p-1 group-hover:border-primary/50 transition-colors">
+<img alt="Chandra" class="w-full h-full object-cover rounded-full shadow-md" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcGvb6zHpsvpz7tT2tDPRk8bsHh4dgkor0hU8RWC8EL1bDyJlbUPYEKGre_jZrAdbOjqKMMjRHv4aAp9_g7dxiYUcYoazGr2_wmJdyHWrDVEbk-xwEuQdcTfDezDfEExh5YXVbVUOgH3oQEw_0O8nkKKEY99aCWHc9unhr9nDmmJCYuyNCKvU7hiPBFI235fwki-ee3gK2Ob0jZmt_3jV72AQfHRBaUEwpl5lunEt68QBiLxY4Ny9e"/>
+</div>
+<span class="font-label-md text-on-surface text-center font-medium group-hover:text-primary transition-colors">Chandra</span>
+</div>
+<div class="flex flex-col items-center gap-3 min-w-[100px] group">
+<div class="w-24 h-24 rounded-full overflow-hidden p-1 border-2 border-transparent group-hover:border-primary/50 transition-colors">
+<img alt="Tharnan S." class="w-full h-full object-cover rounded-full shadow-md" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDv7PNMgiSSOTasdJihmGsOR4EB-ynI807N_RZZFIxyGRQcViZJJIX8ojGUQMJOJKzoX6WorjFBK7wsYQHVouDic48bEk7AOvZCcxsB1onQ3gxgQhmGW7nLlLW92XpiQ3Hx6hcu0_KjQ4m3tC5XJjCm6UqVA4GfWK_JFb7swxQDcQ3x6RwYvGpHmqESA6JmUoZqbPquJ_sG5i7m3ttps0lEPNO2dqENsn5ndWHeQpYNb0k9sQ13qkp3"/>
+</div>
+<span class="font-label-md text-on-surface text-center font-medium group-hover:text-primary transition-colors">Tharnan S.</span>
+</div>
+<div class="flex flex-col items-center gap-3 min-w-[100px] group">
+<div class="w-24 h-24 rounded-full overflow-hidden p-1 border-2 border-transparent group-hover:border-primary/50 transition-colors">
+<img alt="Elara Vox" class="w-full h-full object-cover rounded-full shadow-md" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmPekSJb1VyHC8bpJRm2crPxV3VW_a7qDq3zJxwT7c-85Ety-GuElkKYOu1DdKJKJWmD37rhbhOfmItz3V8WQJeYZVcSgH7ntsBjr9muqXtSKAql851y_KAauQlAdIfkvKDGLldlIxwDmimKfa0-UBQnmKGOPhDYxiwOphBcgCQZ9vWblbrlPG67MgWvZJAvrwl0U0vwEN4VaeoFgi_F9dt--Uoiic9nVL-fNnZJzMTyLZMxKnaXBf"/>
+</div>
+<span class="font-label-md text-on-surface text-center font-medium group-hover:text-primary transition-colors">Elara Vox</span>
+</div>
+<div class="flex flex-col items-center gap-3 min-w-[100px] group">
+<div class="w-24 h-24 rounded-full overflow-hidden p-1 border-2 border-transparent group-hover:border-primary/50 transition-colors">
+<img alt="Julian Key" class="w-full h-full object-cover rounded-full shadow-md" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMGawt1RP5CoA4RC7PjGUsonKqQoE5JEPi-JUu3l9EEmJKfgTXqVl2KMd7AeD-mb0eCv3-9q8DB8cTRaXmMIgiIBrPm09ObRp2zMYi8PRXQ4ghjuB2U8gwEAB_tPwC21aSfPkrhcHuDImqb5f_IFN128NIOkj0QvRlbBVsYqdPwV-8Q5vRFCJc2_oyyihfo2IRI-fF6xw1XhdflbGkEiJ3Gss8sN8IxNaTcMYXPrc-G2PLStJQyALn"/>
+</div>
+<span class="font-label-md text-on-surface text-center font-medium group-hover:text-primary transition-colors">Julian Key</span>
+</div>
+</div>
+</section>
+<!-- Top Albums Section -->
+<section class="mt-10">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-headline-sm text-on-surface">Top albums</h3>
+<button class="text-primary font-label-md font-bold hover:underline">See all</button>
+</div>
+<div class="flex gap-4 overflow-x-auto hide-scrollbar pb-2 -mx-container-padding-mobile px-container-padding-mobile">
+<div class="flex flex-col gap-3 min-w-[160px] group">
+<div class="aspect-square w-full rounded-xl overflow-hidden shadow-lg relative">
+<img alt="Sita Ramam" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwxtpEfOm2tsQXrvDZBwpV6fgwzxl4P5T8tPJ1W5zLrTaErp8-LQ-TELYwkWP_WQKLn-d0wdJ8jvXdavX3HuvXYA4nXH5K7AFONJePJ49Pl7YM_kO5YEpPW7usBt5e_lFEI_8hCR4g-9VWUUI1jFMtw_HmOvu9ZbIvKTdbVRwGVCn-0K1vsaqo00HHNvSHT09JHFIW2Fs4guQgT7jnnYIw4HVW4S-FBCZKP2iW0VvbEoqrq_COnIa1"/>
+<div class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-4xl" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+</div>
+</div>
+<div>
+<p class="font-label-md text-on-surface font-bold truncate">Sita Ramam</p>
+<p class="font-label-sm text-on-surface-variant font-medium">2022 • Original Score</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 min-w-[160px] group">
+<div class="aspect-square w-full rounded-xl overflow-hidden shadow-lg relative">
+<img alt="Neon Pulse" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrzeXciUdolPU-HzCyjvr5G4r_xfaRMyNOLWXdvoTmsr3Fqu9Ru4daw9deRQ2ZPsNqM8xkq8w7RQsbCwqnnIgR3cPtNInppbffIucljbLG3CgqgjcPnIYXFsO9hhwULFQkp7SQaCTcTeTwgDxwWjlFZDKonpNZbsCUB7FCEY6yk1yXmW6BKO6Qg8wkg1JFgv1YEFjophQRcFqyqIEsbxAlSIQUMabOSqrTwj7bM6mcMe0STN9nIoyG"/>
+<div class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-4xl" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+</div>
+</div>
+<div>
+<p class="font-label-md text-on-surface font-bold truncate">Neon Pulse</p>
+<p class="font-label-sm text-on-surface-variant font-medium">2024 • Thaman S.</p>
+</div>
+</div>
+<div class="flex flex-col gap-3 min-w-[160px] group">
+<div class="aspect-square w-full rounded-xl overflow-hidden shadow-lg relative">
+<img alt="Midnight Rain" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAdVXpoJOGJpNqmK1FaXy_stBEKH4anO7bCgY-k3Wgl0SvzCHbww_fqzgi9RW6ZaOpNTIe8O7-ZMxiQtAGQrTT4f3a-faXJbs9tP9swi_RBSbciA5Ut4AmyWD1BMnnL68rflx2EuJkmo-GpMYMNUtWK-U60oPUc1L44IiSbC7pyGB7KcP8PxpeKeNSPZ76rd3jeYo4EycI6T1cV1E9747u5h23rS_A2ja4gHoBUDeEAb2Eq2_ppeNAk"/>
+<div class="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-4xl" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+</div>
+</div>
+<div>
+<p class="font-label-md text-on-surface font-bold truncate">Midnight Rain</p>
+<p class="font-label-sm text-on-surface-variant font-medium">2023 • Lo-fi Beats</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Listening Summary Section -->
+<section class="mt-10">
+<div class="bg-surface-container rounded-2xl p-6 relative overflow-hidden border border-outline-variant/10">
+<div class="absolute -top-10 -right-10 w-40 h-40 bg-primary/5 blur-[60px] rounded-full"></div>
+<div class="relative z-10 flex flex-col items-center text-center">
+<div class="mb-8">
+<h3 class="font-headline-sm text-on-surface flex items-center justify-center gap-2 mb-2">
+<span class="material-symbols-outlined text-primary">analytics</span> Listening Summary
+                    </h3>
+<p class="text-4xl font-display-lg-mobile text-on-surface tracking-tight">62h 14m</p>
+<p class="font-label-sm text-on-surface-variant mt-1 uppercase tracking-widest">Total time this month</p>
+</div>
+<div class="grid grid-cols-3 gap-6 w-full mb-8 border-y border-outline-variant/20 py-8">
+<div class="flex flex-col items-center gap-1">
+<span class="material-symbols-outlined text-primary/80 mb-1">music_note</span>
+<p class="font-headline-sm text-on-surface">842</p>
+<p class="font-label-sm text-on-surface-variant">Songs</p>
+</div>
+<div class="flex flex-col items-center gap-1">
+<span class="material-symbols-outlined text-primary/80 mb-1">mic</span>
+<p class="font-headline-sm text-on-surface">213</p>
+<p class="font-label-sm text-on-surface-variant">Artists</p>
+</div>
+<div class="flex flex-col items-center gap-1">
+<span class="material-symbols-outlined text-primary/80 mb-1">album</span>
+<p class="font-headline-sm text-on-surface">87</p>
+<p class="font-label-sm text-on-surface-variant">Albums</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-x-12 gap-y-6 w-full px-4">
+<div class="flex flex-col items-center gap-1">
+<p class="font-label-md text-primary font-bold">18 Days</p>
+<p class="font-label-sm text-on-surface-variant">Streak 🔥</p>
+</div>
+<div class="flex flex-col items-center gap-1">
+<p class="font-label-md text-on-surface font-bold">37%</p>
+<p class="font-label-sm text-on-surface-variant">Repeat Rate</p>
+</div>
+<div class="flex flex-col items-center gap-1">
+<p class="font-label-md text-on-surface font-bold">24%</p>
+<p class="font-label-sm text-on-surface-variant">Discovery</p>
+</div>
+<div class="flex flex-col items-center gap-1">
+<p class="font-label-md text-on-surface font-bold">68%</p>
+<p class="font-label-sm text-on-surface-variant">Shuffle</p>
+</div>
+<div class="flex flex-col items-center gap-1 col-span-2 mt-2">
+<p class="font-label-md text-on-surface font-bold">61%</p>
+<p class="font-label-sm text-on-surface-variant">Night Owl 🌙</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Mini Player -->
+<div class="fixed bottom-24 left-3 right-3 z-50">
+<div class="glass-card rounded-2xl px-4 py-3 flex items-center justify-between shadow-xl">
+<div class="flex items-center gap-3 overflow-hidden">
+<div class="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 shadow-md">
+<img alt="A Thousand Years" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBk47Bgb5bli7uoFlplJJc2RoqmMmHed5Z2WnJk-KD1Wq87nGPj2rSgKunaUOSPCU-fd2_h4kR0J0bRVGr6WxVeIBxFqT-FkYkfGVoHi65ilntqSCFT71r7W2bYwgJMNbO2IDr7sMonLc4cqS1DabCAJqod6l6vyjfdfkbP6MyOihrLcP1WFavCWi-GMglFxggh_xiwt0K2eZW872zLAMyQPuTutMxTZF3omeNEyNDGrPc0qxOlqgqn"/>
+</div>
+<div class="overflow-hidden">
+<p class="font-label-md text-on-surface font-bold truncate">A Thousand Years</p>
+<p class="font-label-sm text-on-surface-variant truncate font-medium">Christina Perri</p>
+</div>
+</div>
+<div class="flex items-center gap-5 pr-2">
+<button class="text-on-surface hover:text-primary transition-colors active:scale-90">
+<span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<button class="text-on-surface hover:text-primary transition-colors active:scale-90">
+<span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 0;">skip_next</span>
+</button>
+</div>
+<!-- Progress Bar -->
+<div class="absolute bottom-0 left-4 right-4 h-[2px] bg-outline-variant/20 overflow-hidden rounded-full">
+<div class="h-full bg-primary w-1/3 shadow-[0_0_8px_rgba(255,90,0,0.6)]"></div>
+</div>
+</div>
+</div>
+<!-- Bottom Nav Bar -->
+<nav class="bg-background/90 backdrop-blur-2xl fixed bottom-0 w-full z-50 pb-safe border-t border-outline-variant/10 flex justify-around items-center h-20 px-8">
+<button class="flex flex-col items-center gap-1 group">
+<span class="material-symbols-outlined text-primary text-2xl group-active:scale-90 transition-transform" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="w-1 h-1 bg-primary rounded-full mt-1"></span>
+</button>
+<button class="flex flex-col items-center gap-1 group">
+<span class="material-symbols-outlined text-on-surface-variant text-2xl group-hover:text-on-surface transition-colors group-active:scale-90">search</span>
+</button>
+<button class="flex flex-col items-center gap-1 group">
+<span class="material-symbols-outlined text-on-surface-variant text-2xl group-hover:text-on-surface transition-colors group-active:scale-90">library_music</span>
+</button>
+<button class="flex flex-col items-center gap-1 group">
+<span class="material-symbols-outlined text-on-surface-variant text-2xl group-hover:text-on-surface transition-colors group-active:scale-90">explore</span>
+</button>
+</nav>
+<script>
+    // Micro-interactions for buttons
+    document.querySelectorAll('button, .group').forEach(el => {
+        el.addEventListener('touchstart', () => {
+            el.style.transform = 'scale(0.97)';
+            el.style.transition = 'transform 0.15s cubic-bezier(0.4, 0, 0.2, 1)';
+        });
+        el.addEventListener('touchend', () => {
+            el.style.transform = 'scale(1)';
+        });
+    });
+</script>
+</body></html>

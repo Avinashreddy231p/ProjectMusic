@@ -59,6 +59,7 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
 
     private var _binding: FragmentMainRecyclerBinding? = null
     private val binding get() = _binding!!
+    protected val isBindingInitialized: Boolean get() = _binding != null
 
     protected var adapter: A? = null
     protected var layoutManager: LM? = null
@@ -73,6 +74,8 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        if (view.findViewById<View>(R.id.recycler_view) == null) return
+        
         applyWindowInsetsFromView(view)
 
         _binding = FragmentMainRecyclerBinding.bind(view)
@@ -187,11 +190,13 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
         @StringRes get() = R.string.empty_label
 
     private fun checkIsEmpty() {
+        if (!isBindingInitialized) return
         binding.emptyText.setText(emptyMessageRes)
         binding.empty.isVisible = adapter!!.itemCount == 0
     }
 
     private fun checkForMargins() {
+        if (!isBindingInitialized) return
         checkForMargins(binding.recyclerView)
     }
 
@@ -204,11 +209,13 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
     protected abstract fun createAdapter(): A
 
     protected fun invalidateLayoutManager() {
+        if (!isBindingInitialized) return
         initLayoutManager()
         binding.recyclerView.layoutManager = layoutManager
     }
 
     protected fun invalidateAdapter() {
+        if (!isBindingInitialized) return
         initAdapter()
         checkIsEmpty()
         binding.recyclerView.adapter = adapter
@@ -219,6 +226,7 @@ abstract class AbsRecyclerViewFragment<A : RecyclerView.Adapter<*>, LM : Recycle
     val container get() = binding.root
 
     override fun scrollToTop() {
+        if (!isBindingInitialized) return
         recyclerView.scrollToPosition(0)
         binding.appBarLayout.setExpanded(true, true)
     }

@@ -44,16 +44,13 @@ class StatsFlusher(
         transitionReason: String,
         maxDurationMs: Long
     ) {
-        val session = tracker.onSongTransition(
+        tracker.onSongTransition(
             currentSong = currentSong,
             nextSong = nextSong,
             currentPositionMs = currentPositionMs,
             transitionReason = transitionReason,
             maxDurationMs = maxDurationMs
         )
-        if (session != null) {
-            flushSingleSession(session)
-        }
         flushPendingSessions()
     }
 
@@ -65,21 +62,56 @@ class StatsFlusher(
         }
     }
 
-    fun onSeek() {
-        tracker.onSeekPerformed()
+    fun onSeek(oldPositionMs: Long, newPositionMs: Long) {
+        tracker.onSeekPerformed(oldPositionMs, newPositionMs)
+    }
+
+    fun setPlaybackContext(
+        shuffleEnabled: Boolean = false,
+        repeatMode: String = "off",
+        queuePosition: Int = -1,
+        queueSource: String = "",
+        playbackOrigin: String = "unknown",
+        playlistId: String = "",
+        playlistName: String = "",
+        isFavorite: Boolean = false
+    ) {
+        tracker.setPlaybackContext(
+            shuffleEnabled = shuffleEnabled,
+            repeatMode = repeatMode,
+            queuePosition = queuePosition,
+            queueSource = queueSource,
+            playbackOrigin = playbackOrigin,
+            playlistId = playlistId,
+            playlistName = playlistName,
+            isFavorite = isFavorite
+        )
+    }
+
+    fun setEndReason(endReason: String) {
+        tracker.setEndReason(endReason)
     }
 
     fun flushAndStop(endReason: String = "app_closed"): List<ListeningSessionEntity> {
         stopPeriodicFlush()
-        val lastSession = tracker.flushCurrentSession(endReason)
-        val remaining = tracker.drainPendingSessions()
-        val allSessions = mutableListOf<ListeningSessionEntity>()
-        if (lastSession != null) allSessions.add(lastSession)
-        allSessions.addAll(remaining)
-        if (allSessions.isNotEmpty()) {
+        tracker.flushCurrentSession(endReason)
+        val allSessions = tracker.drainPendingSessions()
+
+        val group = tracker.endCurrentSessionGroup()
+        val remainingGroups = tracker.drainPendingGroups()
+        val allGroups = mutableListOf<com.mardous.booming.data.local.room.ListeningSessionGroupEntity>()
+        if (group != null) allGroups.add(group)
+        allGroups.addAll(remainingGroups)
+
+        if (allSessions.isNotEmpty() || allGroups.isNotEmpty()) {
             scope.launch {
                 try {
-                    statsRepository.insertSessions(allSessions)
+                    if (allGroups.isNotEmpty()) {
+                        statsRepository.insertGroups(allGroups)
+                    }
+                    if (allSessions.isNotEmpty()) {
+                        statsRepository.insertSessions(allSessions)
+                    }
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to flush sessions on stop", e)
                 }
@@ -92,22 +124,16 @@ class StatsFlusher(
         flushPendingSessions()
     }
 
-    private fun flushSingleSession(session: ListeningSessionEntity) {
-        scope.launch {
-            try {
-                statsRepository.insertSession(session)
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to insert session", e)
-            }
-        }
-    }
-
     private fun flushPendingSessions() {
         if (isFlushing) return
         isFlushing = true
         scope.launch {
             try {
                 val sessions = tracker.drainPendingSessions()
+                val groups = tracker.drainPendingGroups()
+                if (groups.isNotEmpty()) {
+                    statsRepository.insertGroups(groups)
+                }
                 if (sessions.isNotEmpty()) {
                     statsRepository.insertSessions(sessions)
                 }

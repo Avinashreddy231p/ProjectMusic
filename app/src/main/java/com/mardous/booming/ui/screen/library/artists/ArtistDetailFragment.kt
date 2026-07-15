@@ -79,16 +79,47 @@ import com.mardous.booming.ui.component.menu.onArtistMenu
 import com.mardous.booming.ui.component.menu.onArtistsMenu
 import com.mardous.booming.ui.component.menu.onSongMenu
 import com.mardous.booming.ui.component.menu.onSongsMenu
+import com.mardous.booming.databinding.ItemDetailHeaderBinding
+import com.mardous.booming.databinding.ItemSpotifyDetailHeaderBinding
 import com.mardous.booming.util.Preferences
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 import java.util.Locale
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import com.mardous.booming.ui.theme.BoomingMusicTheme
 
-/**
- * @author Christians M. A. (mardous)
- */
 class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_detail),
     IAlbumCallback, IArtistCallback, ISongCallback {
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val isSpotify = Preferences.uiTheme == com.mardous.booming.util.UITheme.SPOTIFY
+        return if (isSpotify) {
+            ComposeView(requireContext()).apply {
+                setContent {
+                    val result by detailViewModel.getArtistDetail().observeAsState(Artist.empty)
+                    BoomingMusicTheme {
+                        ArtistDetailScreen(
+                            artist = result,
+                            onSongClick = { song -> playerViewModel.openQueue(listOf(song), 0, true) },
+                            onAlbumClick = { album -> albumClick(album, null) },
+                            onBackClick = { findNavController().navigateUp() },
+                            onSettingsClick = { findNavController().navigate(R.id.nav_settings) }
+                        )
+                    }
+                }
+            }
+        } else {
+            super.onCreateView(inflater, container, savedInstanceState)
+        }
+    }
 
     private val arguments by navArgs<ArtistDetailFragmentArgs>()
     private val detailViewModel by viewModel<ArtistDetailViewModel> {
@@ -164,31 +195,54 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
             songs = getArtist().sortedSongs,
             layoutRes = itemLayoutRes,
             sortMode = SongSortMode.ArtistSongs,
+            swipeContext = com.mardous.booming.core.model.swipe.SwipeContext.ARTISTS,
             callback = this
         )
     }
 
     private fun setupRecyclerView() {
         // Header
-        headerAdapter = HeaderAdapter { headerBinding ->
-            headerBinding.image.transitionName = if (isAlbumArtist) {
-                arguments.artistName
+        headerAdapter = HeaderAdapter { view ->
+            if (Preferences.uiTheme == com.mardous.booming.util.UITheme.SPOTIFY) {
+                val headerBinding = ItemSpotifyDetailHeaderBinding.bind(view)
+                headerBinding.image.transitionName = if (isAlbumArtist) {
+                    arguments.artistName
+                } else {
+                    arguments.artistId.toString()
+                }
+                headerBinding.image.removeHorizontalMarginIfRequired()
+                headerBinding.image.artistImage(getArtist()) { crossfade(false) }
+
+                headerBinding.title.text = getArtist().displayName()
+                headerBinding.subtitle.text = getArtist().artistInfo(requireContext())
+
+                headerBinding.playAction.setOnClickListener {
+                    playerViewModel.openQueue(getArtist().sortedSongs, shuffleMode = OpenShuffleMode.Off, queueSource = "artist")
+                }
+                headerBinding.shuffleAction.setOnClickListener {
+                    playerViewModel.openAndShuffleQueue(getArtist().sortedSongs)
+                }
             } else {
-                arguments.artistId.toString()
-            }
-            headerBinding.image.removeHorizontalMarginIfRequired()
-            headerBinding.image.artistImage(getArtist()) { crossfade(false) }
+                val headerBinding = ItemDetailHeaderBinding.bind(view)
+                headerBinding.image.transitionName = if (isAlbumArtist) {
+                    arguments.artistName
+                } else {
+                    arguments.artistId.toString()
+                }
+                headerBinding.image.removeHorizontalMarginIfRequired()
+                headerBinding.image.artistImage(getArtist()) { crossfade(false) }
 
-            headerBinding.title.text = getArtist().displayName()
-            headerBinding.subtitle.text = getArtist().artistInfo(requireContext())
+                headerBinding.title.text = getArtist().displayName()
+                headerBinding.subtitle.text = getArtist().artistInfo(requireContext())
 
-            headerBinding.playAction.setOnClickListener {
-                playerViewModel.openQueue(getArtist().sortedSongs, shuffleMode = OpenShuffleMode.Off)
+                headerBinding.playAction.setOnClickListener {
+                    playerViewModel.openQueue(getArtist().sortedSongs, shuffleMode = OpenShuffleMode.Off, queueSource = "artist")
+                }
+                headerBinding.shuffleAction.setOnClickListener {
+                    playerViewModel.openAndShuffleQueue(getArtist().sortedSongs)
+                }
+                headerBinding.searchAction?.setOnClickListener { goToSearch() }
             }
-            headerBinding.shuffleAction.setOnClickListener {
-                playerViewModel.openAndShuffleQueue(getArtist().sortedSongs)
-            }
-            headerBinding.searchAction?.setOnClickListener { goToSearch() }
         }
 
         // Grid albums
@@ -267,6 +321,7 @@ class ArtistDetailFragment : AbsMainActivityFragment(R.layout.fragment_artist_de
         concatAdapter = ConcatAdapter(config, adapters)
         if (_binding != null) {
             binding.recyclerView.adapter = concatAdapter
+            songAdapter.attachToRecyclerView(binding.recyclerView)
         }
     }
 

@@ -1,0 +1,326 @@
+<!DOCTYPE html><html class="dark" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
+<title>Artist Profile - Julian K.</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-fixed": "#72fe8f",
+                    "on-primary-fixed": "#002108",
+                    "error-container": "#93000a",
+                    "on-tertiary-fixed-variant": "#881d28",
+                    "surface-bright": "#38393a",
+                    "on-tertiary-fixed": "#400009",
+                    "background": "#000000", /* Overridden to True Black as per Style Guidance */
+                    "inverse-primary": "#006e2d",
+                    "tertiary-container": "#ff767b",
+                    "on-secondary-container": "#bab8b7",
+                    "surface-container-low": "#1a1c1c",
+                    "surface": "#121414",
+                    "surface-container-high": "#292a2a",
+                    "secondary-fixed-dim": "#c8c6c5",
+                    "on-surface": "#e3e2e2",
+                    "on-primary-fixed-variant": "#005320",
+                    "on-tertiary-container": "#730a1b",
+                    "inverse-surface": "#e3e2e2",
+                    "secondary": "#c8c6c5",
+                    "on-tertiary": "#680114",
+                    "inverse-on-surface": "#2f3131",
+                    "surface-variant": "#343535",
+                    "outline": "#869585",
+                    "primary": "#53e076",
+                    "outline-variant": "#3d4a3d",
+                    "on-background": "#e3e2e2",
+                    "error": "#ffb4ab",
+                    "surface-container-lowest": "#0d0e0f",
+                    "on-primary": "#003914",
+                    "secondary-fixed": "#e5e2e1",
+                    "primary-container": "#1db954",
+                    "primary-fixed-dim": "#53e076",
+                    "on-secondary-fixed-variant": "#474646",
+                    "on-secondary": "#313030",
+                    "secondary-container": "#4a4949",
+                    "surface-tint": "#53e076",
+                    "tertiary-fixed-dim": "#ffb3b3",
+                    "tertiary": "#ffb3b3",
+                    "surface-container": "#1e2020",
+                    "on-secondary-fixed": "#1c1b1b",
+                    "on-surface-variant": "#bccbb9",
+                    "on-error-container": "#ffdad6",
+                    "on-error": "#690005",
+                    "tertiary-fixed": "#ffdad9",
+                    "surface-dim": "#121414",
+                    "surface-container-highest": "#343535",
+                    "on-primary-container": "#004118"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "16px", /* Matches Style Guidance for Cards */
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-padding-desktop": "32px",
+                    "stack-lg": "24px",
+                    "unit": "8px",
+                    "stack-sm": "8px",
+                    "container-padding-mobile": "16px",
+                    "stack-md": "16px",
+                    "gutter": "16px"
+            },
+            "fontFamily": {
+                    "label-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "display-lg-mobile": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "serif-premium": ["Playfair Display", "serif"]
+            },
+            "fontSize": {
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "500"}],
+                    "display-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "800"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.04em", "fontWeight": "800"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #000000;
+            color: #e3e2e2;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        .glass-effect {
+            background: rgba(18, 20, 20, 0.4);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .ambient-glow {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(29, 185, 84, 0.15) 0%, rgba(29, 185, 84, 0) 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .line-clamp-1 {
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="font-body-lg text-body-lg">
+<!-- Top AppBar (From JSON) -->
+<header class="fixed top-0 w-full flex justify-between items-center px-container-padding-mobile h-16 z-50 bg-background/80 backdrop-blur-xl border-b border-white/10">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A sophisticated close-up portrait of a user for a profile photo, styled with a high-end fashion aesthetic. The lighting is cinematic with a soft rim light against a dark, minimalist background. The color palette consists of deep blacks and subtle emerald green highlights to match the premium music app brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA40cDlkEwhaSnMhSqvMqAQrKqqV4WejR7FYBo2h9H4REaSw8cRveznYwEK5EaHNI43CVLgu7tz2sxzi550JrJC2KfjaDBZ5J9--knqpwqkbZ9n3ccncL0qUJQlBUzY0sv5mD-RG6y4zbh3DfjFkePBcBMnsdIjsSSUR_oKx0RH5ySPt8nUdi_P5Qexp5qfNFuqrlkL9DhLS4rI3ovwNRrgKmmo5EjfX8Pc4NowYVP7moMfKmaMyckT">
+</div>
+<span class="font-headline-md text-headline-md text-primary tracking-tight">SoundScape</span>
+</div>
+<button class="active:scale-95 transition-transform hover:opacity-80">
+<span class="material-symbols-outlined text-primary">settings</span>
+</button>
+</header>
+<main class="pb-32 pt-16 relative">
+<div class="ambient-glow top-[10%] -left-[10%]"></div>
+<div class="ambient-glow top-[40%] -right-[10%]"></div>
+<!-- Artist Hero Section -->
+<section class="relative w-full h-[530px] md:h-[618px] flex flex-col justify-end">
+<div class="absolute inset-0 z-0">
+<div class="w-full h-full bg-cover bg-center" data-alt="A panoramic, cinematic photo of Julian K., a sophisticated male music artist, standing in a dimly lit, atmospheric studio surrounded by vintage analog synthesizers and soft green ambient lighting. The style is professional editorial photography with deep shadows, high contrast, and a mood of intense creative focus, fitting a premium music streaming platform." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBTsju6pG5mKqPJfaadwQ3reJ717VATZZcgbltf2Z1Dt2muMOL5db-XUmIREo17Pdd35M1mg7_fM9w9XgT2hdMrXcmBsxTO50fGBo6ki8gInsE4g9iKHUlMRl-a2EL2quHxu1ZJVMQ5QyHusZtOvM-rgKH8hJITNaA2rIfgFGl3iHcmuDIHgWnCQWWSXKhFXXCSB_c5WnvyYmBR9xcVvGm_TTnQzuZ_7BSS9usKO-DbEaLa4vTidefs')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+</div>
+<div class="relative z-10 px-container-padding-mobile pb-8 space-y-6">
+<div class="glass-effect inline-block px-6 py-4 rounded-xl">
+<h1 class="font-serif-premium text-white text-5xl md:text-7xl tracking-tight">Julian K.</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-primary-container text-on-primary-container px-8 py-3 rounded-full font-bold active:scale-95 transition-all flex items-center gap-2 hover:brightness-110"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span> Favorite</button>
+<button class="glass-effect text-white w-12 h-12 flex items-center justify-center rounded-full active:scale-95 transition-all hover:bg-white/10">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">shuffle</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Statistics Row -->
+<section class="mt-8">
+<div class="flex overflow-x-auto hide-scrollbar gap-4 px-container-padding-mobile">
+<div class="glass-effect flex-shrink-0 px-6 py-3 rounded-full flex flex-col items-center">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Total Listen Time</span>
+<span class="text-white font-headline-sm text-headline-sm">48h 20m</span>
+</div>
+<div class="glass-effect flex-shrink-0 px-6 py-3 rounded-full flex flex-col items-center"><span class="text-on-surface-variant font-label-sm text-label-sm">Local Storage</span><span class="text-white font-headline-sm text-headline-sm">420 MB</span></div>
+<div class="glass-effect flex-shrink-0 px-6 py-3 rounded-full flex flex-col items-center">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Plays</span>
+<span class="text-white font-headline-sm text-headline-sm">8.5M</span>
+</div>
+<div class="glass-effect flex-shrink-0 px-6 py-3 rounded-full flex flex-col items-center"><span class="text-on-surface-variant font-label-sm text-label-sm">My Rank</span><span class="text-white font-headline-sm text-headline-sm">#1 Artist</span></div>
+<div class="glass-effect flex-shrink-0 px-6 py-3 rounded-full flex flex-col items-center">
+<span class="text-on-surface-variant font-label-sm text-label-sm">Songs</span>
+<span class="text-white font-headline-sm text-headline-sm">124</span>
+</div>
+</div>
+</section>
+<!-- Popular Tracks -->
+<section class="mt-12 px-container-padding-mobile">
+<h2 class="font-headline-md text-headline-md-mobile text-white mb-6">Popular Tracks</h2>
+<div class="space-y-2">
+<!-- Track 1 -->
+<div class="flex items-center gap-4 p-2 rounded-lg hover:bg-white/5 transition-colors group cursor-pointer">
+<span class="w-6 text-on-surface-variant font-bold text-center">1</span>
+<img class="w-12 h-12 rounded-lg object-cover" data-alt="Album art for a futuristic electronic track featuring glowing emerald green wireframe geometry against a deep charcoal background. The aesthetic is clean, technological, and high-contrast, fitting a premium dark-themed music streaming interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCeSLtA-UbY27Qt1nFZOS9igi7tOonh5AcMF9w2umBS7h7TtwoXOgQu7-M8lw5Jax6OdZtn5lmKyz_zgrP0ZZ2cGeXXtDZOcF6ZQ9PhDrDXuXfuhN4lQ3BYIKifQjXvzfh6XOZMUpBjiegQ7ZXBKreBCaSB8COdP99EBJRVGAx4hhGlXn8BoxbV2CNikkOEyoEvIXDwYxuUsgAcBAX2USUaydoqjrnGVO1ZhwFpbx3WMJKsk5jnmyL">
+<div class="flex-grow">
+<p class="text-white font-body-lg text-body-lg line-clamp-1">Neon Pulse</p>
+<p class="text-on-surface-variant font-body-sm text-body-sm">3,452,102 plays</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">more_vert</span>
+</div>
+<!-- Track 2 -->
+<div class="flex items-center gap-4 p-2 rounded-lg hover:bg-white/5 transition-colors group cursor-pointer">
+<span class="w-6 text-on-surface-variant font-bold text-center">2</span>
+<img class="w-12 h-12 rounded-lg object-cover" data-alt="Abstract album artwork for a chill-hop track showing liquid metal textures in dark grey and vibrant green highlights. Minimalist, sleek, and atmospheric design for a modern music streaming app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQcnKFUfKUhr4h-HPRAH-Ri9NRSDFUGxXBQ85fzqSesnV3nin8d7oIN0PMgF7BSIfAq0F4_olF_8IbnQVLpBom_yaXIpHmVw2nRPurvTieqCsKxPzmrHUjvcysP9rerc0_CGM4tXufFW2wXszLCxJ_KkbCMZGpQ1AwErDJmaFxCC11VqWagEdtC51f-utDhUiAxPl138xwWdpzBUQ_YyPYyHbGiE4ZKUYbNUXSv-W-H9nfWHLkJpGh">
+<div class="flex-grow">
+<p class="text-white font-body-lg text-body-lg line-clamp-1">Shadow Architect</p>
+<p class="text-on-surface-variant font-body-sm text-body-sm">2,890,441 plays</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">more_vert</span>
+</div>
+<!-- Track 3 -->
+<div class="flex items-center gap-4 p-2 rounded-lg hover:bg-white/5 transition-colors group cursor-pointer">
+<span class="w-6 text-on-surface-variant font-bold text-center">3</span>
+<img class="w-12 h-12 rounded-lg object-cover" data-alt="Modernist album cover with a silhouette of a musician performing in front of a giant green lunar disc. High contrast black and primary green palette, grainy film texture, sophisticated art style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsDnyxrWPbiRLxAa4Bj8oOsuVKmG8lxoTyMp1FjwKea2Ag07AqPwgOYnsyy5yApMu08dg8GDI0E7QzqZ32r2km7wejKHFeSx7Pt8u52GeRBdLZDiEBORonZrgAUCKh8B7drms4627nnwh3_kpAl0Jw1wzKry23VSx1B90UGZrmT9usVMQQ973jTupOuUFI8l77hpD0fJYKtRywzZAUCqD5A-NmZq1rygwzeqBWKLhdcGIxz3PygDcC">
+<div class="flex-grow">
+<p class="text-white font-body-lg text-body-lg line-clamp-1">Midnight Theory</p>
+<p class="text-on-surface-variant font-body-sm text-body-sm">2,102,005 plays</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">more_vert</span>
+</div>
+<!-- Track 4 -->
+<div class="flex items-center gap-4 p-2 rounded-lg hover:bg-white/5 transition-colors group cursor-pointer">
+<span class="w-6 text-on-surface-variant font-bold text-center">4</span>
+<img class="w-12 h-12 rounded-lg object-cover" data-alt="Sophisticated album art with minimalist typography reading 'STATIC' across a background of distorted green light leaks and dark shadows. Atmospheric, moody, and premium aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQwuUWoSpKtAGX1A94OhTSlCh5PbgzppyTlyAEratmDE8DGTFbcRmNRPVWulQ3SonfHqkRLgoKQzCF3yq22FeMLR6BvOFzscJUAPWFOteRjDwqt9oYHcb5eLRYdAkxwlSRaUzleeY4-atAqWCghqayMmoHAVMFUkQyvPtHD9-pTVxTi5mbn96NbyHJGnsRoODK8jvY5CvVbcujxYHzpCkyLeNPloHIzfXoMZh2Cam0uphVVvN6EwYz">
+<div class="flex-grow">
+<p class="text-white font-body-lg text-body-lg line-clamp-1">Static Echoes</p>
+<p class="text-on-surface-variant font-body-sm text-body-sm">1,944,321 plays</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">more_vert</span>
+</div>
+<!-- Track 5 -->
+<div class="flex items-center gap-4 p-2 rounded-lg hover:bg-white/5 transition-colors group cursor-pointer">
+<span class="w-6 text-on-surface-variant font-bold text-center">5</span>
+<img class="w-12 h-12 rounded-lg object-cover" data-alt="Techno album cover featuring a macro shot of a diamond-cut crystal reflecting green light. Sleek, luxurious, and sharp visual style on a pitch-black background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1YYA8oAI58cGLs4om-k0ym6N78vsB0b4YmZ2vqHbW6QmuWxnckKQQ1hx7RD4ntMN5noWs-hGyAWE2L7GaPmERRjMKbcniMdgfXIKT-sBMnew0W8iVKKOrsuYMfIkhrlETmRlhIrx21Gy0e5iqUMAMmM1mVskSCvvZQsOb2gbyZoCV_UdG1VMsqKNZuqZj6Tef6axy6VUuFx9_HKvxY3UC6ek5U-69tAudh0iAUonsoM0WZBqZoB_J">
+<div class="flex-grow">
+<p class="text-white font-body-lg text-body-lg line-clamp-1">Prism Logic</p>
+<p class="text-on-surface-variant font-body-sm text-body-sm">1,502,339 plays</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">more_vert</span>
+</div>
+</div>
+</section>
+<!-- Featured Albums -->
+<section class="mt-12 mb-12"><h2 class="font-headline-md text-headline-md-mobile text-white px-container-padding-mobile mb-6">My Playlists</h2><div class="flex overflow-x-auto hide-scrollbar gap-6 px-container-padding-mobile"><div class="w-64 flex-shrink-0 relative group cursor-pointer"><div class="glass-effect p-3 rounded-xl transition-all hover:bg-white/10"><div class="relative overflow-hidden rounded-lg mb-3"><img class="w-full h-64 object-cover" data-alt="Playlist cover for 'Best of Julian K.'" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBaAJfKhs4EtVs6IID-0QTzeVZxJqVq2Z_2zZ7cXkZ86kQHpH7Biozpz-AdvWehh3p53Fl8NWHMt8_fmf6znFf-2fMpXfyWkyThWtSiVvMra9ZbwNYKTlnYsJ9V660ws39X4C4rbA3sBDYB5gd4QrMD_ohJMmhuJhQ0NGE07-xl3c679AnV5SnRyCBUUGc-WEP4z4M3Qw3AtMUsTqAPBsacZvlOy8HfjYFdwuEYpYkjVdqwQ1vIz_Ij"><div class="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><div class="bg-primary rounded-full p-4 shadow-2xl"><span class="material-symbols-outlined text-on-primary text-3xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span></div></div></div><p class="text-white font-headline-sm text-headline-sm leading-tight">Best of Julian K.</p><p class="text-on-surface-variant text-body-sm">Curated by Julian K.</p></div></div><div class="w-64 flex-shrink-0 relative group cursor-pointer"><div class="glass-effect p-3 rounded-xl transition-all hover:bg-white/10"><div class="relative overflow-hidden rounded-lg mb-3"><img class="w-full h-64 object-cover" data-alt="Playlist cover for 'Electronic Rising'" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAKTRxUO61leYB2HXdrB55CQQlTN1OVE7Xo93qTbqSPXb_ng3-QMZ7AWHYs6jnM710IGrsgst97Fv5G7QLYksje3Zqbo1fn6aLvtHgqnkROYEdvhB_HkEbYNMByFiUT7n_MuZDaqEssslljaKuLd95pHxUbx6OvCn1d_SkQs2aTDzMmOgCf7UdjnkkFOa4VW0fST7jSXlunxwu-d7eC6voCppHzErrMl93mS60Sn0EHeUlE_GG6sEO"><div class="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><div class="bg-primary rounded-full p-4 shadow-2xl"><span class="material-symbols-outlined text-on-primary text-3xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span></div></div></div><p class="text-white font-headline-sm text-headline-sm leading-tight">Electronic Rising</p><p class="text-on-surface-variant text-body-sm">New Releases</p></div></div></div></section><section class="mt-12"><div class="flex justify-between items-center px-container-padding-mobile mb-6"><h2 class="font-headline-md text-headline-md-mobile text-white">Featured Albums</h2><span class="text-primary font-label-md text-label-md">View All</span></div><div class="grid grid-cols-2 gap-4 px-container-padding-mobile"><div class="flex flex-col gap-2"><img class="w-full aspect-square rounded-lg object-cover border border-white/5" data-alt="Album cover for 'Chronos'" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDVr9tYjJ3oCXFyXMQpAxRztWEz0H7jLszSEvczztyz4SuwQLS5uHr7r2CMq7FzMk_5HiinAycsx3GmGkMaPXj91WRLbCTXJwEjgnOKGgy0LDHSwQMeWVGisushkupyJzn25XMPuqXAhbD_N7OgwTEZ16gLHPMiCaVwhJyV5t3eJGJKophaf-1BGafeBvAqKpzhVLtePylho7WZmcYu94RClfzPwHf5XAp2f-xFrY_zFfgXB51exy1W"><div class="px-1"><p class="text-white font-bold text-body-lg line-clamp-1">Chronos</p><p class="text-on-surface-variant text-label-md">2024 • Album</p></div></div><div class="flex flex-col gap-2"><img class="w-full aspect-square rounded-lg object-cover border border-white/5" data-alt="Album cover for 'Vortex'" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgJdbry0HDHEP1eA8izyaMOV47HnCBP8Cc655J8kP_VtmcFCIjPrJe7vRScmMM8yAyJhY9e-gyZvK7vPK6pYMhMCELi3utGpLq9cO4uz9wFoxL22SDav18jPjUffHDCWU811vNcTR8zW2G0M0i88s4ssEteQd1anggRlIGtuOOnrES4wo0p9YgynGEY_4xN1GD9VJhouY6wteBTX4mMB9f0DMWmzDoAeqAjBLi27H_C6s1t8EaBmZo"><div class="px-1"><p class="text-white font-bold text-body-lg line-clamp-1">Vortex</p><p class="text-on-surface-variant text-label-md">2023 • Album</p></div></div></div></section>
+<!-- Featured Playlists -->
+<section class="mt-12 mb-12"><h2 class="font-headline-md text-headline-md-mobile text-white px-container-padding-mobile mb-6">About Julian K.</h2><div class="px-container-padding-mobile"><div class="glass-effect p-6 rounded-xl space-y-4 border border-white/10"><p class="font-serif-premium text-white text-body-lg leading-relaxed">Julian K. is a pioneer in ambient electronic music, blending deep atmospheric textures with intricate melodic layers. Based in Berlin, his work explores the intersection of nature and technology, creating immersive soundscapes that have defined the modern electronic landscape.</p></div></div></section>
+</main>
+<!-- Mini Player (Glassmorphic) -->
+<div class="fixed bottom-24 left-4 right-4 z-40 glass-effect p-3 rounded-xl flex items-center gap-3">
+<img class="w-10 h-10 rounded-lg object-cover" data-alt="Small square album art thumbnail showing a glowing green circle on black background, minimalist and high-tech." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjjbvY6-G4wDNO6alTInwTlAdmQYtSBK3Abw-4Hcz0hTsaq8r-sOfRwR-tLT1x_t_9MjfZ304C7OysbL2IMVbz2b8-nHeaP3xN-4Xbkqjsk2yHERJ5UeLlLp6bjHUyXodZj_9lQj7iddtHf9ISsDCaII_CH9a09msBks-TFW7_yYaUf_xGeN8NvFUNFZamWhrTm3jSX-UuxtInuVA11ibn8JEMWBE8Fkpm_dBvDPv-t-ntka38ezu0">
+<div class="flex-grow">
+<p class="text-white text-sm font-bold line-clamp-1">Neon Pulse</p>
+<p class="text-on-surface-variant text-xs">Julian K.</p>
+</div>
+<div class="flex items-center gap-4 px-2">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+<span class="material-symbols-outlined text-white">skip_next</span>
+</div>
+<div class="absolute bottom-0 left-0 h-1 bg-primary-container rounded-full" style="width: 45%;"></div>
+</div>
+<!-- Bottom NavBar (From JSON) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 pb-safe px-4 bg-surface-container-lowest/70 backdrop-blur-2xl shadow-2xl border-t border-white/5">
+<div class="flex flex-col items-center justify-center text-secondary hover:text-primary-fixed-dim active:scale-90 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-secondary hover:text-primary-fixed-dim active:scale-90 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined">search</span>
+<span class="font-label-sm text-label-sm">Search</span>
+</div>
+<div class="flex flex-col items-center justify-center text-secondary hover:text-primary-fixed-dim active:scale-90 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined">library_music</span>
+<span class="font-label-sm text-label-sm">Library</span>
+</div>
+<div class="flex flex-col items-center justify-center text-primary-fixed bg-primary-container/20 rounded-full px-4 py-1 active:scale-90 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">explore</span>
+<span class="font-label-sm text-label-sm">Explore</span>
+</div>
+</nav>
+<script>
+        // Micro-interaction for scroll effects
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.classList.add('bg-black/95');
+                header.classList.remove('bg-background/80');
+            } else {
+                header.classList.add('bg-background/80');
+                header.classList.remove('bg-black/95');
+            }
+        });
+
+        // Add haptic-like scale effect to all buttons
+        document.querySelectorAll('button, .cursor-pointer').forEach(el => {
+            el.addEventListener('touchstart', () => {
+                el.style.transform = 'scale(0.95)';
+            });
+            el.addEventListener('touchend', () => {
+                el.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+
+
+
+
+</body></html>

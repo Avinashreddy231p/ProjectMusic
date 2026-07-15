@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+
+<html lang="en" style=""><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"/><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">try{
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "surface-container-high": "#f1f3f5",
+                  "secondary-container": "#e9ecef",
+                  "on-primary-container": "#ffffff",
+                  "surface-tint": "#ff8c00",
+                  "on-primary": "#ffffff",
+                  "inverse-primary": "#e67e00",
+                  "inverse-on-surface": "#f8f9fa",
+                  "secondary": "#495057",
+                  "on-background": "#212529",
+                  "inverse-surface": "#212529",
+                  "surface-bright": "#ffffff",
+                  "tertiary-container": "#fff4e6",
+                  "tertiary": "#ff8c00",
+                  "on-surface-variant": "#6c757d",
+                  "primary-fixed-dim": "#ffa94d",
+                  "surface-container": "#ffffff",
+                  "on-tertiary-fixed-variant": "#d9480f",
+                  "primary-container": "#ff8c00",
+                  "surface": "#f8f9fa",
+                  "surface-container-lowest": "#ffffff",
+                  "on-primary-fixed-variant": "#d9480f",
+                  "error-container": "#ffe3e3",
+                  "on-secondary-container": "#343a40",
+                  "primary-fixed": "#ffd8a8",
+                  "primary": "#ff8c00",
+                  "surface-container-highest": "#dee2e6",
+                  "on-error-container": "#c92a2a",
+                  "outline": "#ced4da",
+                  "error": "#fa5252",
+                  "on-secondary": "#ffffff",
+                  "tertiary-fixed": "#fff4e6",
+                  "on-surface": "#212529",
+                  "on-secondary-fixed-variant": "#495057",
+                  "on-tertiary": "#ffffff",
+                  "on-error": "#ffffff",
+                  "surface-dim": "#f1f3f5",
+                  "on-secondary-fixed": "#212529",
+                  "background": "#f8f9fa",
+                  "tertiary-fixed-dim": "#ffd8a8",
+                  "surface-variant": "#e9ecef",
+                  "surface-container-low": "#f8f9fa",
+                  "on-tertiary-fixed": "#400009",
+                  "secondary-fixed": "#f1f3f5",
+                  "secondary-fixed-dim": "#dee2e6",
+                  "outline-variant": "#e9ecef",
+                  "on-primary-fixed": "#400009",
+                  "on-tertiary-container": "#d9480f"
+          },
+          "borderRadius": {
+                  "DEFAULT": "0.25rem",
+                  "lg": "0.5rem",
+                  "xl": "0.75rem",
+                  "full": "9999px"
+          },
+          "spacing": {
+                  "stack-lg": "24px",
+                  "gutter": "16px",
+                  "container-padding-mobile": "16px",
+                  "stack-md": "16px",
+                  "container-padding-desktop": "32px",
+                  "unit": "8px",
+                  "stack-sm": "8px"
+          },
+          "fontFamily": {
+                  "headline-sm": ["Inter"],
+                  "display-lg": ["Inter"],
+                  "headline-md": ["Inter"],
+                  "body-sm": ["Inter"],
+                  "label-md": ["Inter"],
+                  "body-lg": ["Inter"],
+                  "display-lg-mobile": ["Inter"],
+                  "label-sm": ["Inter"]
+          },
+          "fontSize": {
+                  "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "700"}],
+                  "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.04em", "fontWeight": "800"}],
+                  "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                  "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                  "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                  "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "500"}],
+                  "display-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "800"}],
+                  "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}]
+          }
+        },
+      },
+    }
+  }catch(_e){}</script><meta charset="utf-8"/></head><body class="bg-background text-on-surface select-none no-scrollbar">
+<!-- Shared TopAppBar -->
+<header class="flex justify-between items-center w-full px-container-padding-mobile h-14 sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-outline-variant">
+<div class="flex items-center gap-stack-sm hover:opacity-80 transition-opacity cursor-pointer">
+<span class="material-symbols-outlined text-on-surface" data-original-icon="arrow_back">arrow_back</span>
+</div>
+<h1 class="text-headline-sm font-headline-sm font-bold text-on-surface">Album</h1>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface hover:opacity-80 transition-opacity cursor-pointer" data-icon="settings">settings</span>
+</div>
+</header>
+<main class="pb-40">
+<!-- Album Header Section -->
+<section class="px-container-padding-mobile pt-stack-md flex flex-col items-center text-center">
+<div class="w-64 h-64 md:w-80 md:h-80 rounded-xl overflow-hidden shadow-xl relative group mb-stack-md">
+<img class="w-full h-full object-cover" data-alt="A high-resolution album cover for 'Echoes of Us' featuring a romantic, atmospheric scene of two figures in a sun-drenched, vintage courtyard. The visual style is cinematic and high-contrast, utilizing rich teal and warm amber tones typical of high-end film photography. The lighting is soft and golden, creating a nostalgic, premium aesthetic that complements the deep black UI of the music app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBt_udjrLxY7tWHGQdGGMECXXShMiEMxUJEkJiZwA3PmQ6afxfNocAE066KZuYpOZdLmlzsynkod9byFEPnqliagPqMaHNhiNVDM7GlB4l8jiL-vFopa8LRHW0MVhJ7o87VNpUFYMFA-Z1C4qCmIAgpVNNGz0k2Xvf4Z_1LtahSUPo8KuPCT6bw27fZtDgkyEYRer3UjXmt4-QfaHglz26OJbq5FnsFBylQ6pMro-ywRTtTixA3P6I9"/>
+<div class="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors"></div>
+</div>
+<div class="space-y-unit gap-stack-md">
+<h2 class="text-display-lg-mobile font-display-lg-mobile tracking-tight text-on-surface">Echoes of Us</h2>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Sita Ramam • 2022 • 12 songs, 48 min</p><div class="flex items-center justify-center gap-4 py-2 px-4 bg-white/60 backdrop-blur-md rounded-xl border border-outline-variant mt-2 shadow-sm">
+<div class="flex flex-col items-center">
+<span class="text-label-sm text-on-surface-variant uppercase tracking-wider">Total Time</span>
+<span class="text-body-lg font-bold text-on-surface">12h 45m</span>
+</div>
+<div class="w-[1px] h-8 bg-outline-variant"></div>
+<div class="flex flex-col items-center">
+<span class="text-label-sm text-on-surface-variant uppercase tracking-wider">Plays</span>
+<span class="text-body-lg font-bold text-on-surface">86</span>
+</div>
+<div class="w-[1px] h-8 bg-outline-variant"></div>
+<div class="flex flex-col items-center">
+<span class="text-label-sm text-on-surface-variant uppercase tracking-wider">Rank</span>
+<span class="text-body-lg font-bold text-primary">#2 Top</span>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex items-center justify-center gap-stack-md mt-stack-lg w-full mb-stack-lg">
+<button class="bg-primary text-white px-8 py-3 rounded-full font-bold flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all shadow-md">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+          Play
+        </button>
+<button class="bg-surface-container-high text-on-surface px-8 py-3 rounded-full font-bold flex items-center gap-2 border border-outline-variant hover:bg-surface-container-highest active:scale-95 transition-all">
+<span class="material-symbols-outlined">shuffle</span>
+          Shuffle
+        </button>
+</div>
+</section>
+<!-- Track List -->
+<section class="mt-stack-lg px-container-padding-mobile">
+<div class="space-y-1">
+<!-- Track 1 -->
+<div class="flex items-center justify-between p-stack-sm hover:bg-surface-container-low rounded-lg transition-colors group cursor-pointer border border-transparent hover:border-outline-variant">
+<div class="flex items-center gap-stack-md">
+<span class="w-6 text-on-surface-variant font-label-md text-label-md text-center group-hover:hidden flex items-center justify-center">1</span>
+<span class="w-6 text-primary hidden group-hover:block material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+<div>
+<p class="text-body-lg font-body-lg text-on-surface">Sita Ramam (Theme)</p>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Vishal Chandrashekhar</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-on-surface">more_vert</span>
+</div>
+<!-- Track 2 -->
+<div class="flex items-center justify-between p-stack-sm hover:bg-surface-container-low rounded-lg transition-colors group cursor-pointer border border-transparent hover:border-outline-variant">
+<div class="flex items-center gap-stack-md">
+<span class="w-6 text-on-surface-variant font-label-md text-label-md text-center group-hover:hidden flex items-center justify-center">2</span>
+<span class="w-6 text-primary hidden group-hover:block material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+<div>
+<p class="text-body-lg font-body-lg text-on-surface">Inthandham</p>
+<p class="text-body-sm font-body-sm text-on-surface-variant">S.P. Charan</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-on-surface">more_vert</span>
+</div>
+<!-- Track 3 -->
+<div class="flex items-center justify-between p-stack-sm hover:bg-surface-container-low rounded-lg transition-colors group cursor-pointer border border-transparent hover:border-outline-variant">
+<div class="flex items-center gap-stack-md">
+<span class="w-6 text-on-surface-variant font-label-md text-label-md text-center group-hover:hidden flex items-center justify-center">3</span>
+<span class="w-6 text-primary hidden group-hover:block material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+<div>
+<p class="text-body-lg font-body-lg text-on-surface">Oh Sita Hey Rama</p>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Vishal Chandrashekhar</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-on-surface">more_vert</span>
+</div>
+<!-- Track 4 -->
+<div class="flex items-center justify-between p-stack-sm hover:bg-surface-container-low rounded-lg transition-colors group cursor-pointer border border-transparent hover:border-outline-variant">
+<div class="flex items-center gap-stack-md">
+<span class="w-6 text-on-surface-variant font-label-md text-label-md text-center group-hover:hidden flex items-center justify-center">4</span>
+<span class="w-6 text-primary hidden group-hover:block material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+<div>
+<p class="text-body-lg font-body-lg text-on-surface">Kanunna Kalyanam</p>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Anurag Kulkarni</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-on-surface">more_vert</span>
+</div>
+</div>
+</section>
+<!-- Grid Section: More Like This -->
+<section class="mt-stack-lg px-container-padding-mobile">
+<h3 class="text-headline-sm font-headline-sm mb-stack-md text-on-surface">Artists</h3>
+<div class="flex gap-stack-md overflow-x-auto no-scrollbar pb-2">
+<div class="flex flex-col items-center gap-2 min-w-[80px] cursor-pointer group">
+<div class="w-20 h-20 rounded-full overflow-hidden border-2 border-surface-container-high group-hover:border-primary transition-colors shadow-sm">
+<img alt="Sita Ramam" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBt_udjrLxY7tWHGQdGGMECXXShMiEMxUJEkJiZwA3PmQ6afxfNocAE066KZuYpOZdLmlzsynkod9byFEPnqliagPqMaHNhiNVDM7GlB4l8jiL-vFopa8LRHW0MVhJ7o87VNpUFYMFA-Z1C4qCmIAgpVNNGz0k2Xvf4Z_1LtahSUPo8KuPCT6bw27fZtDgkyEYRer3UjXmt4-QfaHglz26OJbq5FnsFBylQ6pMro-ywRTtTixA3P6I9"/>
+</div>
+<span class="text-label-md font-label-md text-on-surface text-center">Sita Ramam</span>
+</div>
+<div class="flex flex-col items-center gap-2 min-w-[80px] cursor-pointer group" style="transform: scale(1);">
+<div class="w-20 h-20 rounded-full overflow-hidden border-2 border-surface-container-high group-hover:border-primary transition-colors shadow-sm">
+<img alt="Vishal Chandrashekhar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmfbwi11TTXWrcRirZYfpEApDeJEQQVw3uEHmi9oRDURDf8g5rWuy-zICB6J1mhk-ivjcl9NAi0HOn1ne3DvDz7d4DyrxJIMyKSEBxn1EfSx3_D7ebvzPWdCKzH6HtrwPjQfcS8j80v8fHZNiOq1sP0xikWMA1egQNA_wc1_G3XwWxTzMTqStz27iySxBmOHN9Jasr4Xqv38QOLkdxVt_UG1n0cozNyiblc_pqD_7kDrM357nwVySV"/>
+</div>
+<span class="text-label-md font-label-md text-on-surface text-center">Vishal </span>
+</div>
+<div class="flex flex-col items-center gap-2 min-w-[80px] cursor-pointer group">
+<div class="w-20 h-20 rounded-full overflow-hidden border-2 border-surface-container-high group-hover:border-primary transition-colors shadow-sm">
+<img alt="S.P. Charan" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlq6g8DoaY5TmFyKsFc1UXGPCImFHzsgM1ZVXRUbFZEGGdfm2aV8z56nDnpneake2yeuOIEDR37G6ENzvJfL08NraMVVZhN2nG5p7HKNev0qQHkL1-E-B1ldfYWFWoXHPG_RGGOYnMWmC9JJFHxFn9XJZZ2GMWADIpES-VHdfdTgW1jn6Lfstc09zgV_MA8yG0UGF0Zd-AXHXHMBquAHVO5VzeQESfD-j7JSxt_lXQcriFIrq2QwZN"/>
+</div>
+<span class="text-label-md font-label-md text-on-surface text-center">S.P. Charan</span>
+</div>
+<div class="flex flex-col items-center gap-2 min-w-[80px] cursor-pointer group" style="transform: scale(1);">
+<div class="w-20 h-20 rounded-full overflow-hidden border-2 border-surface-container-high group-hover:border-primary transition-colors shadow-sm">
+<img alt="Anurag Kulkarni" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhqR_oRFTtlGTUOLjWHmQgCt5dZ0oeuy6r7QAGGPIPnLI3vzNeqGpkLOlhr6Eaqs3GyK-_TvapZtIHNNH8irDDAdsXaHu7ZTD-VhDlcRz1CCnE-S3fscoFE1z-BZlc1WxY32VCPHv7slL2mM7-iGysrtx__sQC0SCx8Siow-bLcsLPFXGweFNac940ZJuKI6eATcz579fhUPzGN5iEteWVUmo0ehK9lH-eDVbOhBImfxmCQa00OocN"/>
+</div>
+<span class="text-label-md font-label-md text-on-surface text-center">Anurag </span>
+</div>
+</div>
+</section><section class="mt-stack-lg px-container-padding-mobile pt-stack-md">
+<h3 class="text-headline-sm font-headline-sm mb-stack-md text-on-surface">More like this</h3>
+<div class="grid grid-cols-2 gap-stack-md">
+<!-- Item 1 -->
+<div class="group cursor-pointer">
+<div class="aspect-square rounded-lg overflow-hidden mb-2 bg-surface-container-low border border-outline-variant shadow-sm">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A lush cinematic album cover featuring a solitary figure overlooking a misty valley at dawn. The aesthetic is atmospheric and ethereal, with a palette of deep blues, soft purples, and vibrant pops of sunset orange. This high-end digital artwork creates a feeling of sophisticated energy and immersion, perfectly aligned with a premium music platform's dark theme." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmfbwi11TTXWrcRirZYfpEApDeJEQQVw3uEHmi9oRDURDf8g5rWuy-zICB6J1mhk-ivjcl9NAi0HOn1ne3DvDz7d4DyrxJIMyKSEBxn1EfSx3_D7ebvzPWdCKzH6HtrwPjQfcS8j80v8fHZNiOq1sP0xikWMA1egQNA_wc1_G3XwWxTzMTqStz27iySxBmOHN9Jasr4Xqv38QOLkdxVt_UG1n0cozNyiblc_pqD_7kDrM357nwVySV"/>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface truncate">Eternal Melodies</p>
+<p class="text-body-sm text-on-surface-variant">Various Artists</p>
+</div>
+<!-- Item 2 -->
+<div class="group cursor-pointer">
+<div class="aspect-square rounded-lg overflow-hidden mb-2 bg-surface-container-low border border-outline-variant shadow-sm">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Modern abstract album art using flowing liquid metal textures in holographic silver and deep charcoal. The lighting is dramatic and moody, emphasizing a sleek, high-tech aesthetic. The composition is dynamic and sophisticated, intended to stand out against a dark black UI background in a premium music streaming application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlq6g8DoaY5TmFyKsFc1UXGPCImFHzsgM1ZVXRUbFZEGGdfm2aV8z56nDnpneake2yeuOIEDR37G6ENzvJfL08NraMVVZhN2nG5p7HKNev0qQHkL1-E-B1ldfYWFWoXHPG_RGGOYnMWmC9JJFHxFn9XJZZ2GMWADIpES-VHdfdTgW1jn6Lfstc09zgV_MA8yG0UGF0Zd-AXHXHMBquAHVO5VzeQESfD-j7JSxt_lXQcriFIrq2QwZN"/>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface truncate">Shadow Beats</p>
+<p class="text-body-sm text-on-surface-variant">The Visionaries</p>
+</div>
+<!-- Item 3 -->
+<div class="group cursor-pointer">
+<div class="aspect-square rounded-lg overflow-hidden mb-2 bg-surface-container-low border border-outline-variant shadow-sm">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A minimalist architectural photograph of a brutalist concrete building against a stark, high-contrast black sky. Subtle green lighting accents the edges, providing a direct link to the app's primary accent color. The style is sophisticated and clean, representing the high-fidelity utility of a professional audio tool." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAT6gf6yUNNtKZAhNQrSa3NgyfV_U0H_Aeq6VR3mzjINyZN9wcy9KO52cyFCG6J83n5uMmTyQMQY8m6NoqcUlijW5ZIESF5pYhaRctq-ElSaEYb1nRjMFRZm8kJB-Yrwik_7Q2KVPCqmNCfXq3jMM5dj4cXz7VnjazRUYXw7dLgggqzCkEOhlBh2BRttv4pllJLJ8J3c3B_MQdCuHllm2x5_LYxl7X3svurqUPDrW7aEWdZhriSDmSG"/>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface truncate">Modern Echoes</p>
+<p class="text-body-sm text-on-surface-variant">Urban Soul</p>
+</div>
+<!-- Item 4 -->
+<div class="group cursor-pointer">
+<div class="aspect-square rounded-lg overflow-hidden mb-2 bg-surface-container-low border border-outline-variant shadow-sm">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="A vibrant, energetic portrait of a jazz musician caught in motion, surrounded by swirling bokeh light effects in shades of neon green and deep violet. The atmosphere is that of a high-end concert hall, captured with a shallow depth of field for a professional, premium look that resonates with energetic music." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhqR_oRFTtlGTUOLjWHmQgCt5dZ0oeuy6r7QAGGPIPnLI3vzNeqGpkLOlhr6Eaqs3GyK-_TvapZtIHNNH8irDDAdsXaHu7ZTD-VhDlcRz1CCnE-S3fscoFE1z-BZlc1WxY32VCPHv7slL2mM7-iGysrtx__sQC0SCx8Siow-bLcsLPFXGweFNac940ZJuKI6eATcz579fhUPzGN5iEteWVUmo0ehK9lH-eDVbOhBImfxmCQa00OocN"/>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface truncate">Jazz Fusion</p>
+<p class="text-body-sm text-on-surface-variant">Luna Trio</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Mini Player (Glassmorphism) -->
+<div class="fixed bottom-[72px] left-2 right-2 z-50 bg-white/80 backdrop-blur-xl border border-outline-variant rounded-xl h-16 flex items-center px-3 shadow-xl pointer-events-auto">
+<div class="flex items-center flex-1 min-w-0">
+<div class="w-10 h-10 rounded-lg overflow-hidden mr-3 shadow-sm border border-outline-variant">
+<img class="w-full h-full object-cover" data-alt="Small thumbnail of an album cover featuring a close-up of a vintage vinyl record spinning under soft green studio lights. The image is crisp and professional, fitting the high-end music player theme." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtkRbFiQi8n1xOEVEYBl6bcJ1MPjjP8OTF7Yzao7yfeyliG1NBkWADY3FQU_mbF40T8Aucb2Ej_3AGPrHuukdC3cfKECXAaxafPMKyqFlbgOe9KWLVIDqpzgmuDZt84JM00vBqEqHhmtYmkzX_hCmNpzzSOTxHZQL2nfMAcoFa2PSkkUAXU15W8-b9SOgwAaGDDdCfccS2_9o6zPemppRduGlPCuDosN4Y9RFmmTvijU3jEukcYnFl"/>
+</div>
+<div class="min-w-0 flex-1">
+<p class="text-label-md font-label-md text-on-surface truncate">Sita Ramam (Theme)</p>
+<p class="text-[11px] text-on-surface-variant truncate">Vishal Chandrashekhar</p>
+</div>
+</div>
+<div class="flex items-center gap-4 ml-4">
+<span class="material-symbols-outlined text-primary text-[28px] cursor-pointer" style="font-variation-settings: 'FILL' 1;">pause</span>
+<span class="material-symbols-outlined text-on-surface text-[28px] cursor-pointer">skip_next</span>
+</div>
+<!-- Progress Bar -->
+<div class="absolute bottom-0 left-0 right-0 h-[2px] bg-black/5 rounded-b-xl overflow-hidden">
+<div class="h-full bg-primary w-1/3"></div>
+</div>
+</div>
+<!-- Shared BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 px-4 pb-safe bg-background border-t border-outline-variant">
+<button class="flex flex-col items-center justify-center gap-1 group text-on-surface-variant hover:text-primary transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="text-label-sm font-label-sm">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 group text-on-surface-variant hover:text-primary transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+<span class="text-label-sm font-label-sm">Search</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 group text-on-surface-variant hover:text-primary transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined" data-icon="library_music">library_music</span>
+<span class="text-label-sm font-label-sm">Library</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 group text-on-surface-variant hover:text-primary transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined" data-icon="explore">explore</span>
+<span class="text-label-sm font-label-sm">Explore</span>
+</button>
+</nav>
+<script>
+    // Subtle hover interaction for track rows
+    document.querySelectorAll('.group.cursor-pointer').forEach(item => {
+      item.addEventListener('mousedown', () => {
+        item.style.transform = 'scale(0.98)';
+      });
+      item.addEventListener('mouseup', () => {
+        item.style.transform = 'scale(1)';
+      });
+    });
+  </script>
+</body></html>

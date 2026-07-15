@@ -304,6 +304,7 @@ class LibraryViewModel(
         when (type) {
             ContentType.TopArtists -> emit(repository.topArtists())
             ContentType.RecentArtists -> emit(repository.recentArtists())
+            ContentType.HistoryArtists -> emit(repository.historyArtists())
             else -> emit(arrayListOf())
         }
     }
@@ -312,6 +313,7 @@ class LibraryViewModel(
         when (type) {
             ContentType.TopAlbums -> emit(repository.topAlbums())
             ContentType.RecentAlbums -> emit(repository.recentAlbums())
+            ContentType.HistoryAlbums -> emit(repository.historyAlbums())
             else -> emit(arrayListOf())
         }
     }

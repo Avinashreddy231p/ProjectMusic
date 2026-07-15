@@ -21,6 +21,9 @@ internal fun MediaSession.isRemoteController(controller: MediaSession.Controller
 val Player.mediaItems: List<MediaItem>
     get() = (0 until mediaItemCount).map { getMediaItemAt(it) }
 
+val Player.currentSong: Song
+    get() = currentMediaItem.song
+
 fun Player.getQueueItems(shuffleMode: Boolean = this.shuffleModeEnabled): List<QueueItem> {
     val timeline = currentTimeline
     if (timeline.isEmpty) return emptyList()

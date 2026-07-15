@@ -53,7 +53,12 @@ sealed class NetworkFeature(
 
     sealed class Lastfm(preferenceKey: String, isOnByDefault: Boolean) :
         NetworkFeature(preferenceKey, isOnByDefault) {
-        object Scrobbling : Lastfm(LASTFM_SCROBBLING_ENABLED_KEY, false)
+        object Scrobbling : Lastfm(LASTFM_SCROBBLING_ENABLED_KEY, false) {
+            override val isAvailable: Boolean
+                get() = if (isEnabled) {
+                    if (com.mardous.booming.util.Preferences.lastfmOfflineScrobbling) true else isOnline()
+                } else false
+        }
         object NowPlaying : Lastfm(LASTFM_NOW_PLAYING_ENABLED_KEY, false)
         object Biographies : Lastfm(LASTFM_INFO_ENABLED_KEY, true)
 

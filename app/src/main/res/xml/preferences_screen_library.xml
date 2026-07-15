@@ -25,6 +25,9 @@
         app:title="@string/playlists_label"
         app:layout="@layout/preference_category_title">
 
+
+
+
         <SwitchPreferenceCompat
             app:icon="@drawable/ic_history_24dp"
             app:title="@string/enable_history_title"

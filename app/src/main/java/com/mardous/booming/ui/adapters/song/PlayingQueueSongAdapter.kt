@@ -41,7 +41,7 @@ class PlayingQueueSongAdapter(
     private var playlist: MutableList<Song>,
     current: Int,
     callback: ISongCallback? = null,
-) : SongAdapter(activity, playlist, R.layout.item_queue, callback = callback),
+) : SongAdapter(activity, playlist, R.layout.item_queue, sortMode = null, swipeContext = com.mardous.booming.core.model.swipe.SwipeContext.QUEUE, callback = callback),
     DraggableItemAdapter<PlayingQueueSongAdapter.ViewHolder> {
 
     private var needsUpdate = false

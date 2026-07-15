@@ -17,13 +17,18 @@
 
 package com.mardous.booming.ui.screen.library.home
 
+import com.mardous.booming.util.Preferences
+import com.mardous.booming.util.UITheme
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -64,7 +69,14 @@ import com.mardous.booming.ui.component.menu.onArtistMenu
 import com.mardous.booming.ui.component.menu.onArtistsMenu
 import com.mardous.booming.ui.component.menu.onSongMenu
 import com.mardous.booming.ui.component.menu.onSongsMenu
+import com.mardous.booming.ui.screen.stats.StatsViewModel
 import com.mardous.booming.ui.screen.library.ReloadType
+import com.mardous.booming.data.local.repository.StatsRepository
+import com.mardous.booming.data.local.repository.StatsSummary
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.koin.android.ext.android.inject
 
 /**
  * @author Christians M. A. (mardous)
@@ -81,6 +93,8 @@ class HomeFragment : AbsMainActivityFragment(R.layout.fragment_home),
     private val binding get() = _binding!!
 
     private var homeAdapter: HomeAdapter? = null
+    private val statsRepository: StatsRepository by inject()
+    private var statsJob: kotlinx.coroutines.Job? = null
 
     private val currentContent: SuggestedResult
         get() = libraryViewModel.getSuggestions().value ?: SuggestedResult.Idle
@@ -95,6 +109,7 @@ class HomeFragment : AbsMainActivityFragment(R.layout.fragment_home),
 
         setupTitle()
         setupListeners()
+        setupStatsCard()
         checkForMargins()
 
         homeAdapter = HomeAdapter(arrayListOf(), this).also {
@@ -139,6 +154,7 @@ class HomeFragment : AbsMainActivityFragment(R.layout.fragment_home),
         binding.appBarLayout.toolbar.setNavigationOnClickListener {
             findNavController().navigate(R.id.nav_search)
         }
+        
         val hexColor = String.format("#%06X", 0xFFFFFF and primaryColor())
         val appName = "Booming <font color=$hexColor>Music</font>".toHtml()
         binding.appBarLayout.title = appName
@@ -149,17 +165,37 @@ class HomeFragment : AbsMainActivityFragment(R.layout.fragment_home),
         binding.lastAdded.setOnClickListener(this)
         binding.history.setOnClickListener(this)
         binding.shuffleButton.setOnClickListener(this)
+        binding.statsCard.setOnClickListener {
+            findNavController().navigate(R.id.nav_stats)
+        }
+    }
+
+    private fun setupStatsCard() {
+        statsJob?.cancel()
+        statsJob = viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val summary = withContext(Dispatchers.IO) { statsRepository.getSummary() }
+                binding.statsTime.text = StatsViewModel.formatDurationProgressive(summary.totalListeningMs)
+                binding.statsPlays.text = summary.totalSessions.toString()
+                binding.statsSongs.text = summary.uniqueSongs.toString()
+                binding.statsArtists.text = summary.uniqueArtists.toString()
+                binding.statsCard.visibility = View.VISIBLE
+            } catch (e: Exception) {
+                binding.statsCard.visibility = View.GONE
+            }
+        }
     }
 
     private fun checkIsEmpty() {
-        binding.empty.isVisible = !currentContent.isLoading && homeAdapter.isNullOrEmpty
+        _binding?.empty?.isVisible = !currentContent.isLoading && homeAdapter.isNullOrEmpty
     }
 
     private fun checkForMargins() {
-        checkForMargins(binding.recyclerView)
+        _binding?.let { checkForMargins(it.recyclerView) }
     }
 
     override fun onClick(view: View) {
+        val binding = _binding ?: return
         when (view) {
             binding.myTopTracks -> {
                 findNavController().navigate(R.id.nav_detail_list, detailArgs(ContentType.TopTracks))
@@ -188,14 +224,14 @@ class HomeFragment : AbsMainActivityFragment(R.layout.fragment_home),
 
     override fun onPause() {
         super.onPause()
-        binding.recyclerView.stopScroll()
+        _binding?.recyclerView?.stopScroll()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         homeAdapter?.unregisterAdapterDataObserver(adapterDataObserver)
-        binding.recyclerView.adapter = null
-        binding.recyclerView.layoutManager = null
+        _binding?.recyclerView?.adapter = null
+        _binding?.recyclerView?.layoutManager = null
         homeAdapter = null
         _binding = null
     }
@@ -212,7 +248,8 @@ class HomeFragment : AbsMainActivityFragment(R.layout.fragment_home),
     override fun createSuggestionAdapter(suggestion: Suggestion): RecyclerView.Adapter<*> {
         return when (suggestion.type) {
             ContentType.TopArtists,
-            ContentType.RecentArtists -> ArtistAdapter(
+            ContentType.RecentArtists,
+            ContentType.HistoryArtists -> ArtistAdapter(
                 activity = mainActivity,
                 dataSet = (suggestion.items as List<Artist>),
                 itemLayoutRes = R.layout.item_artist,
@@ -220,13 +257,17 @@ class HomeFragment : AbsMainActivityFragment(R.layout.fragment_home),
             )
 
             ContentType.TopAlbums,
-            ContentType.RecentAlbums -> AlbumAdapter(
+            ContentType.RecentAlbums,
+            ContentType.HistoryAlbums -> AlbumAdapter(
                 activity = mainActivity,
                 dataSet = (suggestion.items as List<Album>),
                 itemLayoutRes = R.layout.item_album_gradient,
                 callback = this
             )
 
+            ContentType.TopTracks,
+            ContentType.History,
+            ContentType.RecentSongs,
             ContentType.Favorites,
             ContentType.NotRecentlyPlayed -> SongAdapter(
                 activity = mainActivity,
@@ -234,8 +275,6 @@ class HomeFragment : AbsMainActivityFragment(R.layout.fragment_home),
                 itemLayoutRes = R.layout.item_image,
                 callback = this
             )
-
-            else -> throw IllegalArgumentException("Unexpected suggestion type: ${suggestion.type}")
         }
     }
 
@@ -315,12 +354,17 @@ class HomeFragment : AbsMainActivityFragment(R.layout.fragment_home),
         if (menuItem.itemId == R.id.action_settings) {
             findNavController().navigate(R.id.nav_settings)
             return true
+        } else if (menuItem.itemId == R.id.action_library_stats) {
+            findNavController().navigate(R.id.nav_library_stats)
+            return true
         }
         return false
     }
 
     override fun scrollToTop() {
-        binding.container.scrollTo(0, 0)
-        binding.appBarLayout.setExpanded(true)
+        _binding?.let {
+            it.container.scrollTo(0, 0)
+            it.appBarLayout.setExpanded(true)
+        }
     }
 }

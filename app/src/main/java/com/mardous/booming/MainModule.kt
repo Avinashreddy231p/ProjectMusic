@@ -33,8 +33,6 @@ import com.mardous.booming.data.local.repository.NetworkRepository
 import com.mardous.booming.data.local.repository.NetworkRepositoryImpl
 import com.mardous.booming.data.local.repository.PlaylistRepository
 import com.mardous.booming.data.local.repository.RealAlbumRepository
-import com.mardous.booming.data.local.repository.StatsRepository
-import com.mardous.booming.ui.screen.stats.StatsViewModel
 import com.mardous.booming.data.local.repository.RealArtistRepository
 import com.mardous.booming.data.local.repository.RealGenreRepository
 import com.mardous.booming.data.local.repository.RealLyricsRepository
@@ -49,6 +47,7 @@ import com.mardous.booming.data.local.repository.SearchRepository
 import com.mardous.booming.data.local.repository.SmartRepository
 import com.mardous.booming.data.local.repository.SongRepository
 import com.mardous.booming.data.local.repository.SpecialRepository
+import com.mardous.booming.data.local.repository.StatsRepository
 import com.mardous.booming.data.model.Genre
 import com.mardous.booming.data.remote.deezer.DeezerService
 import com.mardous.booming.data.remote.github.GitHubService
@@ -74,6 +73,7 @@ import com.mardous.booming.ui.screen.library.years.YearDetailViewModel
 import com.mardous.booming.ui.screen.lyrics.LyricsViewModel
 import com.mardous.booming.ui.screen.player.PlayerViewModel
 import com.mardous.booming.ui.screen.sleeptimer.SleepTimerViewModel
+import com.mardous.booming.ui.screen.stats.StatsViewModel
 import com.mardous.booming.ui.screen.tageditor.TagEditorViewModel
 import com.mardous.booming.ui.screen.update.UpdateViewModel
 import org.koin.android.ext.koin.androidApplication
@@ -123,6 +123,9 @@ private val mainModule = module {
         ReplayGainAudioProcessor()
     }
     single {
+        com.mardous.booming.playback.processor.BeatAudioProcessor()
+    }
+    single {
         EqualizerManager(
             context = androidContext(),
             balanceProcessor = get(),
@@ -153,7 +156,9 @@ private val roomModule = module {
                 BoomingDatabase.MIGRATION_3_4,
                 BoomingDatabase.MIGRATION_4_5,
                 BoomingDatabase.MIGRATION_5_6,
-                BoomingDatabase.MIGRATION_6_7
+                BoomingDatabase.MIGRATION_6_7,
+                BoomingDatabase.MIGRATION_7_8,
+                BoomingDatabase.MIGRATION_8_9
             )
             .build()
     }
@@ -186,8 +191,20 @@ private val roomModule = module {
         get<BoomingDatabase>().listeningHistoryDao()
     }
 
+    factory {
+        get<BoomingDatabase>().listeningSessionGroupDao()
+    }
+
+    factory {
+        get<BoomingDatabase>().pendingScrobbleDao()
+    }
+
     single {
-        StatsRepository(dao = get(), context = androidContext())
+        StatsRepository(dao = get(), groupDao = get(), context = androidContext())
+    }
+
+    single {
+        com.mardous.booming.data.local.repository.StatsCache(listeningHistoryDao = get(), applicationScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO))
     }
 }
 
@@ -272,7 +289,8 @@ private val dataModule = module {
             preferences = get(),
             lastFmService = get(),
             listenBrainzService = get(),
-            deezerService = get()
+            deezerService = get(),
+            pendingScrobbleDao = get()
         )
     } bind NetworkRepository::class
 }
@@ -353,6 +371,13 @@ private val viewModule = module {
 
     viewModel {
         InfoViewModel(repository = get())
+    }
+
+    viewModel {
+        com.mardous.booming.ui.screen.scrobbling.PendingScrobblesViewModel(
+            pendingScrobbleDao = get(),
+            networkRepository = get()
+        )
     }
 
     viewModel {

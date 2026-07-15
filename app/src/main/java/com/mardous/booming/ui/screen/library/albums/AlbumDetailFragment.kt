@@ -76,6 +76,9 @@ import com.mardous.booming.ui.component.menu.onAlbumsMenu
 import com.mardous.booming.ui.component.menu.onSongMenu
 import com.mardous.booming.ui.component.menu.onSongsMenu
 import com.mardous.booming.util.Preferences
+import com.mardous.booming.databinding.ItemDetailHeaderBinding
+import com.mardous.booming.databinding.ItemSpotifyDetailHeaderBinding
+import com.mardous.booming.util.UITheme
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 import java.util.Locale
@@ -157,32 +160,57 @@ class AlbumDetailFragment : AbsMainActivityFragment(R.layout.fragment_album_deta
             songs = getAlbum().songs,
             layoutRes = itemLayoutRes,
             sortMode = SongSortMode.AlbumSongs,
+            swipeContext = com.mardous.booming.core.model.swipe.SwipeContext.ALBUMS,
             callback = this
         )
     }
 
     private fun setupRecyclerView() {
-        headerAdapter = HeaderAdapter { headerBinding ->
-            headerBinding.image.transitionName = arguments.albumId.toString()
-            headerBinding.image.removeHorizontalMarginIfRequired()
-            headerBinding.image.albumImage(getAlbum()) { crossfade(false) }
+        headerAdapter = HeaderAdapter { view ->
+            if (Preferences.uiTheme == UITheme.SPOTIFY) {
+                val headerBinding = ItemSpotifyDetailHeaderBinding.bind(view)
+                headerBinding.image.transitionName = arguments.albumId.toString()
+                headerBinding.image.removeHorizontalMarginIfRequired()
+                headerBinding.image.albumImage(getAlbum()) { crossfade(false) }
 
-            headerBinding.title.text = getAlbum().name
+                headerBinding.title.text = getAlbum().name
 
-            val artistName = if (albumArtistExists) getAlbum().albumArtistName else getAlbum().artistName
-            headerBinding.subtitle.setOnClickListener { goToArtist() }
-            headerBinding.subtitle.text = buildInfoString(
-                artistName?.displayArtistName(),
-                getAlbum().year.takeIf { it > 0 },
-                getAlbum().duration.asReadableDuration(readableFormat = true).takeIf { Preferences.showAlbumDuration }
-            )
-            headerBinding.playAction.setOnClickListener {
-                playerViewModel.openQueue(getAlbum().songs, shuffleMode = OpenShuffleMode.Off)
+                val artistName = if (albumArtistExists) getAlbum().albumArtistName else getAlbum().artistName
+                headerBinding.subtitle.setOnClickListener { goToArtist() }
+                headerBinding.subtitle.text = buildInfoString(
+                    artistName?.displayArtistName(),
+                    getAlbum().year.takeIf { it > 0 },
+                    getAlbum().duration.asReadableDuration(readableFormat = true).takeIf { Preferences.showAlbumDuration }
+                )
+                headerBinding.playAction.setOnClickListener {
+                    playerViewModel.openQueue(getAlbum().songs, shuffleMode = OpenShuffleMode.Off, queueSource = "album")
+                }
+                headerBinding.shuffleAction.setOnClickListener {
+                    playerViewModel.openAndShuffleQueue(getAlbum().songs)
+                }
+            } else {
+                val headerBinding = ItemDetailHeaderBinding.bind(view)
+                headerBinding.image.transitionName = arguments.albumId.toString()
+                headerBinding.image.removeHorizontalMarginIfRequired()
+                headerBinding.image.albumImage(getAlbum()) { crossfade(false) }
+
+                headerBinding.title.text = getAlbum().name
+
+                val artistName = if (albumArtistExists) getAlbum().albumArtistName else getAlbum().artistName
+                headerBinding.subtitle.setOnClickListener { goToArtist() }
+                headerBinding.subtitle.text = buildInfoString(
+                    artistName?.displayArtistName(),
+                    getAlbum().year.takeIf { it > 0 },
+                    getAlbum().duration.asReadableDuration(readableFormat = true).takeIf { Preferences.showAlbumDuration }
+                )
+                headerBinding.playAction.setOnClickListener {
+                    playerViewModel.openQueue(getAlbum().songs, shuffleMode = OpenShuffleMode.Off, queueSource = "album")
+                }
+                headerBinding.shuffleAction.setOnClickListener {
+                    playerViewModel.openAndShuffleQueue(getAlbum().songs)
+                }
+                headerBinding.searchAction?.setOnClickListener { goToSearch() }
             }
-            headerBinding.shuffleAction.setOnClickListener {
-                playerViewModel.openAndShuffleQueue(getAlbum().songs)
-            }
-            headerBinding.searchAction?.setOnClickListener { goToSearch() }
         }
 
         songHeaderAdapter = SectionHeaderAdapter(getString(R.string.songs_label)) {
@@ -214,6 +242,7 @@ class AlbumDetailFragment : AbsMainActivityFragment(R.layout.fragment_album_deta
             wikiAdapter
         )
         binding.recyclerView.adapter = concatAdapter
+        simpleSongAdapter.attachToRecyclerView(binding.recyclerView)
     }
 
     private fun createSortOrderMenu(view: View, sortMode: SortMode, onChanged: () -> Unit) {

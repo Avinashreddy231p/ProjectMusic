@@ -36,6 +36,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.core.widget.TextViewCompat
 import androidx.fragment.app.Fragment
+import androidx.compose.ui.graphics.Color as ComposeColor
+import androidx.compose.ui.graphics.toArgb
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.slider.Slider
@@ -55,15 +57,96 @@ val Int.darkenColor: Int
  * Ensures that the color has enough contrast against a given background.
  */
 @ColorInt
-fun Int.ensureContrastAgainst(@ColorInt background: Int, minContrastRatio: Double = 2.0): Int {
-    return if (ColorUtils.calculateContrast(this, background) < minContrastRatio) {
-        if (ColorUtils.calculateLuminance(background) > 0.5)
-            ColorUtils.blendARGB(this, 0xFF000000.toInt(), 0.3f)
-        else
-            ColorUtils.blendARGB(this, 0xFFFFFFFF.toInt(), 0.3f)
+fun Int.ensureContrastAgainst(@ColorInt background: Int, minContrastRatio: Double = 4.5): Int {
+    // Background must be opaque for calculateContrast
+    val opaqueBackground = if (Color.alpha(background) < 255) {
+        if (background == Color.TRANSPARENT) {
+            // If background is fully transparent, we can't reliably calculate contrast.
+            // Return early to avoid crash.
+            return this
+        }
+        // Composite over Black as a safe fallback for contrast calculation
+        ColorUtils.compositeColors(background, Color.BLACK)
+    } else background
+
+    val currentRatio = ColorUtils.calculateContrast(this, opaqueBackground)
+    if (currentRatio >= minContrastRatio) return this
+
+    val isBackgroundLight = ColorUtils.calculateLuminance(background) > 0.5
+
+    return if (isBackgroundLight) {
+        // Darken the color to meet contrast
+        findContrastColor(this, background, true, minContrastRatio)
     } else {
-        this
+        // Lighten the color to meet contrast
+        findContrastColorAgainstDark(this, background, true, minContrastRatio)
     }
+}
+
+private fun findContrastColor(color: Int, other: Int, findFg: Boolean, minRatio: Double): Int {
+    var fg = if (findFg) color else other
+    var bg = if (findFg) other else color
+    if (ColorUtils.calculateContrast(fg, bg) >= minRatio) {
+        return color
+    }
+
+    val lab = DoubleArray(3)
+    ColorUtils.colorToLAB(if (findFg) fg else bg, lab)
+
+    var low = 0.0
+    var high = lab[0]
+    val a = lab[1]
+    val b = lab[2]
+
+    for (i in 0 until 15) {
+        if (high - low <= 0.00001) break
+        val l = (low + high) / 2
+        if (findFg) {
+            fg = ColorUtils.LABToColor(l, a, b)
+        } else {
+            bg = ColorUtils.LABToColor(l, a, b)
+        }
+        if (ColorUtils.calculateContrast(fg, bg) >= minRatio) {
+            low = l
+        } else {
+            high = l
+        }
+    }
+    return ColorUtils.LABToColor(low, a, b)
+}
+
+private fun findContrastColorAgainstDark(color: Int, other: Int, findFg: Boolean, minRatio: Double): Int {
+    var fg = if (findFg) color else other
+    var bg = if (findFg) other else color
+    if (ColorUtils.calculateContrast(fg, bg) >= minRatio) {
+        return color
+    }
+
+    val hsl = FloatArray(3)
+    ColorUtils.colorToHSL(if (findFg) fg else bg, hsl)
+
+    var low = hsl[2]
+    var high = 1.0f
+    for (i in 0 until 15) {
+        if (high - low <= 0.00001) break
+        val l = (low + high) / 2
+        hsl[2] = l
+        if (findFg) {
+            fg = ColorUtils.HSLToColor(hsl)
+        } else {
+            bg = ColorUtils.HSLToColor(hsl)
+        }
+        if (ColorUtils.calculateContrast(fg, bg) >= minRatio) {
+            high = l
+        } else {
+            low = l
+        }
+    }
+    return if (findFg) fg else bg
+}
+
+fun ComposeColor.ensureContrastAgainst(background: ComposeColor, minContrastRatio: Double = 4.5): ComposeColor {
+    return ComposeColor(this.toArgb().ensureContrastAgainst(background.toArgb(), minContrastRatio))
 }
 
 /**

@@ -1,0 +1,108 @@
+Created At: 2026-07-11T19:12:09Z
+Completed At: 2026-07-11T19:12:09Z
+File Path: `file:///c:/Users/Avina/Downloads/BoomingMusic-master/BoomingMusic-master/app/src/main/java/com/mardous/booming/ui/screen/librarystats/LibraryStatsScreen.kt`
+Total Lines: 473
+Total Bytes: 19437
+Showing lines 1 to 100
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1: package com.mardous.booming.ui.screen.librarystats
+2: 
+3: import android.text.format.Formatter
+4: import androidx.compose.foundation.background
+5: import androidx.compose.foundation.clickable
+6: import androidx.compose.foundation.layout.*
+7: import androidx.compose.foundation.lazy.LazyColumn
+8: import androidx.compose.foundation.lazy.items
+9: import androidx.compose.foundation.horizontalScroll
+10: import androidx.compose.foundation.rememberScrollState
+11: import androidx.compose.foundation.shape.CircleShape
+12: import androidx.compose.foundation.shape.RoundedCornerShape
+13: import androidx.compose.ui.viewinterop.AndroidView
+14: import androidx.fragment.app.FragmentActivity
+15: import androidx.recyclerview.widget.LinearLayoutManager
+16: import androidx.recyclerview.widget.RecyclerView
+17: import com.mardous.booming.ui.ISongCallback
+18: import com.mardous.booming.ui.adapters.song.SongAdapter
+19: import androidx.compose.material3.*
+20: import androidx.compose.runtime.*
+21: import androidx.compose.ui.Alignment
+22: import androidx.compose.ui.Modifier
+23: import androidx.compose.ui.draw.clip
+24: import androidx.compose.ui.graphics.StrokeCap
+25: import androidx.compose.ui.platform.LocalContext
+26: import androidx.compose.ui.res.painterResource
+27: import androidx.compose.ui.text.font.FontWeight
+28: import androidx.compose.ui.text.style.TextAlign
+29: import androidx.compose.ui.text.style.TextOverflow
+30: import androidx.compose.ui.unit.dp
+31: import com.mardous.booming.R
+32: import com.mardous.booming.data.model.Song
+33: import com.mardous.booming.ui.component.compose.CollapsibleAppBarScaffold
+34: import com.mardous.booming.ui.screen.stats.StatsViewModel
+35: import kotlinx.coroutines.launch
+36: 
+37: @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+38: @Composable
+39: fun LibraryStatsScreen(
+40:     viewModel: LibraryStatsViewModel,
+41:     onBackClick: () -> Unit,
+42:     songCallback: ISongCallback,
+43:     activity: FragmentActivity
+44: ) {
+45:     val uiState by viewModel.uiState.collectAsState()
+46: 
+47:     if (uiState.selectedDistributionType == DistributionType.NONE) {
+48:         CollapsibleAppBarScaffold(
+49:             title = "Library Stats",
+50:             onBackClick = onBackClick,
+51:             actions = {}
+52:         ) { padding ->
+53:             if (uiState.isLoading) {
+54:                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+55:                     CircularProgressIndicator()
+56:                 }
+57:             } else {
+58:                 LibraryStatsMainView(
+59:                     uiState = uiState,
+60:                     modifier = Modifier.padding(padding),
+61:                     onDistributionClick = { type, index ->
+62:                         viewModel.selectDistribution(type, index)
+63:                     }
+64:                 )
+65:             }
+66:         }
+67:     } else {
+68:         LibraryStatsDetailView(
+69:             uiState = uiState,
+70:             onBackClick = { viewModel.clearSelection() },
+71:             onPageChange = { type, index ->
+72:                 viewModel.selectDistribution(type, index)
+73:             },
+74:             songCallback = songCallback,
+75:             activity = activity
+76:         )
+77:     }
+78: }
+79: 
+80: enum class MainTab(val label: String) {
+81:     OVERVIEW("Overview"),
+82:     METADATA("Metadata"),
+83:     TECHNICAL("Technical")
+84: }
+85: 
+86: @OptIn(ExperimentalFoundationApi::class)
+87: @Composable
+88: fun LibraryStatsMainView(
+89:     uiState: LibraryStatsUiState,
+90:     modifier: Modifier = Modifier,
+91:     onDistributionClick: (DistributionType, Int) -> Unit
+92: ) {
+93:     val pagerState = rememberPagerState(pageCount = { MainTab.entries.size })
+94:     val coroutineScope = rememberCoroutineScope()
+95:     
+96:     Column(modifier = modifier.fillMaxSize()) {
+97:         ScrollablePillTabRow(
+98:             tabs = MainTab.entries.map { it.label },
+99:             selectedIndex = pagerState.currentPage,
+100:             onSelect = { index ->
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.

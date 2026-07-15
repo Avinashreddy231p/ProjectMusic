@@ -112,7 +112,12 @@ fun FragmentActivity.currentFragment(navHostId: Int): Fragment? {
 
 @Suppress("UNCHECKED_CAST")
 fun <T : Fragment> FragmentActivity.whichFragment(@IdRes id: Int): T {
-    return supportFragmentManager.findFragmentById(id) as T
+    val fragment = supportFragmentManager.findFragmentById(id)
+    if (fragment == null) {
+        val name = runCatching { resources.getResourceName(id) }.getOrDefault(id.toString())
+        error("Fragment with id $name not found in $this")
+    }
+    return fragment as T
 }
 
 fun Fragment.currentFragment(navHostId: Int): Fragment? {
@@ -121,7 +126,12 @@ fun Fragment.currentFragment(navHostId: Int): Fragment? {
 
 @Suppress("UNCHECKED_CAST")
 fun <T : Fragment> Fragment.whichFragment(@IdRes id: Int): T {
-    return childFragmentManager.findFragmentById(id) as T
+    val fragment = childFragmentManager.findFragmentById(id)
+    if (fragment == null) {
+        val name = runCatching { resources.getResourceName(id) }.getOrDefault(id.toString())
+        error("Fragment with id $name not found in $this")
+    }
+    return fragment as T
 }
 
 @Suppress("UNCHECKED_CAST")

@@ -80,6 +80,8 @@ import com.mardous.booming.ui.component.menu.onArtistMenu
 import com.mardous.booming.ui.component.menu.onPlaylistMenu
 import com.mardous.booming.ui.component.menu.onSongMenu
 import com.mardous.booming.ui.component.menu.onSongsMenu
+import com.mardous.booming.util.Preferences
+import com.mardous.booming.util.UITheme
 import kotlinx.coroutines.flow.collectLatest
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -324,9 +326,11 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
 
     private fun search(query: String?) {
         if (query == null) return
+
         TransitionManager.beginDelayedTransition(binding.appBar)
         binding.voiceSearch.isGone = query.isNotEmpty()
         binding.clearText.isVisible = query.isNotEmpty()
+
         viewModel.updateQuery(query = query)
     }
 

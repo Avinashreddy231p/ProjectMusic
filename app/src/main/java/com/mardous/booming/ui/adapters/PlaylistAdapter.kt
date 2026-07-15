@@ -33,6 +33,7 @@ import com.mardous.booming.ui.component.base.AbsMultiSelectAdapter
 import com.mardous.booming.ui.component.base.MediaEntryViewHolder
 import com.mardous.booming.ui.component.menu.OnClickMenu
 import com.mardous.booming.ui.screen.player.PlayerViewModel
+import com.mardous.booming.util.Preferences
 import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
 
@@ -72,9 +73,12 @@ class PlaylistAdapter(
         holder.itemView.isActivated = isChecked
         holder.menu?.isGone = isChecked
         holder.title?.text = playlist.playlistEntity.playlistName
+        
+        holder.text?.isGone = false
         if (holder.text != null) {
             holder.text.text = playlist.songCount.asNumberOfSongs(holder.itemView.context)
         }
+
         if (holder.imageContainer != null) {
             holder.imageContainer.transitionName = playlist.playlistEntity.playlistName
         } else {

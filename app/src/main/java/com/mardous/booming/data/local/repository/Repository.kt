@@ -110,10 +110,14 @@ interface Repository {
     suspend fun songsByFolder(folderPath: String, includeSubfolders: Boolean): List<Song>
     suspend fun songByFilePath(path: String, ignoreBlacklist: Boolean): Song
     suspend fun homeSuggestions(): List<Suggestion>
+    suspend fun topTracksSuggestion(): Suggestion
+    suspend fun recentSongsSuggestion(): Suggestion
     suspend fun topArtistsSuggestion(): Suggestion
     suspend fun topAlbumsSuggestion(): Suggestion
     suspend fun recentArtistsSuggestion(): Suggestion
     suspend fun recentAlbumsSuggestion(): Suggestion
+    suspend fun historyArtistsSuggestion(): Suggestion
+    suspend fun historyAlbumsSuggestion(): Suggestion
     suspend fun favoritesSuggestion(): Suggestion
     suspend fun recommendedSongSuggestion(): Suggestion
     suspend fun recentSongs(): List<Song>
@@ -121,6 +125,8 @@ interface Repository {
     suspend fun recentArtists(): List<Artist>
     suspend fun topAlbums(): List<Album>
     suspend fun recentAlbums(): List<Album>
+    suspend fun historyArtists(): List<Artist>
+    suspend fun historyAlbums(): List<Album>
     suspend fun playCountSongs(): List<Song>
     fun playCountSongsFlow(): Flow<List<Song>>
     suspend fun findSongsInPlayCount(songs: List<Song>): List<PlayCountEntity>
@@ -220,8 +226,13 @@ class RealRepository(
     override suspend fun checkFavoritePlaylist(): PlaylistEntity? =
         playlistRepository.checkFavoritePlaylist()
 
-    override suspend fun toggleFavorite(song: Song): Boolean =
-        playlistRepository.toggleFavorite(song)
+    override suspend fun toggleFavorite(song: Song): Boolean {
+        val isFavorite = playlistRepository.toggleFavorite(song)
+        if (com.mardous.booming.util.Preferences.lastfmSyncFavorites) {
+            networkRepository.syncLastFmFavorite(song, isFavorite)
+        }
+        return isFavorite
+    }
 
     override suspend fun findSongsInFavorites(songs: List<Song>): List<SongEntity> =
         playlistRepository.findSongsInFavorites(songs)
@@ -336,24 +347,49 @@ class RealRepository(
 
     override suspend fun homeSuggestions(): List<Suggestion> {
         return listOf(
+            topTracksSuggestion(),
             topArtistsSuggestion(),
             topAlbumsSuggestion(),
+            recentSongsSuggestion(),
             recentArtistsSuggestion(),
             recentAlbumsSuggestion(),
+            historyArtistsSuggestion(),
+            historyAlbumsSuggestion(),
             favoritesSuggestion(),
             recommendedSongSuggestion()
-        ).filter {
-            it.items.isNotEmpty()
+        )
+    }
+
+    override suspend fun topTracksSuggestion(): Suggestion {
+        var songs = playCountSongs().take(10)
+        if (songs.isEmpty()) {
+            songs = historySongs().groupBy { it.id }
+                .toList()
+                .sortedByDescending { it.second.size }
+                .take(10)
+                .map { it.second.first() }
         }
+        return Suggestion(ContentType.TopTracks, songs)
+    }
+
+    override suspend fun recentSongsSuggestion(): Suggestion {
+        val songs = recentSongs().take(10)
+        return Suggestion(ContentType.RecentSongs, songs)
     }
 
     override suspend fun topArtistsSuggestion(): Suggestion {
-        val artists = smartRepository.topAlbumArtists().take(10)
+        var artists = smartRepository.topAlbumArtists().take(10)
+        if (artists.isEmpty()) {
+            artists = smartRepository.historyAlbumArtists().take(10)
+        }
         return Suggestion(ContentType.TopArtists, artists)
     }
 
     override suspend fun topAlbumsSuggestion(): Suggestion {
-        val albums = smartRepository.topAlbums().take(10)
+        var albums = smartRepository.topAlbums().take(10)
+        if (albums.isEmpty()) {
+            albums = smartRepository.historyAlbums().take(10)
+        }
         return Suggestion(ContentType.TopAlbums, albums)
     }
 
@@ -365,6 +401,16 @@ class RealRepository(
     override suspend fun recentAlbumsSuggestion(): Suggestion {
         val albums = smartRepository.recentAlbums().take(10)
         return Suggestion(ContentType.RecentAlbums, albums)
+    }
+
+    override suspend fun historyArtistsSuggestion(): Suggestion {
+        val artists = smartRepository.historyAlbumArtists().take(10)
+        return Suggestion(ContentType.HistoryArtists, artists)
+    }
+
+    override suspend fun historyAlbumsSuggestion(): Suggestion {
+        val albums = smartRepository.historyAlbums().take(10)
+        return Suggestion(ContentType.HistoryAlbums, albums)
     }
 
     override suspend fun favoritesSuggestion(): Suggestion {
@@ -386,6 +432,10 @@ class RealRepository(
     override suspend fun topAlbums(): List<Album> = smartRepository.topAlbums()
 
     override suspend fun recentAlbums(): List<Album> = smartRepository.recentAlbums()
+
+    override suspend fun historyArtists(): List<Artist> = smartRepository.historyAlbumArtists()
+
+    override suspend fun historyAlbums(): List<Album> = smartRepository.historyAlbums()
 
     override suspend fun playCountSongs(): List<Song> = smartRepository.playCountSongs()
 

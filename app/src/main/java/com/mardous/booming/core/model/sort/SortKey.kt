@@ -11,5 +11,7 @@ enum class SortKey(val value: String) {
     DateModified("modified_key"),
     SongCount("songs_key"),
     AlbumCount("albums_key"),
-    FileName("file_name_key")
+    FileName("file_name_key"),
+    PlayCount("play_count_key"),
+    ListenDuration("listen_duration_key")
 }

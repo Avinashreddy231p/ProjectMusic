@@ -37,6 +37,7 @@ import com.mardous.booming.core.model.player.PlayerTransition
 import com.mardous.booming.core.model.shuffle.GroupShuffleMode
 import com.mardous.booming.core.model.theme.AppTheme
 import com.mardous.booming.core.model.theme.NowPlayingScreen
+import com.mardous.booming.core.model.theme.VibrantBackgroundMode
 import com.mardous.booming.extensions.files.getCanonicalPathSafe
 import com.mardous.booming.extensions.hasQ
 import com.mardous.booming.extensions.hasS
@@ -99,6 +100,22 @@ object Preferences : KoinComponent {
     val blackTheme: Boolean
         get() = preferences.getBoolean(BLACK_THEME, false)
 
+    var uiTheme: String
+        get() = preferences.requireString(UI_THEME, UITheme.MATERIAL)
+        set(value) = preferences.edit { putString(UI_THEME, value) }
+
+    var accentColor: Int?
+        get() = preferences.getInt(ACCENT_COLOR, 0).takeIf { it != 0 }
+        set(value) = preferences.edit { 
+            if (value != null) putInt(ACCENT_COLOR, value) else remove(ACCENT_COLOR) 
+        }
+
+    var lyricsAccentColor: Int?
+        get() = preferences.getInt(LYRICS_ACCENT_COLOR, 0).takeIf { it != 0 }
+        set(value) = preferences.edit { 
+            if (value != null) putInt(LYRICS_ACCENT_COLOR, value) else remove(LYRICS_ACCENT_COLOR) 
+        }
+
     val isMaterialYouTheme: Boolean
         get() = preferences.getBoolean(MATERIAL_YOU, hasS())
 
@@ -146,6 +163,15 @@ object Preferences : KoinComponent {
         get() = preferences.getBoolean(LOCKED_PLAYLISTS, false)
         set(value) = preferences.edit { putBoolean(LOCKED_PLAYLISTS, value) }
 
+    val lastfmSyncFavorites: Boolean
+        get() = preferences.getBoolean(LASTFM_SYNC_FAVORITES, false)
+
+    val lastfmOfflineScrobbling: Boolean
+        get() = preferences.getBoolean(LASTFM_OFFLINE_SCROBBLING, true)
+
+    val lastfmScrobblePercentage: Int
+        get() = preferences.getInt(LASTFM_SCROBBLE_PERCENTAGE, 50)
+
     var queueHeight: Boolean
         get() = preferences.getBoolean(QUEUE_HEIGHT, false)
         set(value) = preferences.edit { putBoolean(QUEUE_HEIGHT, value) }
@@ -165,9 +191,83 @@ object Preferences : KoinComponent {
         get() = preferences.getBoolean(COMPACT_ARTIST_SONG_VIEW, false)
         set(value) = preferences.edit { putBoolean(COMPACT_ARTIST_SONG_VIEW, value) }
 
+
+    // New Era Tokens
+    var eraPrimarySeed: Int
+        get() = preferences.getInt(ERA_PRIMARY_SEED, 0xFF4D5C92.toInt()) // primaryLight
+        set(value) = preferences.edit { putInt(ERA_PRIMARY_SEED, value) }
+
+    var eraSecondarySeed: Int
+        get() = preferences.getInt(ERA_SECONDARY_SEED, 0xFF595D72.toInt()) // secondaryLight
+        set(value) = preferences.edit { putInt(ERA_SECONDARY_SEED, value) }
+
+    var eraTertiarySeed: Int
+        get() = preferences.getInt(ERA_TERTIARY_SEED, 0xFF75546F.toInt()) // tertiaryLight
+        set(value) = preferences.edit { putInt(ERA_TERTIARY_SEED, value) }
+
+    var eraErrorSeed: Int
+        get() = preferences.getInt(ERA_ERROR_SEED, 0xFFBA1A1A.toInt()) // errorLight
+        set(value) = preferences.edit { putInt(ERA_ERROR_SEED, value) }
+
+    var eraHarmonyMode: Boolean
+        get() = preferences.getBoolean(ERA_HARMONY_MODE, true)
+        set(value) = preferences.edit { putBoolean(ERA_HARMONY_MODE, value) }
+
+    var eraVibrancy: Float
+        get() = preferences.getFloat(ERA_VIBRANCY, 1.0f)
+        set(value) = preferences.edit { putFloat(ERA_VIBRANCY, value) }
+
+    var eraContrast: Float
+        get() = (preferences.getInt(ERA_CONTRAST, 0) - 10) / 10.0f
+        set(value) = preferences.edit { putInt(ERA_CONTRAST, (value * 10).toInt() + 10) }
+
+    var eraShapeScale: Float
+        get() = preferences.getInt(ERA_SHAPE_SCALE, 10) / 10.0f
+        set(value) = preferences.edit { putInt(ERA_SHAPE_SCALE, (value * 10).toInt()) }
+
+    var eraShapeFamily: EraShapeFamily
+        get() = preferences.enumValue(ERA_SHAPE_FAMILY, EraShapeFamily.ROUNDED)
+        set(value) = preferences.edit { putString(ERA_SHAPE_FAMILY, value.name) }
+
+    var eraAsymmetricShapes: Boolean
+        get() = preferences.getBoolean(ERA_ASYMMETRIC_SHAPES, false)
+        set(value) = preferences.edit { putBoolean(ERA_ASYMMETRIC_SHAPES, value) }
+
+    var eraTypeScale: Float
+        get() = preferences.getInt(ERA_TYPE_SCALE, 10) / 10.0f
+        set(value) = preferences.edit { putInt(ERA_TYPE_SCALE, (value * 10).toInt()) }
+
+    var eraMotionIntensity: Int
+        get() = preferences.getString(ERA_MOTION_INTENSITY, "1")?.toIntOrNull() ?: 1 // 0: None, 1: Fluid, 2: Expressive
+        set(value) = preferences.edit { putString(ERA_MOTION_INTENSITY, value.toString()) }
+
+    var eraSurfaceMaterial: EraSurfaceMaterial
+        get() = preferences.enumValue(ERA_SURFACE_MATERIAL, EraSurfaceMaterial.SOLID)
+        set(value) = preferences.edit { putString(ERA_SURFACE_MATERIAL, value.name) }
+
+    var eraAdaptiveIconography: Boolean
+        get() = preferences.getBoolean(ERA_ADAPTIVE_ICONOGRAPHY, true)
+        set(value) = preferences.edit { putBoolean(ERA_ADAPTIVE_ICONOGRAPHY, value) }
+
     var nowPlayingScreen: NowPlayingScreen
         get() = preferences.enumValue(NOW_PLAYING_SCREEN, NowPlayingScreen.Default)
         set(value) = preferences.edit { putString(NOW_PLAYING_SCREEN, value.name) }
+
+    var vibrantBackgroundMode: VibrantBackgroundMode
+        get() = preferences.enumValue(VIBRANT_BACKGROUND_MODE, VibrantBackgroundMode.Gradient)
+        set(value) = preferences.edit { putString(VIBRANT_BACKGROUND_MODE, value.name) }
+
+    var vibrantBackgroundAnimations: Boolean
+        get() = preferences.getBoolean(VIBRANT_BACKGROUND_ANIMATIONS, true)
+        set(value) = preferences.edit { putBoolean(VIBRANT_BACKGROUND_ANIMATIONS, value) }
+
+    var vibrantBackgroundHighQuality: Boolean
+        get() = preferences.getBoolean(VIBRANT_BACKGROUND_HIGH_QUALITY, true)
+        set(value) = preferences.edit { putBoolean(VIBRANT_BACKGROUND_HIGH_QUALITY, value) }
+
+    var vibrantBackgroundGlobal: Boolean
+        get() = preferences.getBoolean(VIBRANT_BACKGROUND_GLOBAL, false)
+        set(value) = preferences.edit { putBoolean(VIBRANT_BACKGROUND_GLOBAL, value) }
 
     val extraControls: Boolean
         get() = preferences.getBoolean(ADD_EXTRA_CONTROLS, false)
@@ -222,6 +322,13 @@ object Preferences : KoinComponent {
 
     fun getNowPlayingImageCornerRadius(context: Context): Int =
         preferences.getInt(NOW_PLAYING_IMAGE_CORNER_RADIUS, context.intRes(R.integer.now_playing_corner_radius))
+
+    fun getNowPlayingLyricsCornerRadius(context: Context): Int =
+        preferences.getInt(LYRICS_CARD_CORNER_RADIUS, 32)
+
+    var nowPlayingLyricsCornerRadius: Int
+        get() = preferences.getInt(LYRICS_CARD_CORNER_RADIUS, 32)
+        set(value) = preferences.edit { putInt(LYRICS_CARD_CORNER_RADIUS, value) }
 
     val isCarouselEffect: Boolean
         get() = preferences.getBoolean(CAROUSEL_EFFECT, false)
@@ -465,6 +572,26 @@ object Preferences : KoinComponent {
         get() = preferences.getBoolean(DISPLAY_NEXT_SONG, true)
         set(value) = preferences.edit { putBoolean(DISPLAY_NEXT_SONG, value) }
 
+    fun getSwipeLeftAction(context: com.mardous.booming.core.model.swipe.SwipeContext): com.mardous.booming.core.model.swipe.SwipeAction {
+        val key = "${SWIPE_ACTION_LEFT_PREFIX}_${context.name.lowercase()}"
+        return preferences.enumValue(key, com.mardous.booming.core.model.swipe.SwipeAction.NONE)
+    }
+
+    fun getSwipeRightAction(context: com.mardous.booming.core.model.swipe.SwipeContext): com.mardous.booming.core.model.swipe.SwipeAction {
+        val key = "${SWIPE_ACTION_RIGHT_PREFIX}_${context.name.lowercase()}"
+        return preferences.enumValue(key, com.mardous.booming.core.model.swipe.SwipeAction.NONE)
+    }
+
+    fun setSwipeLeftAction(context: com.mardous.booming.core.model.swipe.SwipeContext, action: com.mardous.booming.core.model.swipe.SwipeAction) {
+        val key = "${SWIPE_ACTION_LEFT_PREFIX}_${context.name.lowercase()}"
+        preferences.edit { putString(key, action.name) }
+    }
+
+    fun setSwipeRightAction(context: com.mardous.booming.core.model.swipe.SwipeContext, action: com.mardous.booming.core.model.swipe.SwipeAction) {
+        val key = "${SWIPE_ACTION_RIGHT_PREFIX}_${context.name.lowercase()}"
+        preferences.edit { putString(key, action.name) }
+    }
+
     fun SharedPreferences.nullString(key: String): String? = getString(key, null)
 
     fun SharedPreferences.requireString(key: String, defaultValue: String): String =
@@ -483,6 +610,13 @@ interface GeneralTheme {
         const val DARK = "dark"
         const val BLACK = "black"
         const val AUTO = "auto"
+    }
+}
+
+interface UITheme {
+    companion object {
+        const val MATERIAL = "material"
+        const val SPOTIFY = "spotify"
     }
 }
 
@@ -548,11 +682,23 @@ interface UpdateSearchMode {
     }
 }
 
+
+enum class EraShapeFamily {
+    ROUNDED, CUT
+}
+
+enum class EraSurfaceMaterial {
+    SOLID, GLASS, VIBRANT
+}
+
 const val BLACK_THEME = "black_theme"
+const val UI_THEME = "ui_theme"
 const val MATERIAL_YOU = "material_you"
 const val USE_CUSTOM_FONT = "use_custom_font"
 const val APPBAR_MODE = "appbar_mode"
 const val GENERAL_THEME = "general_theme"
+const val ACCENT_COLOR = "accent_color"
+const val LYRICS_ACCENT_COLOR = "lyrics_accent_color"
 const val LIBRARY_CATEGORIES = "library_categories"
 const val REMEMBER_LAST_PAGE = "remember_last_page"
 const val TAB_TITLES_MODE = "tab_titles_mode"
@@ -573,6 +719,7 @@ const val SWIPE_ON_COVER = "swipe_on_cover"
 const val MINI_PLAYER_SWIPE_TO_SKIP = "mini_player_swipe_to_skip"
 const val NOW_PLAYING_SMALL_IMAGE = "now_playing_small_image"
 const val NOW_PLAYING_IMAGE_CORNER_RADIUS = "now_playing_corner_radius"
+const val LYRICS_CARD_CORNER_RADIUS = "lyrics_card_corner_radius"
 const val PLAYER_BLUR_RADIUS = "player_blur_radius"
 const val CAROUSEL_EFFECT = "carousel_effect"
 const val COVER_SINGLE_TAP_ACTION = "cover_single_tap_action"
@@ -649,4 +796,31 @@ const val LOCKED_QUEUE = "locked_queue"
 const val LOCKED_PLAYLISTS = "locked_playlists"
 const val QUEUE_HEIGHT = "queue_height"
 const val LASTFM_LOGIN = "lastfm_login"
+const val LASTFM_SYNC_FAVORITES = "lastfm_sync_favorites"
+const val LASTFM_OFFLINE_SCROBBLING = "lastfm_offline_scrobble"
+const val LASTFM_SCROBBLE_PERCENTAGE = "lastfm_scrobble_percentage"
 const val LISTENBRAINZ_LOGIN = "listenbrainz_login"
+
+
+const val ERA_PRIMARY_SEED = "era_primary_seed"
+const val ERA_SECONDARY_SEED = "era_secondary_seed"
+const val ERA_TERTIARY_SEED = "era_tertiary_seed"
+const val ERA_ERROR_SEED = "era_error_seed"
+const val ERA_HARMONY_MODE = "era_harmony_mode"
+const val ERA_VIBRANCY = "era_vibrancy"
+const val ERA_CONTRAST = "era_contrast"
+const val ERA_SHAPE_SCALE = "era_shape_scale"
+const val ERA_SHAPE_FAMILY = "era_shape_family"
+const val ERA_ASYMMETRIC_SHAPES = "era_asymmetric_shapes"
+const val ERA_TYPE_SCALE = "era_type_scale"
+const val ERA_MOTION_INTENSITY = "era_motion_intensity"
+const val ERA_SURFACE_MATERIAL = "era_surface_material"
+const val ERA_ADAPTIVE_ICONOGRAPHY = "era_adaptive_iconography"
+
+const val VIBRANT_BACKGROUND_MODE = "vibrant_background_mode"
+const val VIBRANT_BACKGROUND_ANIMATIONS = "vibrant_background_animations"
+const val VIBRANT_BACKGROUND_HIGH_QUALITY = "vibrant_background_high_quality"
+const val VIBRANT_BACKGROUND_GLOBAL = "vibrant_background_global"
+
+const val SWIPE_ACTION_LEFT_PREFIX = "swipe_action_left"
+const val SWIPE_ACTION_RIGHT_PREFIX = "swipe_action_right"

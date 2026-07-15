@@ -32,11 +32,18 @@ import com.mardous.booming.data.model.Song
 import com.mardous.booming.extensions.files.zipOutputStream
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.util.m3u.M3UWriter
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.double
+import kotlinx.serialization.json.int
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.long
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.io.File
@@ -138,7 +145,78 @@ object BackupHelper : KoinComponent {
     private suspend fun getStatsZipItems(): List<ZipItem> {
         val allSessions = runCatching { statsRepository.getAllSessionsAsc() }.getOrDefault(emptyList())
         if (allSessions.isNotEmpty()) {
-            val json = Json { prettyPrint = true }.encodeToString(ListeningSessionBackup(allSessions))
+            val sessionJson = Json.encodeToString(allSessions.map { session ->
+                mapOf(
+                    "sessionId" to session.sessionId,
+                    "sessionGroupId" to session.sessionGroupId,
+                    "songId" to session.songId,
+                    "artistId" to session.artistId,
+                    "songTitle" to session.songTitle,
+                    "artistName" to session.artistName,
+                    "albumArtist" to session.albumArtist,
+                    "albumId" to session.albumId,
+                    "albumName" to session.albumName,
+                    "genre" to session.genre,
+                    "releaseYear" to session.releaseYear,
+                    "composer" to session.composer,
+                    "lyricist" to session.lyricist,
+                    "publisher" to session.publisher,
+                    "songDurationMs" to session.songDurationMs,
+                    "audioFormat" to session.audioFormat,
+                    "audioSampleRate" to session.audioSampleRate,
+                    "audioChannelCount" to session.audioChannelCount,
+                    "bitrateKbps" to session.bitrateKbps,
+                    "playbackSpeed" to session.playbackSpeed,
+                    "equalizerActive" to session.equalizerActive,
+                    "startTime" to session.startTime,
+                    "endTime" to session.endTime,
+                    "timeStandard" to session.timeStandard,
+                    "timezoneId" to session.timezoneId,
+                    "timezoneOffsetMinutes" to session.timezoneOffsetMinutes,
+                    "startDate" to session.startDate,
+                    "startTimeOnly" to session.startTimeOnly,
+                    "dayOfWeek" to session.dayOfWeek,
+                    "dayOfMonth" to session.dayOfMonth,
+                    "dayOfYear" to session.dayOfYear,
+                    "weekOfYear" to session.weekOfYear,
+                    "month" to session.month,
+                    "monthName" to session.monthName,
+                    "quarter" to session.quarter,
+                    "year" to session.year,
+                    "yearMonth" to session.yearMonth,
+                    "yearWeek" to session.yearWeek,
+                    "hour" to session.hour,
+                    "minute" to session.minute,
+                    "second" to session.second,
+                    "timePeriod" to session.timePeriod,
+                    "isWeekend" to session.isWeekend,
+                    "playbackDurationMs" to session.playbackDurationMs,
+                    "effectiveListenedMs" to session.effectiveListenedMs,
+                    "completionPercent" to session.completionPercent,
+                    "endReason" to session.endReason,
+                    "pauseCount" to session.pauseCount,
+                    "pauseDurationMs" to session.pauseDurationMs,
+                    "seekCount" to session.seekCount,
+                    "seekForwardCount" to session.seekForwardCount,
+                    "seekBackwardCount" to session.seekBackwardCount,
+                    "shuffleEnabled" to session.shuffleEnabled,
+                    "repeatMode" to session.repeatMode,
+                    "queuePosition" to session.queuePosition,
+                    "queueSource" to session.queueSource,
+                    "playbackOrigin" to session.playbackOrigin,
+                    "playlistId" to session.playlistId,
+                    "playlistName" to session.playlistName,
+                    "isFavorite" to session.isFavorite,
+                    "outputDevice" to session.outputDevice,
+                    "volumeStart" to session.volumeStart,
+                    "volumeEnd" to session.volumeEnd,
+                    "batteryLevel" to session.batteryLevel,
+                    "charging" to session.charging,
+                    "screenOn" to session.screenOn,
+                    "appVersion" to session.appVersion
+                )
+            })
+            val json = Json { prettyPrint = true }.encodeToString(ListeningSessionBackup(sessionJson))
             return listOf(ZipItem(STATS_PATH.child("listening_history.json"), fileContent = json))
         }
         return emptyList()
@@ -287,8 +365,81 @@ object BackupHelper : KoinComponent {
     private suspend fun restoreStats(zipIn: ZipInputStream) {
         val json = zipIn.bufferedReader().readText()
         val backup = Json.decodeFromString<ListeningSessionBackup>(json)
-        if (backup.sessions.isNotEmpty()) {
-            statsRepository.insertSessions(backup.sessions)
+        val sessionArray = Json.parseToJsonElement(backup.sessionsJson).jsonArray
+        val sessions = sessionArray.map { element ->
+            val obj = element.jsonObject
+            ListeningSessionEntity(
+                sessionId = obj["sessionId"]?.jsonPrimitive?.long ?: 0,
+                sessionGroupId = obj["sessionGroupId"]?.jsonPrimitive?.content ?: "",
+                songId = obj["songId"]?.jsonPrimitive?.long ?: 0,
+                artistId = obj["artistId"]?.jsonPrimitive?.long ?: -1,
+                songTitle = obj["songTitle"]?.jsonPrimitive?.content ?: "",
+                artistName = obj["artistName"]?.jsonPrimitive?.content ?: "",
+                albumArtist = obj["albumArtist"]?.jsonPrimitive?.contentOrNull,
+                albumId = obj["albumId"]?.jsonPrimitive?.long ?: 0,
+                albumName = obj["albumName"]?.jsonPrimitive?.content ?: "",
+                genre = obj["genre"]?.jsonPrimitive?.contentOrNull,
+                releaseYear = obj["releaseYear"]?.jsonPrimitive?.int ?: 0,
+                composer = obj["composer"]?.jsonPrimitive?.contentOrNull,
+                lyricist = obj["lyricist"]?.jsonPrimitive?.contentOrNull,
+                publisher = obj["publisher"]?.jsonPrimitive?.contentOrNull,
+                songDurationMs = obj["songDurationMs"]?.jsonPrimitive?.long ?: 0,
+                audioFormat = obj["audioFormat"]?.jsonPrimitive?.content ?: "",
+                audioSampleRate = obj["audioSampleRate"]?.jsonPrimitive?.int ?: 0,
+                audioChannelCount = obj["audioChannelCount"]?.jsonPrimitive?.int ?: 0,
+                bitrateKbps = obj["bitrateKbps"]?.jsonPrimitive?.int ?: 0,
+                playbackSpeed = obj["playbackSpeed"]?.jsonPrimitive?.content?.toFloatOrNull() ?: 1.0f,
+                equalizerActive = obj["equalizerActive"]?.jsonPrimitive?.content?.toBooleanStrictOrNull() ?: false,
+                startTime = obj["startTime"]?.jsonPrimitive?.long ?: 0,
+                endTime = obj["endTime"]?.jsonPrimitive?.long ?: 0,
+                timeStandard = obj["timeStandard"]?.jsonPrimitive?.content ?: "UTC",
+                timezoneId = obj["timezoneId"]?.jsonPrimitive?.content ?: "",
+                timezoneOffsetMinutes = obj["timezoneOffsetMinutes"]?.jsonPrimitive?.int ?: 0,
+                startDate = obj["startDate"]?.jsonPrimitive?.content ?: "",
+                startTimeOnly = obj["startTimeOnly"]?.jsonPrimitive?.content ?: "",
+                dayOfWeek = obj["dayOfWeek"]?.jsonPrimitive?.content ?: "",
+                dayOfMonth = obj["dayOfMonth"]?.jsonPrimitive?.int ?: 0,
+                dayOfYear = obj["dayOfYear"]?.jsonPrimitive?.int ?: 0,
+                weekOfYear = obj["weekOfYear"]?.jsonPrimitive?.int ?: 0,
+                month = obj["month"]?.jsonPrimitive?.int ?: 0,
+                monthName = obj["monthName"]?.jsonPrimitive?.content ?: "",
+                quarter = obj["quarter"]?.jsonPrimitive?.int ?: 0,
+                year = obj["year"]?.jsonPrimitive?.int ?: 0,
+                yearMonth = obj["yearMonth"]?.jsonPrimitive?.content ?: "",
+                yearWeek = obj["yearWeek"]?.jsonPrimitive?.content ?: "",
+                hour = obj["hour"]?.jsonPrimitive?.int ?: 0,
+                minute = obj["minute"]?.jsonPrimitive?.int ?: 0,
+                second = obj["second"]?.jsonPrimitive?.int ?: 0,
+                timePeriod = obj["timePeriod"]?.jsonPrimitive?.content ?: "",
+                isWeekend = obj["isWeekend"]?.jsonPrimitive?.content?.toBooleanStrictOrNull() ?: false,
+                playbackDurationMs = obj["playbackDurationMs"]?.jsonPrimitive?.long ?: 0,
+                effectiveListenedMs = obj["effectiveListenedMs"]?.jsonPrimitive?.long ?: 0,
+                completionPercent = obj["completionPercent"]?.jsonPrimitive?.double ?: 0.0,
+                endReason = obj["endReason"]?.jsonPrimitive?.content ?: "",
+                pauseCount = obj["pauseCount"]?.jsonPrimitive?.int ?: 0,
+                pauseDurationMs = obj["pauseDurationMs"]?.jsonPrimitive?.long ?: 0,
+                seekCount = obj["seekCount"]?.jsonPrimitive?.int ?: 0,
+                seekForwardCount = obj["seekForwardCount"]?.jsonPrimitive?.int ?: 0,
+                seekBackwardCount = obj["seekBackwardCount"]?.jsonPrimitive?.int ?: 0,
+                shuffleEnabled = obj["shuffleEnabled"]?.jsonPrimitive?.content?.toBooleanStrictOrNull() ?: false,
+                repeatMode = obj["repeatMode"]?.jsonPrimitive?.content ?: "off",
+                queuePosition = obj["queuePosition"]?.jsonPrimitive?.int ?: -1,
+                queueSource = obj["queueSource"]?.jsonPrimitive?.content ?: "",
+                playbackOrigin = obj["playbackOrigin"]?.jsonPrimitive?.content ?: "unknown",
+                playlistId = obj["playlistId"]?.jsonPrimitive?.content ?: "",
+                playlistName = obj["playlistName"]?.jsonPrimitive?.content ?: "",
+                isFavorite = obj["isFavorite"]?.jsonPrimitive?.content?.toBooleanStrictOrNull() ?: false,
+                outputDevice = obj["outputDevice"]?.jsonPrimitive?.content ?: "",
+                volumeStart = obj["volumeStart"]?.jsonPrimitive?.int ?: -1,
+                volumeEnd = obj["volumeEnd"]?.jsonPrimitive?.int ?: -1,
+                batteryLevel = obj["batteryLevel"]?.jsonPrimitive?.int ?: -1,
+                charging = obj["charging"]?.jsonPrimitive?.content?.toBooleanStrictOrNull() ?: false,
+                screenOn = obj["screenOn"]?.jsonPrimitive?.content?.toBooleanStrictOrNull() ?: true,
+                appVersion = obj["appVersion"]?.jsonPrimitive?.content ?: ""
+            )
+        }
+        if (sessions.isNotEmpty()) {
+            statsRepository.insertSessions(sessions)
         }
     }
 
@@ -353,5 +504,5 @@ enum class BackupContent(@StringRes val titleRes: Int) {
 
 @Serializable
 data class ListeningSessionBackup(
-    val sessions: List<ListeningSessionEntity>
+    val sessionsJson: String
 )

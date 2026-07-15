@@ -49,6 +49,18 @@ sealed class KeySortItem(id: Int, title: Int, val key: SortKey)
         SortKey.SongCount
     )
 
+    object PlayCount : KeySortItem(
+        R.id.action_sort_order_play_count,
+        R.string.sort_order_play_count,
+        SortKey.PlayCount
+    )
+
+    object ListenDuration : KeySortItem(
+        R.id.action_sort_order_listen_duration,
+        R.string.sort_order_listen_duration,
+        SortKey.ListenDuration
+    )
+
     object AlbumCount : KeySortItem(
         R.id.action_sort_order_number_of_albums,
         R.string.sort_order_number_of_albums,

@@ -1,6 +1,7 @@
 package com.mardous.booming.playback.library
 
 import android.content.Context
+import android.os.Bundle
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import com.mardous.booming.R
@@ -16,12 +17,18 @@ import com.mardous.booming.data.mapper.toSongs
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.extensions.media.albumInfo
 import com.mardous.booming.extensions.media.artistInfo
+import com.mardous.booming.extensions.media.asNumberOfAlbums
+import com.mardous.booming.extensions.media.asNumberOfArtists
+import com.mardous.booming.extensions.media.asNumberOfGenres
+import com.mardous.booming.extensions.media.asNumberOfPlaylists
 import com.mardous.booming.extensions.media.asNumberOfSongs
-import com.mardous.booming.extensions.media.songCountStr
 import com.mardous.booming.playback.toMediaItems
 import com.mardous.booming.util.Preferences
 
-class LibraryProvider(private val repository: Repository) {
+class LibraryProvider(
+    private val repository: Repository,
+    private val lyricsRepository: com.mardous.booming.data.local.repository.LyricsRepository
+) {
 
     private val _searchResult = mutableListOf<MediaItem>()
     val searchResult: List<MediaItem> get() = _searchResult
@@ -30,32 +37,52 @@ class LibraryProvider(private val repository: Repository) {
         mediaItems: List<MediaItem>,
         tryToResolveComplexPaths: Boolean = false
     ): List<MediaItem> {
-        val resolvedMediaItems = mediaItems.filter { item -> item.localConfiguration != null }
-            .toMutableList()
+        val resolvedMediaItems = mutableListOf<MediaItem>()
+        val localItems = mutableListOf<MediaItem>()
+        val onlineItems = mutableListOf<MediaItem>()
+
+        for (item in mediaItems) {
+            val uri = item.localConfiguration?.uri
+            if (uri != null && (uri.scheme == "http" || uri.scheme == "https")) {
+                onlineItems.add(item)
+            } else if (item.localConfiguration != null) {
+                localItems.add(item)
+            }
+        }
+
+        resolvedMediaItems.addAll(onlineItems)
+        resolvedMediaItems.addAll(localItems)
+
         if (resolvedMediaItems.size == mediaItems.size) {
             return resolvedMediaItems
         }
-        val (songs, missingMediaItems) = (mediaItems - resolvedMediaItems.toSet()).let { invalidItems ->
-            repository.songsByMediaItems(invalidItems)
-        }
-        if (songs.isNotEmpty()) {
-            resolvedMediaItems.addAll(songs.toMediaItems())
-        }
-        if (missingMediaItems.isNotEmpty()) {
-            val complexMediaItems = if (tryToResolveComplexPaths) {
-                missingMediaItems.filter { item -> item.mediaId.contains(":") }
-            } else {
-                emptyList()
+
+        val unresolved = mediaItems.filter { item ->
+            val uri = item.localConfiguration?.uri
+            uri == null || (uri.scheme != "http" && uri.scheme != "https")
+        }.filter { item -> item.localConfiguration == null }
+
+        if (unresolved.isNotEmpty()) {
+            val (songs, missingMediaItems) = repository.songsByMediaItems(unresolved)
+            if (songs.isNotEmpty()) {
+                resolvedMediaItems.addAll(songs.toMediaItems())
             }
-            if (complexMediaItems.isNotEmpty()) {
-                getMediaItemsForAAOSPlayback(complexMediaItems)?.first?.forEach {
-                    resolvedMediaItems.add(it)
+            if (missingMediaItems.isNotEmpty()) {
+                val complexMediaItems = if (tryToResolveComplexPaths) {
+                    missingMediaItems.filter { item -> item.mediaId.contains(":") }
+                } else {
+                    emptyList()
                 }
-            } else {
-                missingMediaItems.forEach {
-                    getPlayableSongs(it.mediaId).let { playableSongs ->
-                        if (playableSongs.isNotEmpty()) {
-                            resolvedMediaItems.addAll(playableSongs.toMediaItems())
+                if (complexMediaItems.isNotEmpty()) {
+                    getMediaItemsForAAOSPlayback(complexMediaItems)?.first?.forEach {
+                        resolvedMediaItems.add(it)
+                    }
+                } else {
+                    missingMediaItems.forEach {
+                        getPlayableSongs(it.mediaId).let { playableSongs ->
+                            if (playableSongs.isNotEmpty()) {
+                                resolvedMediaItems.addAll(playableSongs.toMediaItems())
+                            }
                         }
                     }
                 }
@@ -165,7 +192,8 @@ class LibraryProvider(private val repository: Repository) {
 
     suspend fun getChildren(
         context: Context,
-        parentId: String
+        parentId: String,
+        currentMediaItem: MediaItem? = null
     ): List<MediaItem> {
         return if (MediaIDs.isPath(parentId)) {
             val parts = MediaIDs.splitPath(parentId)
@@ -176,7 +204,19 @@ class LibraryProvider(private val repository: Repository) {
             }
         } else when (parentId) {
             MediaIDs.ROOT -> {
-                getRootChildren(context)
+                getRootChildren(context, currentMediaItem != null)
+            }
+
+            MediaIDs.DISCOVERY -> {
+                getDiscoveryChildren(context)
+            }
+
+            MediaIDs.LIBRARY -> {
+                getLibraryChildren(context)
+            }
+
+            MediaIDs.LYRICS -> {
+                getLyricsChildren(currentMediaItem)
             }
 
             MediaIDs.ALBUMS -> {
@@ -285,9 +325,166 @@ class LibraryProvider(private val repository: Repository) {
         return _searchResult
     }
 
-    private suspend fun getRootChildren(context: Context): List<MediaItem> {
+    private suspend fun getRootChildren(context: Context, hasCurrentSong: Boolean): List<MediaItem> {
         val resources = context.resources
-        val mediaItems: MutableList<MediaItem> = ArrayList()
+        val children = mutableListOf<MediaItem>()
+        
+        if (hasCurrentSong) {
+            children.add(
+                MediaItem.Builder()
+                    .setMediaId(MediaIDs.LYRICS)
+                    .setMediaMetadata(
+                        MediaMetadata.Builder()
+                            .setMediaType(MediaMetadata.MEDIA_TYPE_FOLDER_MIXED)
+                            .setIsBrowsable(true)
+                            .setIsPlayable(false)
+                            .setTitle(resources.getString(R.string.lyrics_label))
+                            .setSubtitle(resources.getString(R.string.action_show_lyrics))
+                            .build()
+                    )
+                    .build()
+            )
+        }
+
+        children.add(
+            MediaItem.Builder()
+                .setMediaId(MediaIDs.DISCOVERY)
+                .setMediaMetadata(
+                    MediaMetadata.Builder()
+                        .setMediaType(MediaMetadata.MEDIA_TYPE_FOLDER_MIXED)
+                        .setIsBrowsable(true)
+                        .setIsPlayable(false)
+                        .setTitle(resources.getString(R.string.discovery_label))
+                        .setSubtitle(resources.getString(R.string.online_recommendations))
+                        .setExtras(Bundle().apply {
+                            // Hint for Android Auto to display this folder as a grid
+                            putInt("android.media.browse.CONTENT_STYLE_BROWSABLE_HINT", 2)
+                        })
+                        .build()
+                )
+                .build()
+        )
+
+        children.add(
+            MediaItem.Builder()
+                .setMediaId(MediaIDs.LIBRARY)
+                .setMediaMetadata(
+                    MediaMetadata.Builder()
+                        .setMediaType(MediaMetadata.MEDIA_TYPE_FOLDER_MIXED)
+                        .setIsBrowsable(true)
+                        .setIsPlayable(false)
+                        .setTitle(resources.getString(R.string.library_title))
+                        .setSubtitle(repository.allSongs().size.asNumberOfSongs(context))
+                        .setExtras(Bundle().apply {
+                            // Hint for Android Auto to display this folder as a list
+                            putInt("android.media.browse.CONTENT_STYLE_BROWSABLE_HINT", 1)
+                        })
+                        .build()
+                )
+                .build()
+        )
+        
+        return children
+    }
+
+    private suspend fun getLyricsChildren(currentMediaItem: MediaItem?): List<MediaItem> {
+        if (currentMediaItem == null) return emptyList()
+
+        val song = repository.songByMediaItem(currentMediaItem)
+        if (song == Song.emptySong) return emptyList()
+
+        val rawLyrics = lyricsRepository.fileLyrics(song) 
+            ?: lyricsRepository.embeddedLyrics(song)
+            ?: lyricsRepository.storedLyrics(song, false)
+
+        val syncedLyrics = rawLyrics?.let { lyricsRepository.parseRawLyrics(song, it) }
+        val lines = syncedLyrics?.lines?.map { it.content.content }
+            ?: rawLyrics?.lyrics?.split("\n")
+            ?: emptyList()
+
+        return lines.filter { it.isNotBlank() }.mapIndexed { index, line ->
+            MediaItem.Builder()
+                .setMediaId("LYRIC_LINE_$index")
+                .setMediaMetadata(
+                    MediaMetadata.Builder()
+                        .setIsBrowsable(false)
+                        .setIsPlayable(false)
+                        // Using TITLE for the lyrics text ensures it uses the largest font 
+                        // available in the car UI list template.
+                        .setTitle(line.trim())
+                        .build()
+                )
+                .build()
+        }
+    }
+
+    private suspend fun getDiscoveryChildren(context: Context): List<MediaItem> {
+        val resources = context.resources
+        return listOf(
+            MediaItem.Builder()
+                .setMediaId(MediaIDs.RECENT_SONGS)
+                .setMediaMetadata(
+                    MediaMetadata.Builder()
+                        .setMediaType(MediaMetadata.MEDIA_TYPE_FOLDER_MIXED)
+                        .setIsBrowsable(true)
+                        .setIsPlayable(false)
+                        .setTitle(resources.getString(R.string.history_label))
+                        .setSubtitle(repository.historySongs().size.asNumberOfSongs(context))
+                        .build()
+                )
+                .build(),
+            MediaItem.Builder()
+                .setMediaId(MediaIDs.TOP_TRACKS)
+                .setMediaMetadata(
+                    MediaMetadata.Builder()
+                        .setMediaType(MediaMetadata.MEDIA_TYPE_FOLDER_MIXED)
+                        .setIsBrowsable(true)
+                        .setIsPlayable(false)
+                        .setTitle(resources.getString(R.string.top_tracks_label))
+                        .setSubtitle(repository.playCountSongs().size.asNumberOfSongs(context))
+                        .build()
+                )
+                .build()
+        )
+    }
+
+    private suspend fun getLibraryChildren(context: Context): List<MediaItem> {
+        val resources = context.resources
+        val mediaItems = mutableListOf<MediaItem>()
+
+        // 1. Quick Start
+        mediaItems.add(
+            MediaItem.Builder()
+                .setMediaId(MediaIDs.SONGS)
+                .setMediaMetadata(
+                    MediaMetadata.Builder()
+                        .setMediaType(MediaMetadata.MEDIA_TYPE_FOLDER_MIXED)
+                        .setIsBrowsable(true)
+                        .setIsPlayable(true)
+                        .setTitle(resources.getString(R.string.shuffle_all_label))
+                        .setSubtitle(repository.allSongs().size.asNumberOfSongs(context))
+                        .build()
+                )
+                .build()
+        )
+
+        mediaItems.add(
+            MediaItem.Builder()
+                .setMediaId(MediaIDs.FAVORITES)
+                .setMediaMetadata(
+                    MediaMetadata.Builder()
+                        .setMediaType(MediaMetadata.MEDIA_TYPE_FOLDER_MIXED)
+                        .setIsBrowsable(true)
+                        .setIsPlayable(true)
+                        .setTitle(resources.getString(R.string.favorites_label))
+                        .setSubtitle(repository.favoriteSongs().size.asNumberOfSongs(context))
+                        .setArtworkUri(getImageUri(PLAYLIST_COVER_PATH, -1))
+                        .build()
+                )
+                .build()
+        )
+
+        // 2. Categories
         val libraryCategories = Preferences.libraryCategories
         libraryCategories.forEach { categoryInfo ->
             if (categoryInfo.visible) {
@@ -302,6 +499,7 @@ class LibraryProvider(private val repository: Repository) {
                                         .setIsBrowsable(true)
                                         .setIsPlayable(false)
                                         .setTitle(resources.getString(categoryInfo.category.titleRes))
+                                        .setSubtitle(repository.allSongs().size.asNumberOfSongs(context))
                                         .build()
                                 )
                                 .build()
@@ -318,6 +516,7 @@ class LibraryProvider(private val repository: Repository) {
                                         .setIsBrowsable(true)
                                         .setIsPlayable(false)
                                         .setTitle(resources.getString(categoryInfo.category.titleRes))
+                                        .setSubtitle(repository.allAlbums().size.asNumberOfAlbums(context))
                                         .build()
                                 )
                                 .build()
@@ -335,6 +534,7 @@ class LibraryProvider(private val repository: Repository) {
                                             .setIsBrowsable(true)
                                             .setIsPlayable(false)
                                             .setTitle(resources.getString(R.string.album_artists_label))
+                                            .setSubtitle(repository.allAlbumArtists().size.asNumberOfArtists(context))
                                             .build()
                                     )
                                     .build()
@@ -349,6 +549,7 @@ class LibraryProvider(private val repository: Repository) {
                                             .setIsBrowsable(true)
                                             .setIsPlayable(false)
                                             .setTitle(resources.getString(R.string.artists_label))
+                                            .setSubtitle(repository.allArtists().size.asNumberOfArtists(context))
                                             .build()
                                     )
                                     .build()
@@ -366,6 +567,7 @@ class LibraryProvider(private val repository: Repository) {
                                         .setIsBrowsable(true)
                                         .setIsPlayable(false)
                                         .setTitle(resources.getString(categoryInfo.category.titleRes))
+                                        .setSubtitle(repository.allGenres().size.asNumberOfGenres(context))
                                         .build()
                                 )
                                 .build()
@@ -382,6 +584,7 @@ class LibraryProvider(private val repository: Repository) {
                                         .setIsBrowsable(true)
                                         .setIsPlayable(false)
                                         .setTitle(resources.getString(categoryInfo.category.titleRes))
+                                        .setSubtitle(repository.playlistsWithSongs().size.asNumberOfPlaylists(context))
                                         .build()
                                 )
                                 .build()
@@ -392,22 +595,6 @@ class LibraryProvider(private val repository: Repository) {
                 }
             }
         }
-
-        mediaItems.add(
-            MediaItem.Builder()
-                .setMediaId(MediaIDs.TOP_TRACKS)
-                .setMediaMetadata(
-                    MediaMetadata.Builder()
-                        .setMediaType(MediaMetadata.MEDIA_TYPE_FOLDER_MIXED)
-                        .setIsBrowsable(true)
-                        .setIsPlayable(false)
-                        .setTitle(resources.getString(R.string.top_tracks_label))
-                        .setSubtitle(repository.playCountSongs().songCountStr(context))
-                        .build()
-                )
-                .build()
-        )
-
         return mediaItems
     }
 

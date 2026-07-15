@@ -138,6 +138,7 @@ class QueueFragment : BottomSheetDialogFragment(R.layout.fragment_queue),
         binding.recyclerView.itemAnimator = RefactoredDefaultItemAnimator()
 
         dragDropManager!!.attachRecyclerView(_binding!!.recyclerView)
+        playingQueueAdapter?.attachToRecyclerView(_binding!!.recyclerView)
         layoutManager!!.scrollToPosition(position.next)
 
         binding.recyclerView.createFastScroller()

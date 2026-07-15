@@ -9,7 +9,8 @@ class SongPlayCountHelper {
         private set
 
     fun shouldBumpPlayCount(): Boolean {
-        return song.duration * 0.5 < stopWatch.elapsedTime
+        val percentage = com.mardous.booming.util.Preferences.lastfmScrobblePercentage / 100f
+        return song.duration * percentage < stopWatch.elapsedTime
     }
 
     fun notifySongChanged(song: Song, isPlaying: Boolean) {

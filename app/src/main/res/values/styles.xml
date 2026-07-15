@@ -71,6 +71,9 @@
         <item name="paddingBottomSystemWindowInsets">false</item>
         <item name="android:maxWidth">@null</item>
         <item name="shapeAppearance">?attr/shapeAppearanceCornerMedium</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="elevation">0dp</item>
     </style>
 
     <style name="ModalBottomSheetStyle" parent="Widget.Material3.BottomSheet.Modal">
@@ -98,6 +101,13 @@
 
     <style name="SquigglySlider" parent="Base.SquigglySlider">
         <item name="android:progressDrawable">@drawable/media_squiggly_progress</item>
+    </style>
+
+    <style name="Widget.Booming.BottomNavigationView.Spotify" parent="Widget.Material3.BottomNavigationView">
+        <item name="backgroundTint">@android:color/black</item>
+        <item name="itemIconTint">@color/spotify_nav_item_color</item>
+        <item name="itemTextColor">@color/spotify_nav_item_color</item>
+        <item name="itemActiveIndicatorStyle">@null</item>
     </style>
 
 </resources>

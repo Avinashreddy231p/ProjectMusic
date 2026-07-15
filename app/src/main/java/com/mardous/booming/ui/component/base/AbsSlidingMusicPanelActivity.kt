@@ -23,6 +23,8 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
@@ -35,6 +37,7 @@ import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.core.animation.doOnEnd
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.get
@@ -45,7 +48,12 @@ import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.commit
 import androidx.media3.session.MediaController
 import androidx.navigation.findNavController
+import com.mardous.booming.data.model.Song
 import androidx.navigation.fragment.NavHostFragment
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.toArgb
+import com.mardous.booming.ui.component.compose.decoration.VibrantBackground
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
@@ -54,11 +62,15 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDE
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_SETTLING
 import com.google.android.material.bottomsheet.BottomSheetBehavior.from
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.navigation.NavigationBarView
 import com.google.android.material.navigationrail.NavigationRailView
+import com.google.android.material.shape.MaterialShapeDrawable
+import com.google.android.material.shape.ShapeAppearanceModel
 import com.mardous.booming.MediaControllerOwner
 import com.mardous.booming.R
+import com.mardous.booming.util.GeneralTheme
 import com.mardous.booming.core.model.CategoryInfo
 import com.mardous.booming.core.model.LibraryMargin
 import com.mardous.booming.core.model.action.QueueClearingBehavior
@@ -69,6 +81,7 @@ import com.mardous.booming.extensions.applyWindowInsets
 import com.mardous.booming.extensions.currentFragment
 import com.mardous.booming.extensions.dip
 import com.mardous.booming.extensions.getBottomInsets
+import com.mardous.booming.extensions.hasS
 import com.mardous.booming.extensions.hasT
 import com.mardous.booming.extensions.isLandscape
 import com.mardous.booming.extensions.launchAndRepeatWithViewLifecycle
@@ -78,6 +91,9 @@ import com.mardous.booming.extensions.resources.isColorLight
 import com.mardous.booming.extensions.resources.peekHeightAnimate
 import com.mardous.booming.extensions.resources.show
 import com.mardous.booming.extensions.whichFragment
+import com.mardous.booming.ui.theme.spotifyGreen
+import com.mardous.booming.ui.theme.spotifyGrey
+import com.mardous.booming.ui.theme.spotifyBlack
 import com.mardous.booming.ui.IBackConsumer
 import com.mardous.booming.ui.screen.info.PlayInfoFragment
 import com.mardous.booming.ui.screen.library.LibraryViewModel
@@ -94,8 +110,13 @@ import com.mardous.booming.ui.screen.player.styles.gradientstyle.GradientPlayerF
 import com.mardous.booming.ui.screen.player.styles.m3style.M3PlayerFragment
 import com.mardous.booming.ui.screen.player.styles.peekplayerstyle.PeekPlayerFragment
 import com.mardous.booming.ui.screen.player.styles.plainstyle.PlainPlayerFragment
+import com.mardous.booming.ui.screen.player.styles.spotify.SpotifyPlayerFragment
+import com.mardous.booming.ui.screen.player.styles.vibrantstyle.VibrantPlayerFragment
 import com.mardous.booming.util.ADAPTIVE_CONTROLS
 import com.mardous.booming.util.ADD_EXTRA_CONTROLS
+import com.mardous.booming.util.VIBRANT_BACKGROUND_ANIMATIONS
+import com.mardous.booming.util.VIBRANT_BACKGROUND_HIGH_QUALITY
+import com.mardous.booming.util.VIBRANT_BACKGROUND_GLOBAL
 import com.mardous.booming.util.CAROUSEL_EFFECT
 import com.mardous.booming.util.CIRCLE_PLAY_BUTTON
 import com.mardous.booming.util.ENABLE_ROTATION_LOCK
@@ -108,6 +129,7 @@ import com.mardous.booming.util.PLAYER_BLUR_RADIUS
 import com.mardous.booming.util.Preferences
 import com.mardous.booming.util.SQUIGGLY_SEEK_BAR
 import com.mardous.booming.util.SWIPE_DOWN_TO_DISMISS
+import com.mardous.booming.util.UITheme
 import com.mardous.booming.util.TAB_TITLES_MODE
 import com.mardous.booming.util.USE_FOLDER_ART
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -115,6 +137,7 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 /**
  * @author Christians M. A. (mardous)
  */
+
 abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
     MediaController.Listener, SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -187,6 +210,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
         setupNavigationView()
         setupSlidingUpPanel()
         setupBottomSheet()
+        applyUIThemeChanges()
+        setupGlobalBackground()
 
         launchAndRepeatWithViewLifecycle {
             playerViewModel.colorSchemeFlow.collect { scheme ->
@@ -207,7 +232,11 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
 
         launchAndRepeatWithViewLifecycle {
             playerViewModel.currentSongFlow.collect { currentSong ->
-                lyricsViewModel.updateSong(currentSong)
+                if (currentSong == Song.emptySong) {
+                    lyricsViewModel.updateSong(currentSong)
+                } else {
+                    lyricsViewModel.updateSong(currentSong)
+                }
             }
         }
 
@@ -262,6 +291,27 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
         playerFragment = null
     }
 
+    private fun setupGlobalBackground() {
+        val isGlobalEnabled = Preferences.vibrantBackgroundGlobal
+        binding.globalBackgroundView.isVisible = isGlobalEnabled
+        if (isGlobalEnabled) {
+            binding.globalBackgroundView.setContent {
+                val isPlaying by playerViewModel.isPlayingFlow.collectAsState(initial = false)
+                
+                com.mardous.booming.ui.theme.BoomingMusicTheme {
+                    VibrantBackground(
+                        dominantColor = androidx.compose.ui.graphics.Color(paletteColor),
+                        mode = Preferences.vibrantBackgroundMode,
+                        isPlaying = isPlaying
+                    )
+                }
+            }
+            binding.fragmentContainer.background = null
+        } else {
+            binding.fragmentContainer.setBackgroundColor(MaterialColors.getColor(this, com.google.android.material.R.attr.colorSurface, Color.BLACK))
+        }
+    }
+
     private fun setupNavigationView() {
         navigationView.labelVisibilityMode = Preferences.bottomTitlesMode
         if (navigationView is NavigationRailView) {
@@ -269,11 +319,36 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
         }
     }
 
+    private fun applyUIThemeChanges() {
+        if (Preferences.uiTheme == UITheme.SPOTIFY) {
+            // Set transparent background for the sheet, let fragments handle it
+            binding.sheetView.background = null
+            
+            val isDark = Preferences.generalTheme != GeneralTheme.LIGHT
+            val surfaceColor = if (isDark) spotifyBlack.toArgb() else Color.WHITE
+            binding.navigationView.setBackgroundColor(surfaceColor)
+            
+            binding.navigationView.itemIconTintList = ContextCompat.getColorStateList(this, R.color.spotify_nav_item_icon_color)
+            binding.navigationView.itemTextColor = ContextCompat.getColorStateList(this, R.color.spotify_nav_item_text_color)
+            binding.navigationView.itemActiveIndicatorColor = ColorStateList.valueOf(spotifyGreen.toArgb()).withAlpha(51) // ~20% alpha
+            binding.navigationView.elevation = 0f
+        }
+    }
+
+
     private fun setupBottomSheet() {
         bottomSheetBehavior = from(binding.sheetView)
         bottomSheetBehavior.addBottomSheetCallback(bottomSheetCallback)
         bottomSheetBehavior.isHideable = Preferences.swipeDownToDismiss
         bottomSheetBehavior.significantVelocityThreshold = 300
+        
+        if (Preferences.eraSurfaceMaterial == com.mardous.booming.util.EraSurfaceMaterial.GLASS) {
+            // Apply background blur for Glass effect if supported (Android 12+)
+            if (hasS()) {
+                binding.sheetView.setRenderEffect(android.graphics.RenderEffect.createBlurEffect(20f, 20f, android.graphics.Shader.TileMode.CLAMP))
+            }
+        }
+
         setMiniPlayerAlphaProgress(0F)
     }
 
@@ -480,13 +555,29 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
     private fun setMiniPlayerAlphaProgress(progress: Float) {
         if (progress < 0) return
         val alpha = 1 - progress
+        
+        // Expressive Motion: Use non-linear alpha for smoother transitions
+        val adjustedAlpha = if (Preferences.eraMotionIntensity >= 2) {
+            (alpha * alpha) // quadratic for more "expressive" feel
+        } else alpha
+
         miniPlayerFragment?.view?.alpha = 1 - (progress / 0.2F)
         miniPlayerFragment?.view?.isGone = alpha == 0f
+        
         if (!resources.isLandscape) {
-            binding.navigationView.translationY = progress * 500
-            binding.navigationView.alpha = alpha
+            val translationMultiplier = if (Preferences.eraMotionIntensity >= 2) 800 else 500
+            binding.navigationView.translationY = progress * translationMultiplier
+            binding.navigationView.alpha = adjustedAlpha
         }
-        binding.playerContainer.alpha = (progress - 0.2F) / 0.2F
+        
+        val containerAlphaProgress = (progress - 0.2F) / 0.2F
+        binding.playerContainer.alpha = if (Preferences.eraMotionIntensity >= 2) {
+            containerAlphaProgress.coerceIn(0f, 1f).let { it * it }
+        } else containerAlphaProgress
+        
+        if (Preferences.uiTheme == UITheme.SPOTIFY) {
+            // updateSpotifySheetMargins(progress)
+        }
     }
 
     private fun onPaletteColorChanged() {
@@ -497,7 +588,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
                 NowPlayingScreen.Plain,
                 NowPlayingScreen.Peek,
                 NowPlayingScreen.M3,
-                NowPlayingScreen.Expressive -> {
+                NowPlayingScreen.Expressive,
+                NowPlayingScreen.Spotify,
+                NowPlayingScreen.Vibrant -> {
                     setLightStatusBar(isColorLight)
                     setLightNavigationBar(isColorLight)
                 }
@@ -572,6 +665,13 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
                 }
             }
 
+            VIBRANT_BACKGROUND_ANIMATIONS,
+            VIBRANT_BACKGROUND_HIGH_QUALITY,
+            VIBRANT_BACKGROUND_GLOBAL -> {
+                setupGlobalBackground()
+                chooseFragmentForTheme()
+            }
+
             USE_FOLDER_ART -> {
                 if (preferences.getBoolean(key, false)) {
                     if (hasT() && checkSelfPermission(READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
@@ -592,7 +692,11 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
     }
 
     private fun chooseFragmentForTheme() {
-        nowPlayingScreen = Preferences.nowPlayingScreen
+        nowPlayingScreen = if (Preferences.uiTheme == UITheme.SPOTIFY) {
+            NowPlayingScreen.Spotify
+        } else {
+            Preferences.nowPlayingScreen
+        }
 
         val fragment: AbsPlayerFragment = when (nowPlayingScreen) {
             NowPlayingScreen.FullCover -> FullCoverPlayerFragment()
@@ -601,6 +705,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
             NowPlayingScreen.Plain -> PlainPlayerFragment()
             NowPlayingScreen.M3 -> M3PlayerFragment()
             NowPlayingScreen.Expressive -> ExpressivePlayerFragment()
+            NowPlayingScreen.Spotify -> SpotifyPlayerFragment()
+            NowPlayingScreen.Vibrant -> VibrantPlayerFragment()
             else -> DefaultPlayerFragment()
         }
 

@@ -77,6 +77,7 @@ class ArtistAdapter constructor(
         } else {
             holder.image?.transitionName = transitionName
         }
+
         holder.loadPaletteImage(artist, DEFAULT_ARTIST_IMAGE)
     }
 

@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/playback_controls"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="24dp"
+    android:paddingEnd="24dp"
+    android:paddingTop="0dp"
+    android:paddingBottom="24dp">
+
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/metadataComposeView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="0dp"
+        app:layout_constraintEnd_toStartOf="@+id/favoriteButtonContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <FrameLayout
+        android:id="@+id/favoriteButtonContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/metadataComposeView"
+        app:layout_constraintEnd_toStartOf="@+id/plusButton"
+        app:layout_constraintTop_toTopOf="@+id/metadataComposeView"
+        app:layout_constraintVertical_bias="0.5">
+
+        <com.mardous.booming.ui.component.views.FavoriteBurstView
+            android:id="@+id/favoriteBurstView"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/minusButton"
+            style="@style/PlayerIconButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
+            app:icon="@drawable/ic_favorite_outline_24dp"
+            app:iconSize="28dp" />
+
+    </FrameLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/plusButton"
+        style="@style/PlayerIconButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        app:icon="@drawable/ic_playlist_add_24dp"
+        app:iconSize="28dp"
+        app:layout_constraintBottom_toBottomOf="@+id/metadataComposeView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/metadataComposeView"
+        app:layout_constraintVertical_bias="0.5"/>
+
+    <com.mardous.booming.ui.component.views.MusicSlider
+        android:id="@+id/progressSlider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/metadataComposeView" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/songCurrentProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        android:alpha="0.7"
+        app:layout_constraintStart_toStartOf="@+id/progressSlider"
+        app:layout_constraintTop_toBottomOf="@+id/progressSlider"
+        tools:text="1:52" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/songTotalTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        android:alpha="0.7"
+        app:layout_constraintEnd_toEndOf="@+id/progressSlider"
+        app:layout_constraintTop_toBottomOf="@+id/progressSlider"
+        tools:text="-1:03" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/shuffleButton"
+        style="@style/PlayerIconButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        app:icon="@drawable/ic_shuffle_24dp"
+        app:iconSize="24dp"
+        app:layout_constraintBottom_toBottomOf="@+id/playPauseButton"
+        app:layout_constraintEnd_toStartOf="@+id/previousButton"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/playPauseButton" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/previousButton"
+        style="@style/PlayerIconButton"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        app:icon="@drawable/ic_previous_24dp"
+        app:iconSize="32dp"
+        app:layout_constraintBottom_toBottomOf="@+id/playPauseButton"
+        app:layout_constraintEnd_toStartOf="@+id/playPauseButton"
+        app:layout_constraintStart_toEndOf="@+id/shuffleButton"
+        app:layout_constraintTop_toTopOf="@+id/playPauseButton" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/playPauseButton"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="8dp"
+        app:backgroundTint="@android:color/white"
+        app:elevation="0dp"
+        app:fabCustomSize="80dp"
+        app:layout_constraintEnd_toStartOf="@+id/nextButton"
+        app:layout_constraintStart_toEndOf="@+id/previousButton"
+        app:layout_constraintTop_toBottomOf="@+id/songCurrentProgress"
+        app:srcCompat="@drawable/ic_play_48dp"
+        app:tint="@android:color/black"
+        app:maxImageSize="48dp"
+        app:shapeAppearanceOverlay="@style/CircularShapeAppearance"
+        android:contentDescription="@string/action_play_pause" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/nextButton"
+        style="@style/PlayerIconButton"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        app:icon="@drawable/ic_next_24dp"
+        app:iconSize="32dp"
+        app:layout_constraintBottom_toBottomOf="@+id/playPauseButton"
+        app:layout_constraintEnd_toStartOf="@+id/repeatButton"
+        app:layout_constraintStart_toEndOf="@+id/playPauseButton"
+        app:layout_constraintTop_toTopOf="@+id/playPauseButton" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/repeatButton"
+        style="@style/PlayerIconButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        app:icon="@drawable/ic_repeat_24dp"
+        app:iconSize="24dp"
+        app:layout_constraintBottom_toBottomOf="@+id/playPauseButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/nextButton"
+        app:layout_constraintTop_toTopOf="@+id/playPauseButton" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/deviceButton"
+        style="@style/PlayerIconButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="8dp"
+        app:icon="@drawable/ic_volume_up_24dp"
+        app:iconSize="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/playPauseButton" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/shareButton"
+        style="@style/PlayerIconButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        app:icon="@drawable/ic_share_24dp"
+        app:iconSize="20dp"
+        app:layout_constraintBottom_toBottomOf="@+id/deviceButton"
+        app:layout_constraintEnd_toStartOf="@+id/queueButton"
+        app:layout_constraintTop_toTopOf="@+id/deviceButton" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/queueButton"
+        style="@style/PlayerIconButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        app:icon="@drawable/ic_queue_music_24dp"
+        app:iconSize="20dp"
+        app:layout_constraintBottom_toBottomOf="@+id/deviceButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/deviceButton" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/lyricsPreviewCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="0dp"
+        app:cardCornerRadius="48dp"
+        app:layout_constraintTop_toBottomOf="@+id/deviceButton"
+        app:strokeWidth="0dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?selectableItemBackground">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp">
+
+            <View
+                android:id="@+id/lyricsHandle"
+                android:layout_width="40dp"
+                android:layout_height="4dp"
+                android:layout_marginTop="12dp"
+                android:background="#4DFFFFFF"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/lyricsComposeView"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginTop="14dp"
+                app:layout_constraintTop_toBottomOf="@+id/lyricsHandle"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

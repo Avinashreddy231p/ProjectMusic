@@ -68,7 +68,19 @@
     <fragment
         android:id="@+id/nav_interface_preferences"
         android:name="com.mardous.booming.ui.screen.settings.AppearancePreferencesFragment"
-        android:label="@string/appearance_title"/>
+        android:label="@string/appearance_title">
+        <action
+            android:id="@+id/action_to_swipeActionsPreferences"
+            app:enterAnim="@anim/booming_fragment_open_enter"
+            app:exitAnim="@anim/booming_fragment_open_exit"
+            app:popEnterAnim="@anim/booming_fragment_close_enter"
+            app:popExitAnim="@anim/booming_fragment_close_exit"
+            app:destination="@+id/nav_swipe_actions_preferences"/>
+    </fragment>
+    <fragment
+        android:id="@+id/nav_swipe_actions_preferences"
+        android:name="com.mardous.booming.ui.screen.settings.SwipeActionsPreferencesFragment"
+        android:label="@string/swipe_actions_title"/>
     <fragment
         android:id="@+id/nav_now_playing_preferences"
         android:name="com.mardous.booming.ui.screen.settings.NowPlayingPreferencesFragment"
@@ -88,9 +100,21 @@
     <fragment
         android:id="@+id/nav_network_preferences"
         android:name="com.mardous.booming.ui.screen.settings.NetworkPreferencesFragment"
-        android:label="@string/network_title"/>
+        android:label="@string/network_title">
+        <action
+            android:id="@+id/action_to_pendingScrobbles"
+            app:enterAnim="@anim/booming_fragment_open_enter"
+            app:exitAnim="@anim/booming_fragment_open_exit"
+            app:popEnterAnim="@anim/booming_fragment_close_enter"
+            app:popExitAnim="@anim/booming_fragment_close_exit"
+            app:destination="@+id/nav_pending_scrobbles"/>
+    </fragment>
     <fragment
         android:id="@+id/nav_advanced_preferences"
         android:name="com.mardous.booming.ui.screen.settings.AdvancedPreferencesFragment"
         android:label="@string/advanced_title"/>
+    <fragment
+        android:id="@+id/nav_pending_scrobbles"
+        android:name="com.mardous.booming.ui.screen.scrobbling.PendingScrobblesFragment"
+        android:label="Pending Scrobbles"/>
 </navigation>

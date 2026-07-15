@@ -13,6 +13,10 @@ object MediaIDs {
     const val RECENT_SONGS = "HISTORY"
     const val FAVORITES = "FAVORITES"
 
+    const val DISCOVERY = "DISCOVERY"
+    const val LIBRARY = "LIBRARY"
+    const val LYRICS = "LYRICS"
+
     private const val SEPARATOR = ":"
 
     fun getPathId(parentId: String, mediaId: Long) = getPathId(parentId, mediaId.toString())

@@ -3,6 +3,8 @@ package com.mardous.booming.ui.screen
 import android.content.Intent
 import android.content.pm.ShortcutManager
 import android.os.Bundle
+import android.view.GestureDetector
+import android.view.MotionEvent
 import androidx.annotation.OptIn
 import androidx.core.content.getSystemService
 import androidx.media3.common.util.UnstableApi
@@ -33,12 +35,14 @@ import com.mardous.booming.ui.screen.update.UpdateSearchResult
 import com.mardous.booming.ui.screen.update.UpdateViewModel
 import com.mardous.booming.util.Preferences
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import kotlin.math.abs
 
 /**
  * @author Christians M. A. (mardous)
  */
 class MainActivity : AbsSlidingMusicPanelActivity(), MediaController.Listener {
 
+    private lateinit var navGestureDetector: GestureDetector
     private val updateViewModel: UpdateViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,6 +77,11 @@ class MainActivity : AbsSlidingMusicPanelActivity(), MediaController.Listener {
 
             Playback.EVENT_FAVORITE_CONTENT_CHANGED -> {
                 playerViewModel.submitEvent(MediaEvent.FavoriteContentChanged)
+                SessionResult(SessionResult.RESULT_SUCCESS)
+            }
+
+            Playback.EVENT_SHOW_LYRICS -> {
+                playerViewModel.submitEvent(MediaEvent.ShowLyrics)
                 SessionResult(SessionResult.RESULT_SUCCESS)
             }
 
@@ -142,6 +151,33 @@ class MainActivity : AbsSlidingMusicPanelActivity(), MediaController.Listener {
             }
         }
 
+        navGestureDetector = GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+            private val SWIPE_THRESHOLD = 50
+            private val SWIPE_VELOCITY_THRESHOLD = 50
+
+            override fun onFling(
+                e1: MotionEvent?,
+                e2: MotionEvent,
+                velocityX: Float,
+                velocityY: Float
+            ): Boolean {
+                if (e1 == null) return false
+                val diffY = e2.y - e1.y
+                val diffX = e2.x - e1.x
+                if (abs(diffX) > abs(diffY)) {
+                    if (abs(diffX) > SWIPE_THRESHOLD && abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                        if (diffX > 0) {
+                            switchToNextTab()
+                        } else {
+                            switchToPreviousTab()
+                        }
+                        return true
+                    }
+                }
+                return false
+            }
+        })
+
         navController.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id == navGraph.startDestinationId) {
                 currentFragment(R.id.fragment_container)?.enterTransition = null
@@ -182,6 +218,34 @@ class MainActivity : AbsSlidingMusicPanelActivity(), MediaController.Listener {
     private fun saveTab(id: Int) {
         if (Preferences.libraryCategories.firstOrNull { it.category.id == id }?.visible == true) {
             Preferences.lastPage = id
+        }
+    }
+
+    private fun switchToNextTab() {
+        val currentId = navigationView.selectedItemId
+        val menu = navigationView.menu
+        val visibleItems = mutableListOf<android.view.MenuItem>()
+        for (i in 0 until menu.size()) {
+            val item = menu.getItem(i)
+            if (item.isVisible) visibleItems.add(item)
+        }
+        val currentIndex = visibleItems.indexOfFirst { it.itemId == currentId }
+        if (currentIndex != -1 && currentIndex < visibleItems.size - 1) {
+            navigationView.selectedItemId = visibleItems[currentIndex + 1].itemId
+        }
+    }
+
+    private fun switchToPreviousTab() {
+        val currentId = navigationView.selectedItemId
+        val menu = navigationView.menu
+        val visibleItems = mutableListOf<android.view.MenuItem>()
+        for (i in 0 until menu.size()) {
+            val item = menu.getItem(i)
+            if (item.isVisible) visibleItems.add(item)
+        }
+        val currentIndex = visibleItems.indexOfFirst { it.itemId == currentId }
+        if (currentIndex > 0) {
+            navigationView.selectedItemId = visibleItems[currentIndex - 1].itemId
         }
     }
 
@@ -274,5 +338,23 @@ class MainActivity : AbsSlidingMusicPanelActivity(), MediaController.Listener {
             "com.mardous.booming.appshortcuts.id.top_tracks",
             "com.mardous.booming.appshortcuts.id.shuffle_all",
         )
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        if (::navGestureDetector.isInitialized && navigationView.visibility == android.view.View.VISIBLE) {
+            val location = IntArray(2)
+            navigationView.getLocationOnScreen(location)
+            val rect = android.graphics.Rect(location[0], location[1], location[0] + navigationView.width, location[1] + navigationView.height)
+            if (rect.contains(ev.rawX.toInt(), ev.rawY.toInt())) {
+                if (navGestureDetector.onTouchEvent(ev)) {
+                    // Send an ACTION_CANCEL to child views so they drop any pressed state
+                    val cancelEvent = MotionEvent.obtain(ev).apply { action = MotionEvent.ACTION_CANCEL }
+                    super.dispatchTouchEvent(cancelEvent)
+                    cancelEvent.recycle()
+                    return true
+                }
+            }
+        }
+        return super.dispatchTouchEvent(ev)
     }
 }
