@@ -20,7 +20,11 @@ import com.mardous.booming.data.remote.lastfm.LastFmService
 import com.mardous.booming.data.remote.lastfm.model.LastFmAlbum
 import com.mardous.booming.data.remote.lastfm.model.LastFmArtist
 import com.mardous.booming.data.remote.lastfm.model.LastFmError
+import com.mardous.booming.data.remote.lastfm.model.LastFmRecentTracksResponse
 import com.mardous.booming.data.remote.lastfm.model.LastFmSessionResponse
+import com.mardous.booming.data.remote.lastfm.model.LastFmTopAlbumsResponse
+import com.mardous.booming.data.remote.lastfm.model.LastFmTopArtistsResponse
+import com.mardous.booming.data.remote.lastfm.model.LastFmTopTracksResponse
 import com.mardous.booming.data.remote.lastfm.model.LastFmUser
 import com.mardous.booming.data.remote.lastfm.model.NowPlayingResponse
 import com.mardous.booming.data.remote.lastfm.model.ScrobbleResponse
@@ -44,12 +48,18 @@ import kotlin.io.encoding.Base64
 
 interface NetworkRepository {
     fun getLoginState(service: ScrobblingService): Flow<LoginState>
+    fun getCurrentLoginState(service: ScrobblingService): LoginState
     suspend fun loginToService(service: ScrobblingService, params: LoginParams)
     suspend fun logoutFromService(service: ScrobblingService)
     suspend fun scrobble(service: ScrobblingService, song: Song, timestamp: Long): ScrobblingResult
     suspend fun updateNowPlaying(service: ScrobblingService, song: Song): ScrobblingResult
     suspend fun artistInfo(name: String, lang: String?, cache: String?): LastFmArtist?
     suspend fun albumInfo(artist: String, album: String, lang: String?): LastFmAlbum?
+    suspend fun lastFmUserTopArtists(period: String, limit: Int): LastFmTopArtistsResponse?
+    suspend fun lastFmUserTopTracks(period: String, limit: Int): LastFmTopTracksResponse?
+    suspend fun lastFmUserTopAlbums(period: String, limit: Int): LastFmTopAlbumsResponse?
+    suspend fun lastFmUserRecentTracks(limit: Int): LastFmRecentTracksResponse?
+    suspend fun lastFmUserInfo(username: String? = null): LastFmUser?
     suspend fun deezerTrack(artist: String, title: String): DeezerTrack?
     suspend fun deezerArtist(name: String, limit: Int, index: Int): DeezerArtist?
     suspend fun deezerAlbum(artist: String, name: String): DeezerAlbum?
@@ -71,6 +81,8 @@ class NetworkRepositoryImpl(
 
     private val listenBrainzLoginStateFlow = MutableStateFlow<LoginState>(LoginState.Empty)
     private val listenBrainzLoginState get() = listenBrainzLoginStateFlow.value
+
+    private val lastFmCache = mutableMapOf<String, Any>()
 
     private val appName = context.getString(R.string.app_name)
 
@@ -96,6 +108,13 @@ class NetworkRepositoryImpl(
         return when (service) {
             ScrobblingService.Lastfm -> lastFmLoginStateFlow
             ScrobblingService.ListenBrainz -> listenBrainzLoginStateFlow
+        }
+    }
+
+    override fun getCurrentLoginState(service: ScrobblingService): LoginState {
+        return when (service) {
+            ScrobblingService.Lastfm -> lastFmLoginState
+            ScrobblingService.ListenBrainz -> listenBrainzLoginState
         }
     }
 
@@ -157,6 +176,68 @@ class NetworkRepositoryImpl(
         }
     }
 
+    override suspend fun lastFmUserTopArtists(period: String, limit: Int): LastFmTopArtistsResponse? {
+        val session = getLastFmSessionInfo() ?: return null
+        val cacheKey = "top_artists_$period"
+        return lastFmCache[cacheKey] as? LastFmTopArtistsResponse ?: try {
+            val response = lastFmService.userTopArtists(session.user.name, period, limit)
+            lastFmCache[cacheKey] = response
+            response
+        } catch (e: Exception) {
+            Log.e(TAG, "Last.fm: Top artists error", e)
+            null
+        }
+    }
+
+    override suspend fun lastFmUserTopTracks(period: String, limit: Int): LastFmTopTracksResponse? {
+        val session = getLastFmSessionInfo() ?: return null
+        val cacheKey = "top_tracks_$period"
+        return lastFmCache[cacheKey] as? LastFmTopTracksResponse ?: try {
+            val response = lastFmService.userTopTracks(session.user.name, period, limit)
+            lastFmCache[cacheKey] = response
+            response
+        } catch (e: Exception) {
+            Log.e(TAG, "Last.fm: Top tracks error", e)
+            null
+        }
+    }
+
+    override suspend fun lastFmUserTopAlbums(period: String, limit: Int): LastFmTopAlbumsResponse? {
+        val session = getLastFmSessionInfo() ?: return null
+        val cacheKey = "top_albums_$period"
+        return lastFmCache[cacheKey] as? LastFmTopAlbumsResponse ?: try {
+            val response = lastFmService.userTopAlbums(session.user.name, period, limit)
+            lastFmCache[cacheKey] = response
+            response
+        } catch (e: Exception) {
+            Log.e(TAG, "Last.fm: Top albums error", e)
+            null
+        }
+    }
+
+    override suspend fun lastFmUserRecentTracks(limit: Int): LastFmRecentTracksResponse? {
+        val session = getLastFmSessionInfo() ?: return null
+        return try {
+            lastFmService.userRecentTracks(session.user.name, limit)
+        } catch (e: Exception) {
+            Log.e(TAG, "Last.fm: Recent tracks error", e)
+            null
+        }
+    }
+
+    override suspend fun lastFmUserInfo(username: String?): LastFmUser? {
+        val name = username ?: getLastFmSessionInfo()?.user?.name ?: return null
+        val cacheKey = "user_info_$name"
+        return lastFmCache[cacheKey] as? LastFmUser ?: try {
+            val response = lastFmService.userInfo(name)
+            lastFmCache[cacheKey] = response.user
+            response.user
+        } catch (e: Exception) {
+            Log.e(TAG, "Last.fm: User info error", e)
+            null
+        }
+    }
+
     override suspend fun deezerTrack(artist: String, title: String): DeezerTrack? {
         return try {
             deezerService.track(artist, title)
@@ -192,16 +273,27 @@ class NetworkRepositoryImpl(
         }
         lastFmLoginStateFlow.value = LoginState.LoggingIn
         try {
-            val userResponse = lastFmService.userInfo(username)
-            val sessionResponse = lastFmService.createSession(userResponse.user.name, password)
+            val sessionResponse = lastFmService.createSession(username, password)
             if (sessionResponse is LastFmSessionResponse) {
                 val session = sessionResponse.session
                 if (session != null && session.key.isNotBlank()) {
-                    val isSuccess = setLastfmSessionInfo(userResponse.user, session.key)
+                    // Fetch user info for profile details, but fallback to session name if it fails
+                    val user = try {
+                        lastFmService.userInfo(session.name).user
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Last.fm: couldn't fetch user info, falling back to session name", e)
+                        LastFmUser(
+                            name = session.name,
+                            realName = "",
+                            url = "https://www.last.fm/user/${session.name}"
+                        )
+                    }
+
+                    val isSuccess = setLastfmSessionInfo(user, session.key)
                     if (isSuccess) {
                         lastFmLoginStateFlow.value = LoginState.LoggedIn(
-                            userResponse.user.name,
-                            userResponse.user.url
+                            user.name,
+                            user.url
                         )
                         return
                     }

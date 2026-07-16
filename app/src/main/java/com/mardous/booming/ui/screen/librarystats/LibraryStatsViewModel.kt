@@ -2,9 +2,12 @@ package com.mardous.booming.ui.screen.librarystats
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mardous.booming.data.local.repository.Repository
 import com.mardous.booming.data.local.repository.SongRepository
 import com.mardous.booming.data.local.repository.StatsRepository
 import com.mardous.booming.data.model.Song
+import com.mardous.booming.data.model.network.LoginState
+import com.mardous.booming.data.model.network.ScrobblingService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -43,12 +46,17 @@ data class LibraryStatsUiState(
     val metadataHealthDistribution: List<DistributionItem> = emptyList(),
     val orphanedTracksCount: Int = 0,
 
+    val lastFmTopArtists: List<DistributionItem> = emptyList(),
+    val lastFmTopTracks: List<DistributionItem> = emptyList(),
+    val isLastFmLoggedIn: Boolean = false,
+
     val isLoading: Boolean = true
 )
 
 class LibraryStatsViewModel(
     private val songRepository: SongRepository,
-    private val statsRepository: StatsRepository
+    private val statsRepository: StatsRepository,
+    private val repository: Repository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LibraryStatsUiState())
@@ -214,6 +222,19 @@ class LibraryStatsViewModel(
                 // Orphaned Tracks
                 val orphanedCount = artistGroups.count { it.value == 1 }
 
+                val lastFmLoggedIn = repository.getCurrentLoginState(ScrobblingService.Lastfm) is LoginState.LoggedIn
+                val lastFmTopArtists = if (lastFmLoggedIn) {
+                    repository.lastFmUserTopArtists("overall", 5)?.topartists?.artist?.map {
+                        DistributionItem(it.name, it.playcount.toIntOrNull() ?: 0)
+                    } ?: emptyList()
+                } else emptyList()
+
+                val lastFmTopTracks = if (lastFmLoggedIn) {
+                    repository.lastFmUserTopTracks("overall", 5)?.toptracks?.track?.map {
+                        DistributionItem("${it.name} - ${it.artist.name}", it.playcount.toIntOrNull() ?: 0)
+                    } ?: emptyList()
+                } else emptyList()
+
                 _uiState.update {
                     it.copy(
                         totalSongs = songs.size,
@@ -241,6 +262,10 @@ class LibraryStatsViewModel(
                         ).filter { item -> item.count > 0 },
                         metadataHealthDistribution = metadataGroups.map { entry -> DistributionItem(entry.key, entry.value) }.sortedByDescending { item -> item.count },
                         orphanedTracksCount = orphanedCount,
+
+                        isLastFmLoggedIn = lastFmLoggedIn,
+                        lastFmTopArtists = lastFmTopArtists,
+                        lastFmTopTracks = lastFmTopTracks,
 
                         isLoading = false
                     )

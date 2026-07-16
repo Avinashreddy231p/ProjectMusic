@@ -166,11 +166,31 @@ object Preferences : KoinComponent {
     val lastfmSyncFavorites: Boolean
         get() = preferences.getBoolean(LASTFM_SYNC_FAVORITES, false)
 
+    fun setLastfmSyncFavorites(value: Boolean) = preferences.edit {
+        putBoolean(LASTFM_SYNC_FAVORITES, value)
+    }
+
     val lastfmOfflineScrobbling: Boolean
         get() = preferences.getBoolean(LASTFM_OFFLINE_SCROBBLING, true)
 
+    fun setLastfmOfflineScrobbling(value: Boolean) = preferences.edit {
+        putBoolean(LASTFM_OFFLINE_SCROBBLING, value)
+    }
+
     val lastfmScrobblePercentage: Int
         get() = preferences.getInt(LASTFM_SCROBBLE_PERCENTAGE, 50)
+
+    fun setLastfmScrobblePercentage(value: Int) = preferences.edit {
+        putInt(LASTFM_SCROBBLE_PERCENTAGE, value)
+    }
+
+    fun setLastfmScrobblingEnabled(value: Boolean) = preferences.edit {
+        putBoolean(LASTFM_SCROBBLE_ENABLED, value)
+    }
+
+    fun setListenBrainzScrobblingEnabled(value: Boolean) = preferences.edit {
+        putBoolean(LISTENBRAINZ_SCROBBLE_ENABLED, value)
+    }
 
     var queueHeight: Boolean
         get() = preferences.getBoolean(QUEUE_HEIGHT, false)
@@ -799,7 +819,9 @@ const val LASTFM_LOGIN = "lastfm_login"
 const val LASTFM_SYNC_FAVORITES = "lastfm_sync_favorites"
 const val LASTFM_OFFLINE_SCROBBLING = "lastfm_offline_scrobble"
 const val LASTFM_SCROBBLE_PERCENTAGE = "lastfm_scrobble_percentage"
+const val LASTFM_SCROBBLE_ENABLED = "lastfm_scrobbling_enabled"
 const val LISTENBRAINZ_LOGIN = "listenbrainz_login"
+const val LISTENBRAINZ_SCROBBLE_ENABLED = "listenbrainz_scrobbling_enabled"
 
 
 const val ERA_PRIMARY_SEED = "era_primary_seed"

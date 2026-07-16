@@ -21,7 +21,11 @@ import com.mardous.booming.BuildConfig
 import com.mardous.booming.data.remote.lastfm.model.LastFmAlbum
 import com.mardous.booming.data.remote.lastfm.model.LastFmArtist
 import com.mardous.booming.data.remote.lastfm.model.LastFmError
+import com.mardous.booming.data.remote.lastfm.model.LastFmRecentTracksResponse
 import com.mardous.booming.data.remote.lastfm.model.LastFmSessionResponse
+import com.mardous.booming.data.remote.lastfm.model.LastFmTopAlbumsResponse
+import com.mardous.booming.data.remote.lastfm.model.LastFmTopArtistsResponse
+import com.mardous.booming.data.remote.lastfm.model.LastFmTopTracksResponse
 import com.mardous.booming.data.remote.lastfm.model.LastFmUserResponse
 import com.mardous.booming.data.remote.lastfm.model.NowPlayingResponse
 import com.mardous.booming.data.remote.lastfm.model.ScrobbleResponse
@@ -66,6 +70,33 @@ class LastFmService(private val client: HttpClient) {
         client.lastfm("user.getInfo") {
             parameter("user", username)
         }.body<LastFmUserResponse>()
+
+    suspend fun userTopArtists(username: String, period: String = "overall", limit: Int = 10) =
+        client.lastfm("user.getTopArtists") {
+            parameter("user", username)
+            parameter("period", period)
+            parameter("limit", limit)
+        }.body<LastFmTopArtistsResponse>()
+
+    suspend fun userTopTracks(username: String, period: String = "overall", limit: Int = 10) =
+        client.lastfm("user.getTopTracks") {
+            parameter("user", username)
+            parameter("period", period)
+            parameter("limit", limit)
+        }.body<LastFmTopTracksResponse>()
+
+    suspend fun userTopAlbums(username: String, period: String = "overall", limit: Int = 10) =
+        client.lastfm("user.getTopAlbums") {
+            parameter("user", username)
+            parameter("period", period)
+            parameter("limit", limit)
+        }.body<LastFmTopAlbumsResponse>()
+
+    suspend fun userRecentTracks(username: String, limit: Int = 20) =
+        client.lastfm("user.getRecentTracks") {
+            parameter("user", username)
+            parameter("limit", limit)
+        }.body<LastFmRecentTracksResponse>()
 
     suspend fun createSession(username: String, password: String): Any {
         val response = client.lastfmPost(

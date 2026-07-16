@@ -381,11 +381,26 @@ private val viewModule = module {
     }
 
     viewModel {
+        com.mardous.booming.ui.screen.scrobbling.LastFmProfileViewModel(
+            networkRepository = get(),
+            pendingScrobbleDao = get()
+        )
+    }
+
+    viewModel {
         UpdateViewModel(updateService = get())
     }
 
     viewModel {
         StatsViewModel(application = androidApplication(), statsRepository = get())
+    }
+
+    viewModel {
+        com.mardous.booming.ui.screen.librarystats.LibraryStatsViewModel(
+            songRepository = get(),
+            statsRepository = get(),
+            repository = get()
+        )
     }
 }
 

@@ -219,16 +219,9 @@ androidComponents {
             variant.buildConfigFields?.put(key.toString(), BuildConfigField("String", "\"$value\"", null))
         }
 
-        val canUseLastFm = variant.flavorName == "github" || variant.flavorName == "playstore"
-
-        val localProperties = if (canUseLastFm) getProperties("local.properties") else null
-        val lastFmKey = if (canUseLastFm) {
-            localProperties?.getProperty("LASTFM_API_KEY") ?: System.getenv("LASTFM_API_KEY") ?: ""
-        } else ""
-
-        val lastFmSecret = if (canUseLastFm) {
-            localProperties?.getProperty("LASTFM_SECRET") ?: System.getenv("LASTFM_SECRET") ?: ""
-        } else ""
+        val localProperties = getProperties("local.properties")
+        val lastFmKey = localProperties?.getProperty("LASTFM_API_KEY") ?: System.getenv("LASTFM_API_KEY") ?: ""
+        val lastFmSecret = localProperties?.getProperty("LASTFM_SECRET") ?: System.getenv("LASTFM_SECRET") ?: ""
 
         variant.buildConfigFields?.putAll(
             mapOf(

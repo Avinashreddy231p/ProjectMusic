@@ -46,6 +46,11 @@ import com.mardous.booming.data.remote.deezer.model.DeezerArtist
 import com.mardous.booming.data.remote.deezer.model.DeezerTrack
 import com.mardous.booming.data.remote.lastfm.model.LastFmAlbum
 import com.mardous.booming.data.remote.lastfm.model.LastFmArtist
+import com.mardous.booming.data.remote.lastfm.model.LastFmRecentTracksResponse
+import com.mardous.booming.data.remote.lastfm.model.LastFmTopAlbumsResponse
+import com.mardous.booming.data.remote.lastfm.model.LastFmTopArtistsResponse
+import com.mardous.booming.data.remote.lastfm.model.LastFmTopTracksResponse
+import com.mardous.booming.data.remote.lastfm.model.LastFmUser
 import kotlinx.coroutines.flow.Flow
 import java.io.File
 
@@ -144,6 +149,7 @@ interface Repository {
     suspend fun search(query: SearchQuery, filter: SearchFilter?): List<Any>
     suspend fun searchSongs(query: String): List<Song>
     fun getLoginState(service: ScrobblingService): Flow<LoginState>
+    fun getCurrentLoginState(service: ScrobblingService): LoginState
     suspend fun loginToService(service: ScrobblingService, params: LoginParams)
     suspend fun logoutFromService(service: ScrobblingService)
     suspend fun scrobble(service: ScrobblingService, song: Song, timestamp: Long): ScrobblingResult
@@ -153,6 +159,11 @@ interface Repository {
     suspend fun deezerAlbum(artist: String, name: String): DeezerAlbum?
     suspend fun artistInfo(name: String, lang: String?, cache: String?): LastFmArtist?
     suspend fun albumInfo(artist: String, album: String, lang: String?): LastFmAlbum?
+    suspend fun lastFmUserTopArtists(period: String, limit: Int): LastFmTopArtistsResponse?
+    suspend fun lastFmUserTopTracks(period: String, limit: Int): LastFmTopTracksResponse?
+    suspend fun lastFmUserTopAlbums(period: String, limit: Int): LastFmTopAlbumsResponse?
+    suspend fun lastFmUserRecentTracks(limit: Int): LastFmRecentTracksResponse?
+    suspend fun lastFmUserInfo(username: String? = null): LastFmUser?
 }
 
 class RealRepository(
@@ -485,6 +496,9 @@ class RealRepository(
     override fun getLoginState(service: ScrobblingService): Flow<LoginState> =
         networkRepository.getLoginState(service)
 
+    override fun getCurrentLoginState(service: ScrobblingService): LoginState =
+        networkRepository.getCurrentLoginState(service)
+
     override suspend fun loginToService(service: ScrobblingService, params: LoginParams) =
         networkRepository.loginToService(service, params)
 
@@ -511,5 +525,20 @@ class RealRepository(
 
     override suspend fun albumInfo(artist: String, album: String, lang: String?) =
         networkRepository.albumInfo(artist, album, lang)
+
+    override suspend fun lastFmUserTopArtists(period: String, limit: Int) =
+        networkRepository.lastFmUserTopArtists(period, limit)
+
+    override suspend fun lastFmUserTopTracks(period: String, limit: Int) =
+        networkRepository.lastFmUserTopTracks(period, limit)
+
+    override suspend fun lastFmUserTopAlbums(period: String, limit: Int) =
+        networkRepository.lastFmUserTopAlbums(period, limit)
+
+    override suspend fun lastFmUserRecentTracks(limit: Int) =
+        networkRepository.lastFmUserRecentTracks(limit)
+
+    override suspend fun lastFmUserInfo(username: String?) =
+        networkRepository.lastFmUserInfo(username)
 
 }

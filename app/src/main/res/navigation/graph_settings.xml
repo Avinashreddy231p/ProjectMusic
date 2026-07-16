@@ -108,6 +108,13 @@
             app:popEnterAnim="@anim/booming_fragment_close_enter"
             app:popExitAnim="@anim/booming_fragment_close_exit"
             app:destination="@+id/nav_pending_scrobbles"/>
+        <action
+            android:id="@+id/action_to_lastfmProfile"
+            app:enterAnim="@anim/booming_fragment_open_enter"
+            app:exitAnim="@anim/booming_fragment_open_exit"
+            app:popEnterAnim="@anim/booming_fragment_close_enter"
+            app:popExitAnim="@anim/booming_fragment_close_exit"
+            app:destination="@+id/nav_lastfm_profile"/>
     </fragment>
     <fragment
         android:id="@+id/nav_advanced_preferences"
@@ -117,4 +124,8 @@
         android:id="@+id/nav_pending_scrobbles"
         android:name="com.mardous.booming.ui.screen.scrobbling.PendingScrobblesFragment"
         android:label="Pending Scrobbles"/>
+    <fragment
+        android:id="@+id/nav_lastfm_profile"
+        android:name="com.mardous.booming.ui.screen.scrobbling.LastFmProfileFragment"
+        android:label="Last.fm Profile"/>
 </navigation>

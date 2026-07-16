@@ -23,12 +23,14 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import com.mardous.booming.ui.ISongCallback
 import com.mardous.booming.ui.component.compose.CollapsibleAppBarScaffold
+import com.mardous.booming.ui.component.compose.TipView
 import kotlinx.coroutines.launch
 import kotlin.math.atan2
 
@@ -58,7 +60,7 @@ fun LibraryStatsScreen(
                     .fillMaxSize()
                     .padding(padding)
             ) {
-                val tabs = listOf("Core", "Audiophile", "Storage", "Health")
+                val tabs = listOf("Core", "Audiophile", "Storage", "Health", "Last.fm")
                 val pagerState = rememberPagerState(pageCount = { tabs.size })
                 val coroutineScope = rememberCoroutineScope()
 
@@ -99,7 +101,41 @@ fun LibraryStatsScreen(
                         1 -> AudiophileTab(uiState, onCategoryClick)
                         2 -> StorageTab(uiState, onCategoryClick)
                         3 -> HealthTab(uiState, onCategoryClick)
+                        4 -> LastFmTab(uiState, onCategoryClick)
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun LastFmTab(uiState: LibraryStatsUiState, onCategoryClick: (String, String) -> Unit) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        if (!uiState.isLastFmLoggedIn) {
+            item {
+                TipView(
+                    text = "Sign in to Last.fm in settings to see your global listening statistics here.",
+                    icon = painterResource(com.mardous.booming.R.drawable.ic_language_24dp)
+                )
+            }
+        } else {
+            if (uiState.lastFmTopArtists.isNotEmpty()) {
+                item {
+                    Text("Top Artists (Global)", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    DistributionListInline("Global Artist", uiState.lastFmTopArtists, onCategoryClick)
+                }
+            }
+            if (uiState.lastFmTopTracks.isNotEmpty()) {
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text("Top Tracks (Global)", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    DistributionListInline("Global Track", uiState.lastFmTopTracks, onCategoryClick)
                 }
             }
         }

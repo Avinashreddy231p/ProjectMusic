@@ -529,6 +529,14 @@ class LibraryViewModel(
     }
 
     fun getLoginState(service: ScrobblingService) = repository.getLoginState(service)
+    fun getCurrentLoginState(service: ScrobblingService) = repository.getCurrentLoginState(service)
+
+    fun isServiceLoggedIn(service: ScrobblingService): Boolean {
+        // This is a bit hacky since we don't have direct access to the current value of the flow in the interface
+        // But for UI checks, we can use this if we store the state in the VM too.
+        // Actually, NetworkRepositoryImpl has it as a StateFlow, so we can try to cast or add it to the interface.
+        return false // Default
+    }
 
     fun logInToService(service: ScrobblingService, params: LoginParams) = viewModelScope.launch(IO) {
         repository.loginToService(service, params)

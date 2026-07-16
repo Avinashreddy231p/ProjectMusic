@@ -33,9 +33,9 @@ data class ListenBrainzTrackMetadata(
 @Serializable
 data class ListenBrainzTrackAdditionalInfo(
     @SerialName("media_player")
-    val player: String,
+    val player: String? = null,
     @SerialName("media_player_version")
-    val playerVersion: String
+    val playerVersion: String? = null
 )
 
 @Serializable
@@ -51,4 +51,29 @@ data class ListenBrainzTokenValidationResponse(
     val valid: Boolean,
     @SerialName("user_name")
     val userName: String? = null
+)
+
+@Serializable
+data class ListenBrainzListensResponse(
+    val payload: ListenBrainzListensPayload
+)
+
+@Serializable
+data class ListenBrainzListensPayload(
+    val count: Int,
+    @SerialName("latest_listen_at")
+    val latestListenAt: Long,
+    val listens: List<ListenBrainzListen>,
+    @SerialName("user_id")
+    val userId: String
+)
+
+@Serializable
+data class ListenBrainzUserListenCountResponse(
+    val payload: ListenBrainzUserListenCountPayload
+)
+
+@Serializable
+data class ListenBrainzUserListenCountPayload(
+    val count: Int
 )

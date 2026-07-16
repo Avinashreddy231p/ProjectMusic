@@ -951,6 +951,10 @@
     <string name="lastfm_login_summary">Authenticate with your Last.fm account to enable scrobbling and now playing updates.</string>
     <string name="lastfm_scrobbling_title">Enable Last.fm scrobbling</string>
     <string name="lastfm_scrobbling_summary">Automatically submit played tracks to your Last.fm listening history.</string>
+    <string name="lastfm_scrobble_percentage_title">Scrobble completion percentage</string>
+    <string name="lastfm_scrobble_percentage_summary">Percentage of a song to play before scrobbling</string>
+    <string name="lastfm_pending_scrobbles_title">Manage pending scrobbles</string>
+    <string name="lastfm_pending_scrobbles_summary">View, edit, or delete offline scrobbles</string>
     <string name="lastfm_now_playing_title">Update now playing on Last.fm</string>
     <string name="lastfm_now_playing_summary">Show the currently playing track on your Last.fm profile in real time.</string>
     <string name="lastfm_biography_title">Download artist and album biographies</string>

@@ -31,6 +31,7 @@ import androidx.core.graphics.drawable.toDrawable
 import androidx.core.os.LocaleListCompat
 import androidx.core.view.updatePadding
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.preference.ListPreference
@@ -53,6 +54,11 @@ import com.mardous.booming.extensions.navigation.findActivityNavController
 import com.mardous.booming.extensions.requestContext
 import com.mardous.booming.extensions.showToast
 import com.mardous.booming.extensions.utilities.dateStr
+import com.mardous.booming.data.local.room.PendingScrobbleDao
+import com.mardous.booming.data.model.network.NetworkFeature
+import com.mardous.booming.data.model.network.LoginState
+import com.mardous.booming.ui.component.preferences.ServiceHubPreference
+import androidx.compose.ui.res.painterResource
 import com.mardous.booming.extensions.utilities.toEnum
 import com.mardous.booming.ui.component.preferences.ProgressIndicatorPreference
 import com.mardous.booming.ui.component.preferences.SwitchWithButtonPreference
@@ -169,12 +175,155 @@ class LibraryPreferencesFragment : PreferenceScreenFragment() {
 }
 
 class NetworkPreferencesFragment : PreferenceScreenFragment() {
+    private val pendingScrobbleDao: PendingScrobbleDao by inject()
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.preferences_screen_network)
-        findPreference<androidx.preference.Preference>("manage_pending_scrobbles")?.setOnPreferenceClickListener {
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupLastfm()
+        setupServiceHub(ScrobblingService.ListenBrainz, "listenbrainz_hub")
+    }
+
+    private fun setupLastfm() {
+        val loginPref = findPreference<Preference>("lastfm_login")
+        libraryViewModel.getLoginState(ScrobblingService.Lastfm).asLiveData().observe(viewLifecycleOwner) { state ->
+            loginPref?.summary = when (state) {
+                is LoginState.LoggedIn -> getString(R.string.connected_account_label) + " " + state.username
+                is LoginState.LoggingIn -> "Logging in..."
+                else -> getString(R.string.lastfm_login_summary)
+            }
+        }
+        loginPref?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+            val loginState = libraryViewModel.getCurrentLoginState(ScrobblingService.Lastfm)
+            if (loginState is LoginState.LoggedIn) {
+                findNavController().navigate(R.id.action_to_lastfmProfile)
+            } else {
+                ScrobblingServiceLoginFragment.create(ScrobblingService.Lastfm)
+                    .show(childFragmentManager, "LASTFM_LOGIN_DIALOG")
+            }
+            true
+        }
+
+        val pendingPref = findPreference<Preference>("lastfm_pending_scrobbles")
+        pendingScrobbleDao.getAllFlow().asLiveData().observe(viewLifecycleOwner) { scrobbles ->
+            pendingPref?.summary = if (scrobbles.isNotEmpty()) {
+                resources.getQuantityString(R.plurals.x_items, scrobbles.size, scrobbles.size) + " waiting to sync"
+            } else {
+                getString(R.string.lastfm_pending_scrobbles_summary)
+            }
+        }
+        pendingPref?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             findNavController().navigate(R.id.action_to_pendingScrobbles)
             true
         }
+    }
+
+    private fun setupServiceHub(service: ScrobblingService, key: String) {
+        val pref = findPreference<ServiceHubPreference>(key)
+        pref?.apply {
+            isVisible = true
+            serviceName = if (service == ScrobblingService.Lastfm) "Last.fm" else "ListenBrainz"
+            serviceIconRes = R.drawable.ic_person_24dp
+            
+            // Observe login state
+            libraryViewModel.getLoginState(service).asLiveData().observe(viewLifecycleOwner) { state ->
+                userName = when (state) {
+                    is LoginState.LoggedIn -> state.username
+                    is LoginState.LoggingIn -> "Logging in..."
+                    else -> null
+                }
+            }
+
+            // Initial scrobbling state
+            updateScrobblingHubState(service, this)
+
+            // Observe pending scrobbles for Last.fm
+            if (service == ScrobblingService.Lastfm) {
+                pendingScrobbleDao.getAllFlow().asLiveData().observe(viewLifecycleOwner) { scrobbles ->
+                    pendingScrobblesCount = scrobbles.size
+                }
+            }
+
+            onPrimaryClick = {
+                val loginState = libraryViewModel.getCurrentLoginState(service)
+                if (loginState is LoginState.LoggedIn && service == ScrobblingService.Lastfm) {
+                    findNavController().navigate(R.id.action_to_lastfmProfile)
+                } else {
+                    ScrobblingServiceLoginFragment.create(service)
+                        .show(childFragmentManager, "${service.name}_LOGIN_DIALOG")
+                }
+            }
+
+            onScrobblingEnabledChange = { enabled ->
+                if (service == ScrobblingService.Lastfm) {
+                    Preferences.setLastfmScrobblingEnabled(enabled)
+                } else {
+                    Preferences.setListenBrainzScrobblingEnabled(enabled)
+                }
+            }
+
+            onOfflineScrobblingChange = { enabled ->
+                if (service == ScrobblingService.Lastfm) {
+                    Preferences.setLastfmOfflineScrobbling(enabled)
+                }
+                updateScrobblingHubState(service, this)
+            }
+
+            onScrobblePercentageChange = { value ->
+                if (service == ScrobblingService.Lastfm) {
+                    Preferences.setLastfmScrobblePercentage(value)
+                }
+                updateScrobblingHubState(service, this)
+            }
+
+            onSyncFavoritesChange = { enabled ->
+                if (service == ScrobblingService.Lastfm) {
+                    Preferences.setLastfmSyncFavorites(enabled)
+                }
+                updateScrobblingHubState(service, this)
+            }
+
+            onInfoEnabledChange = { enabled ->
+                if (service == ScrobblingService.Lastfm) {
+                    preferences.edit().putBoolean("lastfm_info_enabled", enabled).apply()
+                }
+                updateScrobblingHubState(service, this)
+            }
+
+            onPendingScrobblesClick = {
+                findNavController().navigate(R.id.action_to_pendingScrobbles)
+            }
+        }
+    }
+
+    private fun updateScrobblingHubState(service: ScrobblingService, preference: ServiceHubPreference) {
+        if (service == ScrobblingService.Lastfm) {
+            preference.scrobblingEnabled = NetworkFeature.Lastfm.Scrobbling.isEnabled
+            preference.offlineScrobbling = Preferences.lastfmOfflineScrobbling
+            preference.scrobblePercentage = Preferences.lastfmScrobblePercentage
+            preference.syncFavorites = Preferences.lastfmSyncFavorites
+            preference.infoEnabled = preferences.getBoolean("lastfm_info_enabled", true)
+        } else {
+            preference.scrobblingEnabled = NetworkFeature.ListenBrainz.Scrobbling.isEnabled
+        }
+    }
+
+    override fun onSharedPreferenceChanged(preferences: SharedPreferences, key: String?) {
+        when (key) {
+            NetworkFeature.LISTENBRAINZ_SCROBBLING_ENABLED_KEY -> {
+                findPreference<ServiceHubPreference>("listenbrainz_hub")?.let {
+                    updateScrobblingHubState(ScrobblingService.ListenBrainz, it)
+                }
+            }
+        }
+        super.onSharedPreferenceChanged(preferences, key)
+    }
+
+    override fun onDisplayPreferenceDialog(preference: Preference) {
+        super.onDisplayPreferenceDialog(preference)
     }
 }
 
@@ -187,7 +336,7 @@ class AdvancedPreferencesFragment : PreferenceScreenFragment() {
 open class PreferenceScreenFragment : PreferenceFragmentCompat(),
     SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private val libraryViewModel: LibraryViewModel by activityViewModel()
+    protected val libraryViewModel: LibraryViewModel by activityViewModel()
     private val lyricsViewModel: LyricsViewModel by activityViewModel()
     private val updateViewModel: UpdateViewModel by activityViewModel()
 
@@ -238,7 +387,7 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
             }
         }
 
-    private val preferences: SharedPreferences by inject()
+    protected val preferences: SharedPreferences by inject()
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.preferences)

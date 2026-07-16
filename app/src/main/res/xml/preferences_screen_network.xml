@@ -3,6 +3,92 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <PreferenceCategory
+        app:title="@string/lastfm_title"
+        app:layout="@layout/preference_category_title">
+
+        <Preference
+            app:key="lastfm_login"
+            app:icon="@drawable/ic_person_24dp"
+            app:title="@string/lastfm_login_title"
+            app:summary="@string/lastfm_login_summary"
+            app:layout="@layout/list_item_view"/>
+
+        <SwitchPreferenceCompat
+            app:key="lastfm_scrobbling_enabled"
+            app:title="@string/lastfm_scrobbling_title"
+            app:summary="@string/lastfm_scrobbling_summary"
+            app:defaultValue="false"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"/>
+
+        <SwitchPreferenceCompat
+            app:key="lastfm_offline_scrobble"
+            app:title="@string/lastfm_offline_scrobble_title"
+            app:summary="@string/lastfm_offline_scrobble_summary"
+            app:defaultValue="true"
+            app:dependency="lastfm_scrobbling_enabled"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"/>
+
+        <SeekBarPreference
+            app:key="lastfm_scrobble_percentage"
+            app:title="@string/lastfm_scrobble_percentage_title"
+            app:summary="@string/lastfm_scrobble_percentage_summary"
+            android:max="100"
+            app:min="10"
+            app:defaultValue="50"
+            app:showSeekBarValue="true"
+            app:dependency="lastfm_scrobbling_enabled"
+            app:layout="@layout/list_item_view_bottom_widget"
+            app:widgetLayout="@layout/preference_seekbar"/>
+
+        <Preference
+            app:key="lastfm_pending_scrobbles"
+            app:title="@string/lastfm_pending_scrobbles_title"
+            app:summary="@string/lastfm_pending_scrobbles_summary"
+            app:dependency="lastfm_scrobbling_enabled"
+            app:layout="@layout/list_item_view"/>
+
+        <SwitchPreferenceCompat
+            app:key="lastfm_now_playing_enabled"
+            app:title="@string/lastfm_now_playing_title"
+            app:summary="@string/lastfm_now_playing_summary"
+            app:defaultValue="false"
+            app:dependency="lastfm_scrobbling_enabled"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"/>
+
+        <SwitchPreferenceCompat
+            app:key="lastfm_sync_favorites"
+            app:title="@string/lastfm_sync_favorites_title"
+            app:summary="@string/lastfm_sync_favorites_summary"
+            app:defaultValue="false"
+            app:dependency="lastfm_scrobbling_enabled"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"/>
+
+        <SwitchPreferenceCompat
+            app:key="lastfm_info_enabled"
+            app:title="@string/lastfm_biography_title"
+            app:summary="@string/lastfm_biography_summary"
+            app:defaultValue="true"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:title="ListenBrainz"
+        app:layout="@layout/preference_category_title">
+
+        <com.mardous.booming.ui.component.preferences.ServiceHubPreference
+            app:key="listenbrainz_hub"
+            app:title="ListenBrainz"
+            app:layout="@layout/preference_compose_host"/>
+
+    </PreferenceCategory>
+
     <SwitchPreferenceCompat
         app:icon="@drawable/ic_language_24dp"
         app:title="@string/network_features_title"
@@ -67,123 +153,6 @@
             app:defaultValue="medium"
             app:layout="@layout/list_item_view"
             app:key="preferred_image_size"/>
-
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        app:title="@string/lastfm_title"
-        app:layout="@layout/preference_category_title"
-        app:isPreferenceVisible="@bool/enable_lastfm_integration"
-        app:dependency="network_features">
-
-        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
-            app:icon="@drawable/ic_person_24dp"
-            app:title="@string/lastfm_login_title"
-            app:summary="@string/lastfm_login_summary"
-            app:layout="@layout/list_item_view"
-            app:key="lastfm_login"/>
-
-        <SwitchPreferenceCompat
-            app:iconSpaceReserved="true"
-            app:title="@string/lastfm_scrobbling_title"
-            app:summary="@string/lastfm_scrobbling_summary"
-            app:defaultValue="false"
-            app:layout="@layout/list_item_view"
-            app:widgetLayout="@layout/preference_switch"
-            app:dependency="lastfm_login"
-            app:key="lastfm_scrobbling_enabled"/>
-
-        <SwitchPreferenceCompat
-            app:iconSpaceReserved="true"
-            app:title="@string/lastfm_offline_scrobble_title"
-            app:summary="@string/lastfm_offline_scrobble_summary"
-            app:defaultValue="true"
-            app:layout="@layout/list_item_view"
-            app:widgetLayout="@layout/preference_switch"
-            app:dependency="lastfm_scrobbling_enabled"
-            app:key="lastfm_offline_scrobble"/>
-
-        <SeekBarPreference
-            app:iconSpaceReserved="true"
-            app:title="Scrobble completion percentage"
-            app:summary="Percentage of a song to play before scrobbling"
-            android:defaultValue="50"
-            app:min="1"
-            android:max="100"
-            app:showSeekBarValue="true"
-            app:dependency="lastfm_scrobbling_enabled"
-            app:key="lastfm_scrobble_percentage"/>
-
-        <Preference
-            app:iconSpaceReserved="true"
-            app:title="Manage pending scrobbles"
-            app:summary="View, edit, or delete offline scrobbles"
-            app:layout="@layout/list_item_view"
-            app:dependency="lastfm_offline_scrobble"
-            app:key="manage_pending_scrobbles"/>
-
-        <SwitchPreferenceCompat
-            app:iconSpaceReserved="true"
-            app:title="@string/lastfm_now_playing_title"
-            app:summary="@string/lastfm_now_playing_summary"
-            app:defaultValue="false"
-            app:layout="@layout/list_item_view"
-            app:widgetLayout="@layout/preference_switch"
-            app:dependency="lastfm_login"
-            app:key="lastfm_now_playing_enabled"/>
-
-        <SwitchPreferenceCompat
-            app:iconSpaceReserved="true"
-            app:title="@string/lastfm_sync_favorites_title"
-            app:summary="@string/lastfm_sync_favorites_summary"
-            app:defaultValue="false"
-            app:layout="@layout/list_item_view"
-            app:widgetLayout="@layout/preference_switch"
-            app:dependency="lastfm_login"
-            app:key="lastfm_sync_favorites"/>
-
-        <SwitchPreferenceCompat
-            app:iconSpaceReserved="true"
-            app:title="@string/lastfm_biography_title"
-            app:summary="@string/lastfm_biography_summary"
-            app:defaultValue="true"
-            app:layout="@layout/list_item_view"
-            app:widgetLayout="@layout/preference_switch"
-            app:key="lastfm_info_enabled"/>
-
-    </PreferenceCategory>
-
-    <PreferenceCategory
-        app:title="@string/listenbrainz_title"
-        app:layout="@layout/preference_category_title"
-        app:dependency="network_features">
-
-        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
-            app:icon="@drawable/ic_person_24dp"
-            app:title="@string/listenbrainz_login_title"
-            app:summary="@string/listenbrainz_login_summary"
-            app:layout="@layout/list_item_view"
-            app:key="listenbrainz_login"/>
-
-        <SwitchPreferenceCompat
-            app:iconSpaceReserved="true"
-            app:title="@string/listenbrainz_scrobbling_title"
-            app:summary="@string/listenbrainz_scrobbling_summary"
-            app:defaultValue="false"
-            app:layout="@layout/list_item_view"
-            app:widgetLayout="@layout/preference_switch"
-            app:dependency="listenbrainz_login"
-            app:key="listenbrainz_scrobbling_enabled"/>
-
-        <SwitchPreferenceCompat
-            app:iconSpaceReserved="true"
-            app:title="@string/listenbrainz_now_playing_title"
-            app:summary="@string/listenbrainz_now_playing_summary"
-            app:defaultValue="false"
-            app:layout="@layout/list_item_view"
-            app:widgetLayout="@layout/preference_switch"
-            app:dependency="listenbrainz_login"
-            app:key="listenbrainz_now_playing_enabled"/>
 
     </PreferenceCategory>
 

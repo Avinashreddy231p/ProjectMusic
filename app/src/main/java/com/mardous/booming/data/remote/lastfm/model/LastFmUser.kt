@@ -14,4 +14,14 @@ data class LastFmUser(
     @SerialName("realname")
     val realName: String,
     val url: String,
+    val image: List<LastFmImage>? = null,
+    val playcount: String? = null,
+    val registered: LastFmUserRegistered? = null
+)
+
+@Serializable
+data class LastFmUserRegistered(
+    val unixtime: String,
+    @SerialName("#text")
+    val text: String
 )
