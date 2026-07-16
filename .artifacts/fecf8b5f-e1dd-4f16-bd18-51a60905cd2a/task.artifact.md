@@ -1,0 +1,5 @@
+- [x] Modify `NetworkSettingsComposeScreen.kt` to remove Software Updates and Music Source, and reorder Lyrics Providers
+- [x] Modify `NetworkPreferencesFragment.kt` to remove update-related logic
+- [x] Modify `SettingsFragment.kt` to fix double header issue for Network and Last.fm Profile screens
+- [ ] Verify changes on device/emulator
+- [ ] Verify changes on device/emulator

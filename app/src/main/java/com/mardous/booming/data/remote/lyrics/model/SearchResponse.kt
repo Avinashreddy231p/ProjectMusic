@@ -42,3 +42,32 @@ data class ITunesSearchResult(
     @SerialName("trackTimeMillis")
     val durationInMillis: Long? = null
 )
+
+@Serializable
+data class GeniusSearchResponse(
+    val response: GeniusResponseContent
+)
+
+@Serializable
+data class GeniusResponseContent(
+    val hits: List<GeniusHit>
+)
+
+@Serializable
+data class GeniusHit(
+    val result: GeniusSongResult
+)
+
+@Serializable
+data class GeniusSongResult(
+    val id: Long,
+    val title: String,
+    val url: String,
+    @SerialName("primary_artist")
+    val primaryArtist: GeniusArtist
+)
+
+@Serializable
+data class GeniusArtist(
+    val name: String
+)

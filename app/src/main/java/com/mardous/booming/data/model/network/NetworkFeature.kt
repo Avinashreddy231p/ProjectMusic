@@ -49,6 +49,8 @@ sealed class NetworkFeature(
             override val isEnabled: Boolean
                 get() = boolResource(R.bool.enable_lyrically_provider) && super.isEnabled
         }
+        object Genius : Lyrics(GENIUS_ENABLED_KEY, false)
+        object LyricsPlus : Lyrics(LYRICSPLUS_ENABLED_KEY, false)
     }
 
     sealed class Lastfm(preferenceKey: String, isOnByDefault: Boolean) :
@@ -103,7 +105,10 @@ sealed class NetworkFeature(
         const val ALLOW_ONLINE_ALBUM_COVERS_KEY = "allow_online_album_covers"
         const val BETTERLYRICS_ENABLED_KEY = "betterlyrics_enabled"
         const val LYRICALLY_ENABLED_KEY = "lyrically_enabled"
+        const val GENIUS_ENABLED_KEY = "genius_enabled"
+        const val LYRICSPLUS_ENABLED_KEY = "lyricsplus_enabled"
         const val LRCLIB_ENABLED_KEY = "lrclib_enabled"
+        const val ONLINE_MUSIC_PROVIDER_KEY = "online_music_provider"
         const val LASTFM_SCROBBLING_ENABLED_KEY = "lastfm_scrobbling_enabled"
         const val LASTFM_NOW_PLAYING_ENABLED_KEY = "lastfm_now_playing_enabled"
         const val LASTFM_INFO_ENABLED_KEY = "lastfm_info_enabled"

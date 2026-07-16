@@ -20,13 +20,7 @@ data class LastFmProfileUiState(
     val isLoading: Boolean = false,
     val selectedPeriod: String = "overall",
     val error: String? = null,
-    val isSyncing: Boolean = false,
-    
-    // Settings
-    val scrobblingEnabled: Boolean = false,
-    val offlineScrobbling: Boolean = true,
-    val syncFavorites: Boolean = false,
-    val scrobblePercentage: Int = 50
+    val isSyncing: Boolean = false
 )
 
 class LastFmProfileViewModel(
@@ -68,21 +62,9 @@ class LastFmProfileViewModel(
 
     private fun observePreferences() {
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
-            updateSettingsState()
+            // Update state if needed, but settings are now handled in NetworkPreferencesFragment
         }
         Preferences.registerOnSharedPreferenceChangeListener(listener)
-        updateSettingsState()
-    }
-
-    private fun updateSettingsState() {
-        _uiState.update {
-            it.copy(
-                scrobblingEnabled = com.mardous.booming.data.model.network.NetworkFeature.Lastfm.Scrobbling.isEnabled,
-                offlineScrobbling = Preferences.lastfmOfflineScrobbling,
-                syncFavorites = Preferences.lastfmSyncFavorites,
-                scrobblePercentage = Preferences.lastfmScrobblePercentage
-            )
-        }
     }
 
     fun setPeriod(period: String) {
@@ -120,21 +102,5 @@ class LastFmProfileViewModel(
             networkRepository.triggerOfflineScrobbleSync()
             _uiState.update { it.copy(isSyncing = false) }
         }
-    }
-
-    fun toggleScrobbling(enabled: Boolean) {
-        Preferences.setLastfmScrobblingEnabled(enabled)
-    }
-
-    fun toggleOfflineScrobbling(enabled: Boolean) {
-        Preferences.setLastfmOfflineScrobbling(enabled)
-    }
-
-    fun toggleSyncFavorites(enabled: Boolean) {
-        Preferences.setLastfmSyncFavorites(enabled)
-    }
-
-    fun setScrobblePercentage(value: Int) {
-        Preferences.setLastfmScrobblePercentage(value)
     }
 }

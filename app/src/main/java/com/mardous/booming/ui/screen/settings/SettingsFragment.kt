@@ -118,7 +118,12 @@ class SettingsFragment : AbsMainActivityFragment(R.layout.fragment_settings), Na
     }
 
     override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
-        binding.appBarLayout.visibility = if (destination.id == R.id.nav_pending_scrobbles) View.GONE else View.VISIBLE
+        val isComposeScreenWithInternalToolbar = destination.id == R.id.nav_pending_scrobbles || 
+                destination.id == R.id.nav_network_preferences || 
+                destination.id == R.id.nav_lastfm_profile ||
+                destination.id == R.id.nav_advanced_preferences
+        
+        binding.appBarLayout.visibility = if (isComposeScreenWithInternalToolbar) View.GONE else View.VISIBLE
         binding.appBarLayout.title = destination.label ?: getString(R.string.settings_title)
     }
 

@@ -23,4 +23,5 @@
 
     <item name="id_inset_consumed" type="id"/>
     <item name="id_wave_amplitude_animator" type="id" />
+    <item name="action_vibrant_lyrics_background" type="id" />
 </resources>

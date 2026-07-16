@@ -590,7 +590,9 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
                 NowPlayingScreen.M3,
                 NowPlayingScreen.Expressive,
                 NowPlayingScreen.Spotify,
-                NowPlayingScreen.Vibrant -> {
+                NowPlayingScreen.Vibrant,
+                NowPlayingScreen.Liquid,
+                NowPlayingScreen.Aurora -> {
                     setLightStatusBar(isColorLight)
                     setLightNavigationBar(isColorLight)
                 }
@@ -707,6 +709,8 @@ abstract class AbsSlidingMusicPanelActivity : AbsBaseActivity(),
             NowPlayingScreen.Expressive -> ExpressivePlayerFragment()
             NowPlayingScreen.Spotify -> SpotifyPlayerFragment()
             NowPlayingScreen.Vibrant -> VibrantPlayerFragment()
+            NowPlayingScreen.Liquid -> VibrantPlayerFragment()
+            NowPlayingScreen.Aurora -> VibrantPlayerFragment()
             else -> DefaultPlayerFragment()
         }
 

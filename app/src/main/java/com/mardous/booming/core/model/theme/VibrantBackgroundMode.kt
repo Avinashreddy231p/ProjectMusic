@@ -8,5 +8,7 @@ enum class VibrantBackgroundMode {
     Solid,
     Flow,
     Glow,
-    Particles
+    Particles,
+    Liquid,
+    Aurora
 }

@@ -3,16 +3,19 @@ package com.mardous.booming.ui.screen.scrobbling
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.mardous.booming.R
 import com.mardous.booming.data.local.room.PendingScrobbleEntity
+import com.mardous.booming.ui.component.compose.CollapsibleAppBarScaffold
+import com.mardous.booming.ui.component.compose.preferences.SegmentedPreferenceGroup
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,50 +27,52 @@ fun PendingScrobblesScreen(
     var editingScrobble by remember { mutableStateOf<PendingScrobbleEntity?>(null) }
     var showDeleteAllConfirm by remember { mutableStateOf(false) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(text = "Pending Scrobbles (${scrobbles.size})") },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(painterResource(R.drawable.ic_back_24dp), contentDescription = "Back")
-                    }
-                },
-                actions = {
-                    if (scrobbles.isNotEmpty()) {
-                        IconButton(onClick = { viewModel.syncScrobbles() }) {
-                            Icon(painterResource(R.drawable.ic_update_24dp), contentDescription = "Sync Now")
-                        }
-                        IconButton(onClick = { showDeleteAllConfirm = true }) {
-                            Icon(painterResource(R.drawable.ic_delete_24dp), contentDescription = "Delete All")
-                        }
-                    }
+    CollapsibleAppBarScaffold(
+        title = "Pending Scrobbles",
+        onBackClick = onBackClick,
+        forceSmallAppBar = true,
+        actions = {
+            if (scrobbles.isNotEmpty()) {
+                IconButton(onClick = { viewModel.syncScrobbles() }) {
+                    Icon(painterResource(R.drawable.ic_update_24dp), contentDescription = "Sync Now")
                 }
-            )
+                IconButton(onClick = { showDeleteAllConfirm = true }) {
+                    Icon(painterResource(R.drawable.ic_delete_24dp), contentDescription = "Delete All")
+                }
+            }
         }
     ) { paddingValues ->
         if (scrobbles.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
-                Text(text = "No pending scrobbles.")
+                Text(text = "No pending scrobbles.", style = MaterialTheme.typography.bodyLarge)
             }
         } else {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
+                    .padding(paddingValues),
+                contentPadding = PaddingValues(bottom = 80.dp, top = 8.dp)
             ) {
-                items(scrobbles, key = { it.id }) { scrobble ->
-                    ListItem(
-                        modifier = Modifier.clickable { editingScrobble = scrobble },
-                        headlineContent = { Text(text = scrobble.track, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                        supportingContent = { Text(text = "${scrobble.artist} • ${scrobble.album}", maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                        trailingContent = {
-                            IconButton(onClick = { viewModel.deleteScrobble(scrobble.id) }) {
-                                Icon(painterResource(R.drawable.ic_delete_24dp), contentDescription = "Delete", tint = MaterialTheme.colorScheme.error)
-                            }
-                        }
+                item {
+                    Text(
+                        text = "${scrobbles.size} tracks waiting to sync",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
                     )
-                    HorizontalDivider()
+                }
+                
+                item {
+                    SegmentedPreferenceGroup {
+                        scrobbles.forEachIndexed { index, scrobble ->
+                            PendingScrobbleItem(
+                                scrobble = scrobble,
+                                showDivider = index < scrobbles.size - 1,
+                                onEdit = { editingScrobble = scrobble },
+                                onDelete = { viewModel.deleteScrobble(scrobble.id) }
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -104,13 +109,13 @@ fun PendingScrobblesScreen(
             title = { Text("Edit Scrobble") },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(value = editedTrack, onValueChange = { editedTrack = it }, label = { Text("Track") })
-                    OutlinedTextField(value = editedArtist, onValueChange = { editedArtist = it }, label = { Text("Artist") })
-                    OutlinedTextField(value = editedAlbum, onValueChange = { editedAlbum = it }, label = { Text("Album") })
+                    OutlinedTextField(value = editedTrack, onValueChange = { editedTrack = it }, label = { Text("Track") }, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = editedArtist, onValueChange = { editedArtist = it }, label = { Text("Artist") }, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = editedAlbum, onValueChange = { editedAlbum = it }, label = { Text("Album") }, modifier = Modifier.fillMaxWidth())
                 }
             },
             confirmButton = {
-                TextButton(onClick = {
+                Button(onClick = {
                     viewModel.updateScrobble(scrobble.copy(track = editedTrack, artist = editedArtist, album = editedAlbum))
                     editingScrobble = null
                 }) {
@@ -123,5 +128,43 @@ fun PendingScrobblesScreen(
                 }
             }
         )
+    }
+}
+
+@Composable
+fun PendingScrobbleItem(
+    scrobble: PendingScrobbleEntity,
+    showDivider: Boolean,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth().clickable { onEdit() }) {
+        Row(
+            modifier = Modifier.padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = scrobble.track,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = "${scrobble.artist} • ${scrobble.album}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            IconButton(onClick = onDelete) {
+                Icon(painterResource(R.drawable.ic_delete_24dp), contentDescription = "Delete", tint = MaterialTheme.colorScheme.error)
+            }
+        }
+        if (showDivider) {
+            HorizontalDivider(modifier = Modifier.padding(horizontal = 20.dp), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+        }
     }
 }

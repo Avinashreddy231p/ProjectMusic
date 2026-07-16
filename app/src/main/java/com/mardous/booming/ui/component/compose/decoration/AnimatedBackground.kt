@@ -22,11 +22,20 @@ import androidx.compose.animation.core.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.BlurredEdgeTreatment
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.unit.dp
+import androidx.core.graphics.ColorUtils
 import kotlin.math.*
 
 @Composable
@@ -258,4 +267,236 @@ private fun hueToRgb(p: Float, q: Float, t: Float): Float {
         tt < 2f / 3f -> p + (q - p) * (2f / 3f - tt) * 6f
         else -> p
     }
+}
+
+@Composable
+fun Modifier.liquidBackground(
+    dominantColor: Color,
+    beatPulse: Float = 1f,
+    motionIntensity: Float = 1f,
+    highQuality: Boolean = true
+): Modifier = composed {
+    val timeValue = remember { mutableFloatStateOf(0f) }
+
+    LaunchedEffect(motionIntensity) {
+        val period = (2f * PI.toFloat() * 10f)
+        val speed = period / 180000f
+        var lastFrameTime = -1L
+        while (true) {
+            withFrameMillis { frameTime ->
+                if (lastFrameTime != -1L) {
+                    val delta = frameTime - lastFrameTime
+                    val speedMultiplier = motionIntensity * (1f + (beatPulse - 1f) * 1.5f)
+                    timeValue.floatValue = (timeValue.floatValue + delta * speed * speedMultiplier) % period
+                }
+                lastFrameTime = frameTime
+            }
+        }
+    }
+
+    val animatedColor by animateColorAsState(dominantColor, tween(1500), label = "liquidColor")
+    val circles = remember(animatedColor) {
+        List(if (highQuality) 8 else 5) { i ->
+            val hueShift = (i * 45f) % 360f
+            val saturationFactor = if (i % 2 == 0) 1.2f else 0.8f
+            val lightnessFactor = if (i % 3 == 0) 1.1f else 0.7f
+            adjustColorForLiquid(animatedColor, hueShift, saturationFactor, lightnessFactor)
+        }
+    }
+
+    val blurRadius = if (highQuality) 120.dp else 60.dp
+
+    this
+        .blur(blurRadius, edgeTreatment = BlurredEdgeTreatment.Unbounded)
+        .drawBehind {
+            drawRect(Color.Black)
+            
+            val t = timeValue.floatValue
+            circles.forEachIndexed { i, color ->
+                val phase = i * (2 * PI / circles.size).toFloat()
+                val x = (0.5f + 0.4f * sin(t * (0.5f + i * 0.05f) + phase)).coerceIn(0f, 1f)
+                val y = (0.5f + 0.4f * cos(t * (0.3f + i * 0.07f) + phase * 1.2f)).coerceIn(0f, 1f)
+                
+                val radiusBase = size.minDimension * (0.6f + i * 0.1f)
+                val radius = radiusBase * (1f + (beatPulse - 1f) * 0.2f)
+                
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        colors = listOf(color.copy(alpha = 0.4f), Color.Transparent),
+                        center = Offset(x * size.width, y * size.height),
+                        radius = radius
+                    ),
+                    center = Offset(x * size.width, y * size.height),
+                    radius = radius
+                )
+            }
+            
+            // Aurora Layer
+            val auroraColor = circles.last().copy(alpha = 0.15f * motionIntensity)
+            val auroraY = (0.3f + 0.1f * sin(t * 0.2f)) * size.height
+            drawRect(
+                brush = Brush.verticalGradient(
+                    listOf(Color.Transparent, auroraColor, Color.Transparent),
+                    startY = auroraY - 100.dp.toPx(),
+                    endY = auroraY + 100.dp.toPx()
+                )
+            )
+
+            // Vignette / Bottom Dimming
+            drawRect(
+                brush = Brush.verticalGradient(
+                    0f to Color.Black.copy(alpha = 0.2f),
+                    0.4f to Color.Transparent,
+                    0.8f to Color.Black.copy(alpha = 0.5f),
+                    startY = 0f,
+                    endY = size.height
+                )
+            )
+        }
+}
+
+private fun adjustColorForLiquid(
+    color: Color,
+    hueShift: Float,
+    saturationFactor: Float,
+    lightnessFactor: Float
+): Color {
+    val hsl = FloatArray(3)
+    ColorUtils.colorToHSL(color.toArgb(), hsl)
+    hsl[0] = (hsl[0] + hueShift) % 360f
+    hsl[1] = (hsl[1] * saturationFactor).coerceIn(0.2f, 0.8f)
+    hsl[2] = (hsl[2] * lightnessFactor).coerceIn(0.1f, 0.4f)
+    return Color(ColorUtils.HSLToColor(hsl))
+}
+
+@Composable
+fun Modifier.auroraBackground(
+    dominantColor: Color,
+    beatPulse: Float = 1f,
+    motionIntensity: Float = 1f,
+    highQuality: Boolean = true
+): Modifier = composed {
+    val timeValue = remember { mutableFloatStateOf(0f) }
+
+    LaunchedEffect(motionIntensity) {
+        val period = (2f * PI.toFloat() * 10f)
+        val speed = period / 150000f
+        var lastFrameTime = -1L
+        while (true) {
+            withFrameMillis { frameTime ->
+                if (lastFrameTime != -1L) {
+                    val delta = frameTime - lastFrameTime
+                    val speedMultiplier = motionIntensity * (1f + (beatPulse - 1f) * 1.8f)
+                    timeValue.floatValue = (timeValue.floatValue + delta * speed * speedMultiplier) % period
+                }
+                lastFrameTime = frameTime
+            }
+        }
+    }
+
+    val animatedColor by animateColorAsState(dominantColor, tween(1500), label = "auroraColor")
+    
+    val colors = remember(animatedColor) {
+        listOf(
+            animatedColor,
+            adjustColorForAurora(animatedColor, hueShift = -30f, saturationFactor = 1.2f, lightnessFactor = 0.8f),
+            adjustColorForAurora(animatedColor, hueShift = 30f, saturationFactor = 0.8f, lightnessFactor = 0.6f),
+            adjustColorForAurora(animatedColor, hueShift = 180f, saturationFactor = 1.1f, lightnessFactor = 0.7f),
+            adjustColorForAurora(animatedColor, hueShift = 0f, saturationFactor = 0.5f, lightnessFactor = 0.5f)
+        )
+    }
+
+    this
+        .blur(if (highQuality) 150.dp else 80.dp, edgeTreatment = BlurredEdgeTreatment.Unbounded)
+        .drawBehind {
+            drawRect(Color.Black)
+            
+            val t = timeValue.floatValue
+            
+            colors.forEachIndexed { i, color ->
+                val phase = i * (2 * PI / colors.size).toFloat()
+                val x = (0.5f + 0.45f * sin(t * (0.4f + i * 0.03f) + phase)).coerceIn(-0.2f, 1.2f)
+                val y = (0.5f + 0.45f * cos(t * (0.35f + i * 0.04f) + phase * 1.3f)).coerceIn(-0.2f, 1.2f)
+                
+                val radiusBase = size.minDimension * (0.8f + i * 0.15f)
+                val radius = radiusBase * (1f + (beatPulse - 1f) * 0.15f)
+                
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        colors = listOf(color.copy(alpha = 0.5f), Color.Transparent),
+                        center = Offset(x * size.width, y * size.height),
+                        radius = radius
+                    ),
+                    center = Offset(x * size.width, y * size.height),
+                    radius = radius
+                )
+            }
+
+            val centerGlowRadius = size.minDimension * 0.8f * (1f + (beatPulse - 1f) * 0.2f)
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(animatedColor.copy(alpha = 0.3f * motionIntensity), Color.Transparent),
+                    center = center,
+                    radius = centerGlowRadius
+                ),
+                center = center,
+                radius = centerGlowRadius
+            )
+            
+            val auroraT = t * 0.5f
+            val path = Path()
+            val points = 20
+            for (i in 0..points) {
+                val fraction = i.toFloat() / points
+                val px = fraction * size.width
+                val py = size.height * 0.4f + 
+                         sin(fraction * 2 * PI.toFloat() + auroraT) * 100.dp.toPx() +
+                         cos(fraction * PI.toFloat() * 1.5f + auroraT * 0.7f) * 50.dp.toPx()
+                
+                if (i == 0) path.moveTo(px, py) else path.lineTo(px, py)
+            }
+            
+            drawPath(
+                path = path,
+                brush = Brush.verticalGradient(
+                    listOf(Color.Transparent, animatedColor.copy(alpha = 0.2f * motionIntensity), Color.Transparent),
+                    startY = size.height * 0.3f,
+                    endY = size.height * 0.6f
+                ),
+                style = Stroke(width = 250.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+            )
+
+            drawRect(
+                brush = Brush.verticalGradient(
+                    0f to Color.Black.copy(alpha = 0.4f),
+                    0.5f to Color.Transparent,
+                    1f to Color.Black.copy(alpha = 0.7f),
+                    startY = 0f,
+                    endY = size.height
+                )
+            )
+            
+            drawRect(
+                brush = Brush.radialGradient(
+                    colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.3f)),
+                    center = center,
+                    radius = size.maxDimension * 0.7f
+                )
+            )
+        }
+}
+
+private fun adjustColorForAurora(
+    color: Color,
+    hueShift: Float,
+    saturationFactor: Float,
+    lightnessFactor: Float
+): Color {
+    val hsl = FloatArray(3)
+    ColorUtils.colorToHSL(color.toArgb(), hsl)
+    hsl[0] = (hsl[0] + hueShift) % 360f
+    if (hsl[0] < 0) hsl[0] += 360f
+    hsl[1] = (hsl[1] * saturationFactor).coerceIn(0.3f, 0.9f)
+    hsl[2] = (hsl[2] * lightnessFactor).coerceIn(0.15f, 0.5f)
+    return Color(ColorUtils.HSLToColor(hsl))
 }

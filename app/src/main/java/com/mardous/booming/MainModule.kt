@@ -73,6 +73,7 @@ import com.mardous.booming.ui.screen.library.years.YearDetailViewModel
 import com.mardous.booming.ui.screen.lyrics.LyricsViewModel
 import com.mardous.booming.ui.screen.player.PlayerViewModel
 import com.mardous.booming.ui.screen.sleeptimer.SleepTimerViewModel
+import com.mardous.booming.ui.screen.settings.SettingsViewModel
 import com.mardous.booming.ui.screen.stats.StatsViewModel
 import com.mardous.booming.ui.screen.tageditor.TagEditorViewModel
 import com.mardous.booming.ui.screen.update.UpdateViewModel
@@ -385,6 +386,10 @@ private val viewModule = module {
             networkRepository = get(),
             pendingScrobbleDao = get()
         )
+    }
+
+    viewModel {
+        SettingsViewModel(context = androidContext(), preferences = get())
     }
 
     viewModel {

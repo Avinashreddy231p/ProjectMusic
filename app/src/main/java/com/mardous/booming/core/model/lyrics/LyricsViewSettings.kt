@@ -2,6 +2,7 @@ package com.mardous.booming.core.model.lyrics
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.TextStyle
+import com.mardous.booming.core.model.theme.VibrantBackgroundMode
 
 @Immutable
 data class LyricsViewSettings(
@@ -12,6 +13,7 @@ data class LyricsViewSettings(
     val enableKaraokeStyle: Boolean,
     val progressiveColoring: Boolean,
     val backgroundEffect: BackgroundEffect,
+    val vibrantBackgroundMode: VibrantBackgroundMode,
     val blurEffect: Boolean,
     val shadowEffect: Boolean,
     val showTranslation: Boolean,

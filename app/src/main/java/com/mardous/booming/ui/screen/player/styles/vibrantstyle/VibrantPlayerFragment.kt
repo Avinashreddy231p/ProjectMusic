@@ -58,7 +58,9 @@ class VibrantPlayerFragment : AbsPlayerFragment(R.layout.fragment_vibrant_player
         get() = controlsFragment
 
     override val colorSchemeMode: PlayerColorSchemeMode
-        get() = Preferences.getNowPlayingColorSchemeMode(NowPlayingScreen.Vibrant)
+        get() = Preferences.getNowPlayingColorSchemeMode(
+            Preferences.nowPlayingScreen.takeIf { it == NowPlayingScreen.Liquid } ?: NowPlayingScreen.Vibrant
+        )
 
     override val playerToolbar: Toolbar?
         get() = null
@@ -193,9 +195,16 @@ class VibrantPlayerFragment : AbsPlayerFragment(R.layout.fragment_vibrant_player
         binding.backgroundComposeView.setContent {
             BoomingMusicTheme {
                 val isPlaying by playerViewModel.isPlayingFlow.collectAsState(initial = false)
+                val nps = Preferences.nowPlayingScreen
+                val mode = when (nps) {
+                    NowPlayingScreen.Liquid -> com.mardous.booming.core.model.theme.VibrantBackgroundMode.Liquid
+                    NowPlayingScreen.Aurora -> com.mardous.booming.core.model.theme.VibrantBackgroundMode.Aurora
+                    else -> Preferences.vibrantBackgroundMode
+                }
+
                 VibrantBackground(
                     dominantColor = dominantColorState,
-                    mode = Preferences.vibrantBackgroundMode,
+                    mode = mode,
                     isPlaying = isPlaying
                 )
             }
@@ -387,17 +396,43 @@ class VibrantPlayerFragment : AbsPlayerFragment(R.layout.fragment_vibrant_player
         menu.removeItem(R.id.action_show_lyrics)
         menu.removeItem(R.id.action_playing_queue)
         
+        if (binding.fullLyricsComposeView.isVisible) {
+            menu.add(Menu.NONE, R.id.action_vibrant_lyrics_background, Menu.NONE, "Lyrics Background")
+                .setIcon(R.drawable.ic_palette_24dp)
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
+        }
+
         menu.add(Menu.NONE, R.id.action_show_lyrics, Menu.NONE, R.string.lyrics)
             .setIcon(R.drawable.ic_lyrics_24dp)
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER)
     }
 
     override fun onMenuItemClick(menuItem: MenuItem): Boolean {
-        if (menuItem.itemId == R.id.action_show_lyrics) {
-            showFullLyrics()
-            return true
+        return when (menuItem.itemId) {
+            R.id.action_show_lyrics -> {
+                showFullLyrics()
+                true
+            }
+            R.id.action_vibrant_lyrics_background -> {
+                showVibrantLyricsBackgroundDialog()
+                true
+            }
+            else -> super.onMenuItemClick(menuItem)
         }
-        return super.onMenuItemClick(menuItem)
+    }
+
+    private fun showVibrantLyricsBackgroundDialog() {
+        val modes = com.mardous.booming.core.model.theme.VibrantBackgroundMode.entries
+        val items = modes.map { it.name }.toTypedArray()
+        val checkedItem = modes.indexOf(Preferences.vibrantLyricsBackgroundMode)
+
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Lyrics Background Mode")
+            .setSingleChoiceItems(items, checkedItem) { dialog, which ->
+                Preferences.vibrantLyricsBackgroundMode = modes[which]
+                dialog.dismiss()
+            }
+            .show()
     }
 
     override fun onCreateChildFragments() {

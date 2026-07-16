@@ -20,11 +20,13 @@ fun CollapsibleAppBarScaffold(
     snackbarHost: @Composable () -> Unit = {},
     showNavigationButton: Boolean = true,
     collapsibleAppBar: Boolean = Preferences.appBarMode == TopAppBarLayout.AppBarMode.COLLAPSING,
+    forceSmallAppBar: Boolean = false,
     miniPlayerMargin: Int = 0,
     onBackClick: () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit
 ) {
-    val scrollBehavior = if (collapsibleAppBar) {
+    val isCollapsible = collapsibleAppBar && !forceSmallAppBar
+    val scrollBehavior = if (isCollapsible) {
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     } else {
         TopAppBarDefaults.enterAlwaysScrollBehavior()
@@ -34,7 +36,7 @@ fun CollapsibleAppBarScaffold(
             .fillMaxSize()
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            if (collapsibleAppBar) {
+            if (isCollapsible) {
                 MediumTopAppBar(
                     title = { Text(text = title) },
                     navigationIcon = {
@@ -70,7 +72,6 @@ fun CollapsibleAppBarScaffold(
         },
         snackbarHost = snackbarHost,
         contentWindowInsets = WindowInsets.safeDrawing
-            .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal)
             .add(WindowInsets(bottom = miniPlayerMargin))
     ) { contentPadding ->
         content(contentPadding)

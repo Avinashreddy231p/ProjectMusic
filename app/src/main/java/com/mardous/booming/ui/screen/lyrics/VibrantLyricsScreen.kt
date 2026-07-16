@@ -47,8 +47,10 @@ import com.mardous.booming.R
 import com.mardous.booming.core.model.LibraryMargin
 import com.mardous.booming.data.model.Song
 import com.mardous.booming.ui.component.compose.decoration.FadingEdges
+import com.mardous.booming.ui.component.compose.decoration.VibrantBackground
 import com.mardous.booming.ui.screen.library.LibraryViewModel
 import com.mardous.booming.ui.screen.player.PlayerViewModel
+import com.mardous.booming.util.Preferences
 import org.koin.compose.viewmodel.koinActivityViewModel
 import androidx.compose.runtime.livedata.observeAsState
 
@@ -254,71 +256,79 @@ fun VibrantLyricsScreen(
         }
     }
 
-    Scaffold(
-        contentWindowInsets = WindowInsets
-            .navigationBars
-            .add(WindowInsets(bottom = miniPlayerMargin.totalMargin)),
-        containerColor = Color.Transparent, // Transparent to show background layer
-        modifier = Modifier
-            .fillMaxSize()
-            .nestedScroll(nestedScrollConnection)
-            .keepScreenOn()
-    ) { innerPadding ->
-        Column(
+    Box(modifier = Modifier.fillMaxSize()) {
+        VibrantBackground(
+            dominantColor = dominantColor,
+            mode = lyricsViewSettings.vibrantBackgroundMode,
+            isPlaying = isPlaying
+        )
+
+        Scaffold(
+            contentWindowInsets = WindowInsets
+                .navigationBars
+                .add(WindowInsets(bottom = miniPlayerMargin.totalMargin)),
+            containerColor = Color.Transparent, // Transparent to show background layer
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            VibrantTopBar(
-                albumName = song.albumName,
-                onCloseClick = onCloseClick,
-                onMenuClick = onMoreClick,
-                contentColor = contentColor,
-                onDrag = onDrag,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Box(modifier = Modifier.weight(1f)) {
-                LyricsSurface(
-                    playerViewModel = playerViewModel,
-                    uiState = uiState,
-                    settings = lyricsViewSettings.copy(
-                        isCenterCurrentLine = true,
-                        syncedStyle = lyricsViewSettings.syncedStyle.copy(
-                            fontSize = 28.sp,
-                            fontWeight = FontWeight.Black,
-                            lineHeight = 36.sp,
-                            color = contentColor
-                        ),
-                        unsyncedStyle = lyricsViewSettings.unsyncedStyle.copy(
-                            color = contentColor
-                        )
-                    ),
-                    contentPadding = PaddingValues(vertical = 32.dp, horizontal = 24.dp),
-                    fadingEdges = FadingEdges(top = 48.dp, bottom = 48.dp),
-                    textAlign = TextAlign.Start,
-                    isPlaying = isPlaying,
-                    isPowerSaveMode = isPowerSaveMode,
-                    hasBackgroundEffects = true,
+                .nestedScroll(nestedScrollConnection)
+                .keepScreenOn()
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                VibrantTopBar(
+                    albumName = song.albumName,
+                    onCloseClick = onCloseClick,
+                    onMenuClick = onMoreClick,
                     contentColor = contentColor,
-                    onSeekToLine = {
-                        playerViewModel.seekTo(it.start)
-                        if (lyricsViewSettings.resumeOnSeek) {
-                            playerViewModel.play()
-                        }
-                    },
-                    modifier = Modifier.fillMaxSize()
+                    onDrag = onDrag,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Box(modifier = Modifier.weight(1f)) {
+                    LyricsSurface(
+                        playerViewModel = playerViewModel,
+                        uiState = uiState,
+                        settings = lyricsViewSettings.copy(
+                            isCenterCurrentLine = true,
+                            syncedStyle = lyricsViewSettings.syncedStyle.copy(
+                                fontSize = 28.sp,
+                                fontWeight = FontWeight.Black,
+                                lineHeight = 36.sp,
+                                color = contentColor
+                            ),
+                            unsyncedStyle = lyricsViewSettings.unsyncedStyle.copy(
+                                color = contentColor
+                            )
+                        ),
+                        contentPadding = PaddingValues(vertical = 32.dp, horizontal = 24.dp),
+                        fadingEdges = FadingEdges(top = 48.dp, bottom = 48.dp),
+                        textAlign = TextAlign.Start,
+                        isPlaying = isPlaying,
+                        isPowerSaveMode = isPowerSaveMode,
+                        hasBackgroundEffects = true,
+                        contentColor = contentColor,
+                        onSeekToLine = {
+                            playerViewModel.seekTo(it.start)
+                            if (lyricsViewSettings.resumeOnSeek) {
+                                playerViewModel.play()
+                            }
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+
+                SpotifyLyricsBottomControls(
+                    playerViewModel = playerViewModel,
+                    contentColor = contentColor,
+                    accentColor = contentColor, // In vibrant mode, accent matches content since bg is solid
+                    onEditClick = { onEditClick(song) },
+                    onMoreClick = onMoreClick,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
-
-            SpotifyLyricsBottomControls(
-                playerViewModel = playerViewModel,
-                contentColor = contentColor,
-                accentColor = contentColor, // In vibrant mode, accent matches content since bg is solid
-                onEditClick = { onEditClick(song) },
-                onMoreClick = onMoreClick,
-                modifier = Modifier.fillMaxWidth()
-            )
         }
     }
 }

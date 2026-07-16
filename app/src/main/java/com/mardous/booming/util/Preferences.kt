@@ -277,6 +277,10 @@ object Preferences : KoinComponent {
         get() = preferences.enumValue(VIBRANT_BACKGROUND_MODE, VibrantBackgroundMode.Gradient)
         set(value) = preferences.edit { putString(VIBRANT_BACKGROUND_MODE, value.name) }
 
+    var vibrantLyricsBackgroundMode: VibrantBackgroundMode
+        get() = preferences.enumValue(VIBRANT_LYRICS_BACKGROUND_MODE, VibrantBackgroundMode.Fluid)
+        set(value) = preferences.edit { putString(VIBRANT_LYRICS_BACKGROUND_MODE, value.name) }
+
     var vibrantBackgroundAnimations: Boolean
         get() = preferences.getBoolean(VIBRANT_BACKGROUND_ANIMATIONS, true)
         set(value) = preferences.edit { putBoolean(VIBRANT_BACKGROUND_ANIMATIONS, value) }
@@ -284,6 +288,10 @@ object Preferences : KoinComponent {
     var vibrantBackgroundHighQuality: Boolean
         get() = preferences.getBoolean(VIBRANT_BACKGROUND_HIGH_QUALITY, true)
         set(value) = preferences.edit { putBoolean(VIBRANT_BACKGROUND_HIGH_QUALITY, value) }
+
+    var vibrantBackgroundNoiseLevel: Int
+        get() = preferences.getInt(VIBRANT_BACKGROUND_NOISE_LEVEL, 20)
+        set(value) = preferences.edit { putInt(VIBRANT_BACKGROUND_NOISE_LEVEL, value) }
 
     var vibrantBackgroundGlobal: Boolean
         get() = preferences.getBoolean(VIBRANT_BACKGROUND_GLOBAL, false)
@@ -820,8 +828,10 @@ const val LASTFM_SYNC_FAVORITES = "lastfm_sync_favorites"
 const val LASTFM_OFFLINE_SCROBBLING = "lastfm_offline_scrobble"
 const val LASTFM_SCROBBLE_PERCENTAGE = "lastfm_scrobble_percentage"
 const val LASTFM_SCROBBLE_ENABLED = "lastfm_scrobbling_enabled"
+const val LASTFM_NOW_PLAYING_ENABLED = "lastfm_now_playing_enabled"
 const val LISTENBRAINZ_LOGIN = "listenbrainz_login"
 const val LISTENBRAINZ_SCROBBLE_ENABLED = "listenbrainz_scrobbling_enabled"
+const val LISTENBRAINZ_NOW_PLAYING_ENABLED = "listenbrainz_now_playing_enabled"
 
 
 const val ERA_PRIMARY_SEED = "era_primary_seed"
@@ -840,8 +850,10 @@ const val ERA_SURFACE_MATERIAL = "era_surface_material"
 const val ERA_ADAPTIVE_ICONOGRAPHY = "era_adaptive_iconography"
 
 const val VIBRANT_BACKGROUND_MODE = "vibrant_background_mode"
+const val VIBRANT_LYRICS_BACKGROUND_MODE = "vibrant_lyrics_background_mode"
 const val VIBRANT_BACKGROUND_ANIMATIONS = "vibrant_background_animations"
 const val VIBRANT_BACKGROUND_HIGH_QUALITY = "vibrant_background_high_quality"
+const val VIBRANT_BACKGROUND_NOISE_LEVEL = "vibrant_background_noise_level"
 const val VIBRANT_BACKGROUND_GLOBAL = "vibrant_background_global"
 
 const val SWIPE_ACTION_LEFT_PREFIX = "swipe_action_left"

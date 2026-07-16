@@ -287,6 +287,18 @@
             app:widgetLayout="@layout/preference_switch"
             app:key="vibrant_background_high_quality" />
 
+        <SeekBarPreference
+            app:iconSpaceReserved="true"
+            app:title="@string/vibrant_background_noise_level_title"
+            app:summary="@string/vibrant_background_noise_level_summary"
+            android:max="100"
+            app:min="0"
+            app:defaultValue="20"
+            app:showSeekBarValue="true"
+            app:layout="@layout/list_item_view_bottom_widget"
+            app:widgetLayout="@layout/preference_seekbar"
+            app:key="vibrant_background_noise_level"/>
+
         <SwitchPreferenceCompat
             app:iconSpaceReserved="true"
             app:title="@string/vibrant_background_global_title"

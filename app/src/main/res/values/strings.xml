@@ -497,6 +497,9 @@
     <string name="eq_ratio">Ratio</string>
     <string name="eq_expander_ratio">Expander ratio</string>
     <string name="eq_knee_width">Knee width</string>
+    <string name="vibrant_background_mode_liquid">Liquid</string>
+    <string name="vibrant_background_mode_liquid_desc">A sophisticated mesh gradient with aurora-like motion and noise texture.</string>
+
     <string name="eq_noise_gate">Noise gate</string>
     <string name="eq_pre_gain">Pre-gain</string>
     <string name="eq_post_gain">Post-gain</string>
@@ -976,6 +979,8 @@
     <string name="use_betterlyrics_provider_summary">Word by word synced lyrics.</string>
     <string name="use_lyrically_provider_title">Use Lyrically provider</string>
     <string name="use_lyrically_provider_summary">Rich lyrics API with karaoke and multi-person support.</string>
+    <string name="use_genius_provider_summary">Popular lyrics database. Scrapes text from the web.</string>
+    <string name="use_lyricsplus_provider_summary">Aggregated lyrics backend (KPoe) with high-quality synced data.</string>
     <string name="delete_downloaded_lyrics_title">Delete downloaded lyrics</string>
     <string name="delete_downloaded_lyrics_summary">Only lyrics downloaded by Booming Music. Does not affect lyrics embedded in ID3v2 tags or LRC files.</string>
     <string name="lyrics_cleared">Lyrics cleared.</string>
@@ -1152,6 +1157,8 @@
     <string name="lyrics_card_corner_radius_title">Lyrics card corner radius</string>
     <string name="now_playing_lyrics_corner_radius_title">Lyrics card corner radius</string>
     <string name="vibrant_style">Vibrant</string>
+    <string name="liquid_style">Liquid</string>
+    <string name="aurora_style">Aurora</string>
     <string name="vibrant_bg_mode_title">Vibrant Background</string>
     <string name="vibrant_bg_mode_gradient">Gradient</string>
     <string name="vibrant_bg_mode_grid">Grid Lines</string>
@@ -1165,6 +1172,8 @@
     <string name="vibrant_background_animations_summary">Enable rhythmic movements and beat-responsive effects.</string>
     <string name="vibrant_background_high_quality_title">High Quality Backgrounds</string>
     <string name="vibrant_background_high_quality_summary">Use more complex layers and effects. Turn off to save battery.</string>
+    <string name="vibrant_background_noise_level_title">Background Noise Level</string>
+    <string name="vibrant_background_noise_level_summary">Adjust the density and intensity of the film grain effect</string>
     <string name="vibrant_background_global_title">Global Vibrant Background</string>
     <string name="vibrant_background_global_summary">Apply the animated background across all app screens.</string>
 </resources>

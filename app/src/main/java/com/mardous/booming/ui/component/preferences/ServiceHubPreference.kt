@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -38,6 +39,7 @@ class ServiceHubPreference @JvmOverloads constructor(
     // Callbacks
     var onPrimaryClick: () -> Unit = {}
     var onScrobblingEnabledChange: (Boolean) -> Unit = {}
+    var onNowPlayingEnabledChange: (Boolean) -> Unit = {}
     var onOfflineScrobblingChange: (Boolean) -> Unit = {}
     var onScrobblePercentageChange: (Int) -> Unit = {}
     var onSyncFavoritesChange: (Boolean) -> Unit = {}
@@ -52,6 +54,7 @@ class ServiceHubPreference @JvmOverloads constructor(
 
     // Sub-settings state
     var scrobblingEnabled by mutableStateOf(false)
+    var nowPlayingEnabled by mutableStateOf(false)
     var offlineScrobbling by mutableStateOf(false)
     var scrobblePercentage by mutableStateOf(50)
     var syncFavorites by mutableStateOf(false)
@@ -61,10 +64,16 @@ class ServiceHubPreference @JvmOverloads constructor(
     override fun onBindViewHolder(holder: PreferenceViewHolder) {
         super.onBindViewHolder(holder)
         val composeView = holder.findViewById(com.mardous.booming.R.id.compose_view) as? ComposeView ?: return
-        composeView.setContent {
-            BoomingMusicTheme {
-                Surface(color = MaterialTheme.colorScheme.surface) {
-                    HubContent()
+        composeView.apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                BoomingMusicTheme {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.surface
+                    ) {
+                        HubContent()
+                    }
                 }
             }
         }
@@ -78,6 +87,7 @@ class ServiceHubPreference @JvmOverloads constructor(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .heightIn(min = 64.dp)
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
             Row(
@@ -166,13 +176,20 @@ class ServiceHubPreference @JvmOverloads constructor(
                     )
 
                     HubSwitch(
-                        title = "Offline Scrobbling",
-                        summary = "Cache scrobbles when offline",
-                        checked = offlineScrobbling,
-                        onCheckedChange = onOfflineScrobblingChange
+                        title = "Update Now Playing",
+                        summary = "Show currently playing track on profile",
+                        checked = nowPlayingEnabled,
+                        onCheckedChange = onNowPlayingEnabledChange
                     )
 
                     if (serviceName == "Last.fm") {
+                        HubSwitch(
+                            title = "Offline Scrobbling",
+                            summary = "Cache scrobbles when offline",
+                            checked = offlineScrobbling,
+                            onCheckedChange = onOfflineScrobblingChange
+                        )
+
                         HubSwitch(
                             title = "Sync Favorites",
                             summary = "Sync loved tracks with Last.fm",

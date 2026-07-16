@@ -53,3 +53,24 @@ data class LyricallyLyricText(
     val endtime: Long,
     val part: Boolean
 )
+
+@Serializable
+data class LyricsPlusResponse(
+    val type: String? = null,
+    val lyrics: List<LyricsPlusLine> = emptyList(),
+    val metadata: LyricsPlusMetadata? = null
+)
+
+@Serializable
+data class LyricsPlusLine(
+    val time: Long,
+    val text: String,
+    val duration: Long? = null
+)
+
+@Serializable
+data class LyricsPlusMetadata(
+    val title: String? = null,
+    val artist: String? = null,
+    val source: String? = null
+)

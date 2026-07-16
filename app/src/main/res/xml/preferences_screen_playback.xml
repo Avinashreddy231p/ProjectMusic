@@ -206,42 +206,4 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory
-        app:title="@string/advanced_title"
-        app:layout="@layout/preference_category_title">
-
-        <SwitchPreferenceCompat
-            app:icon="@drawable/ic_volume_down_24dp"
-            app:title="@string/pause_on_zero_volume_title"
-            app:summary="@string/pause_on_zero_volume_summary"
-            app:defaultValue="false"
-            app:layout="@layout/list_item_view"
-            app:widgetLayout="@layout/preference_switch"
-            app:key="pause_on_zero_volume"/>
-
-        <SwitchPreferenceCompat
-            app:iconSpaceReserved="true"
-            app:title="@string/mp3_index_seeking_title"
-            app:summary="@string/mp3_index_seeking_summary"
-            app:defaultValue="false"
-            app:layout="@layout/list_item_view"
-            app:widgetLayout="@layout/preference_switch"
-            app:key="mp3_index_seeking"/>
-
-        <SwitchPreferenceCompat
-            app:title="@string/stop_when_closed_from_recents_title"
-            app:summary="@string/stop_when_closed_from_recents_summary"
-            app:defaultValue="false"
-            app:layout="@layout/list_item_view"
-            app:widgetLayout="@layout/preference_switch"
-            app:key="stop_when_closed_from_recents"/>
-
-        <Preference
-            app:summary="@string/stop_when_closed_from_recents_note"
-            app:persistent="false"
-            app:selectable="false"
-            app:layout="@layout/list_item_view"/>
-
-    </PreferenceCategory>
-
 </androidx.preference.PreferenceScreen>

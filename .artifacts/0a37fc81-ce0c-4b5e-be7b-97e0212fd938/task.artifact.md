@@ -1,0 +1,17 @@
+- [ ] Create/Modify Data Models
+    - [ ] Update `SearchResponse.kt` with Genius search models
+    - [ ] Update `LyricsResponse.kt` with LyricsPlus response models
+- [ ] Update Network Features and Preferences
+    - [ ] Update `NetworkFeature.kt` with new provider constants and objects
+    - [ ] Update `SettingsViewModel.kt` and `SettingsUiState`
+    - [ ] Add new strings to `strings.xml`
+    - [ ] Update `NetworkSettingsComposeScreen.kt` with UI toggles
+- [ ] Implement Lyrics APIs
+    - [ ] Expand `LyricallyApi.kt` (Paxsenix Musixmatch search)
+    - [ ] Implement `GeniusApi.kt` (Search + Scraper)
+    - [ ] Implement `LyricsPlusApi.kt` (KPoe backend)
+- [ ] Integration
+    - [ ] Update `LyricsDownloadService.kt` to include new APIs
+- [ ] Verification
+    - [ ] Build project
+    - [ ] Manual test settings and lyrics download (via logs)

@@ -127,12 +127,32 @@ enum class NowPlayingScreen(
         supportsCarouselEffect = true,
         supportsCustomCornerRadius = true,
         supportsSmallImage = true
+    ),
+    Liquid(
+        R.string.liquid_style,
+        R.drawable.ic_palette_24dp,
+        R.layout.fragment_album_cover_default,
+        buttonStyle = NowPlayingButtonStyle.Normal,
+        supportsCoverLyrics = true,
+        supportsCarouselEffect = true,
+        supportsCustomCornerRadius = true,
+        supportsSmallImage = true
+    ),
+    Aurora(
+        R.string.aurora_style,
+        R.drawable.ic_palette_24dp,
+        R.layout.fragment_album_cover_default,
+        buttonStyle = NowPlayingButtonStyle.Normal,
+        supportsCoverLyrics = true,
+        supportsCarouselEffect = true,
+        supportsCustomCornerRadius = true,
+        supportsSmallImage = true
     );
 
     val defaultColorScheme: PlayerColorSchemeMode
         get() = when (this) {
             Default, Plain, Peek -> PlayerColorSchemeMode.AppTheme
-            Spotify, Vibrant -> PlayerColorSchemeMode.VibrantColor
+            Spotify, Vibrant, Liquid, Aurora -> PlayerColorSchemeMode.VibrantColor
             M3 -> PlayerColorSchemeMode.MaterialYou
             Expressive -> PlayerColorSchemeMode.Blur
             FullCover, Gradient -> PlayerColorSchemeMode.VibrantColor
@@ -143,7 +163,9 @@ enum class NowPlayingScreen(
             Default,
             Plain,
             Spotify,
-            Vibrant -> listOf(
+            Vibrant,
+            Liquid,
+            Aurora -> listOf(
                 PlayerColorSchemeMode.AppTheme,
                 PlayerColorSchemeMode.SimpleColor,
                 PlayerColorSchemeMode.MaterialYou,
@@ -185,7 +207,9 @@ enum class NowPlayingScreen(
             M3,
             Expressive,
             Spotify,
-            Vibrant -> listOf(
+            Vibrant,
+            Liquid,
+            Aurora -> listOf(
                 PlayerTransition.Simple,
                 PlayerTransition.Cascading,
                 PlayerTransition.Depth,

@@ -14,6 +14,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.ImageShader
+import androidx.compose.ui.graphics.ShaderBrush
+import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.ColorUtils
 import com.mardous.booming.core.model.theme.VibrantBackgroundMode
@@ -31,12 +38,14 @@ fun VibrantBackground(
     // Live Preference Listeners
     var animationsEnabled by remember { mutableStateOf(Preferences.vibrantBackgroundAnimations) }
     var highQuality by remember { mutableStateOf(Preferences.vibrantBackgroundHighQuality) }
+    var noiseLevel by remember { mutableStateOf(Preferences.vibrantBackgroundNoiseLevel) }
     
     DisposableEffect(Unit) {
         val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             when (key) {
                 "vibrant_background_animations" -> animationsEnabled = Preferences.vibrantBackgroundAnimations
                 "vibrant_background_high_quality" -> highQuality = Preferences.vibrantBackgroundHighQuality
+                "vibrant_background_noise_level" -> noiseLevel = Preferences.vibrantBackgroundNoiseLevel
             }
         }
         Preferences.registerOnSharedPreferenceChangeListener(listener)
@@ -227,7 +236,64 @@ fun VibrantBackground(
                     )
                 }
             }
+            VibrantBackgroundMode.Liquid -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .liquidBackground(
+                            dominantColor = animatedColor,
+                            beatPulse = pulseValue,
+                            motionIntensity = intensityValue,
+                            highQuality = highQuality
+                        )
+                )
+            }
+            VibrantBackgroundMode.Aurora -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .auroraBackground(
+                            dominantColor = animatedColor,
+                            beatPulse = pulseValue,
+                            motionIntensity = intensityValue,
+                            highQuality = highQuality
+                        )
+                )
+            }
         }
+
+        if (noiseLevel > 0) {
+            NoiseLayer(noiseLevel)
+        }
+    }
+}
+
+@Composable
+fun NoiseLayer(level: Int) {
+    if (level <= 0) return
+    val alpha = (level / 100f) * 0.4f
+    val noiseBitmap = remember {
+        val bitmap = android.graphics.Bitmap.createBitmap(128, 128, android.graphics.Bitmap.Config.ARGB_8888)
+        val random = java.util.Random()
+        for (x in 0 until 128) {
+            for (y in 0 until 128) {
+                val v = random.nextInt(256)
+                bitmap.setPixel(x, y, android.graphics.Color.argb(v, 255, 255, 255))
+            }
+        }
+        bitmap.asImageBitmap()
+    }
+    
+    val shader = remember(noiseBitmap) {
+        ImageShader(noiseBitmap, TileMode.Repeated, TileMode.Repeated)
+    }
+    
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        drawRect(
+            brush = ShaderBrush(shader),
+            alpha = alpha,
+            blendMode = BlendMode.Overlay
+        )
     }
 }
 
