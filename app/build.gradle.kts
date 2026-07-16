@@ -222,11 +222,15 @@ androidComponents {
         val localProperties = getProperties("local.properties")
         val lastFmKey = localProperties?.getProperty("LASTFM_API_KEY") ?: System.getenv("LASTFM_API_KEY") ?: ""
         val lastFmSecret = localProperties?.getProperty("LASTFM_SECRET") ?: System.getenv("LASTFM_SECRET") ?: ""
+        val geniusKey = localProperties?.getProperty("GENIUS_API_KEY") ?: System.getenv("GENIUS_API_KEY") ?: ""
+        val lyricallyKey = localProperties?.getProperty("LYRICALLY_API_KEY") ?: System.getenv("LYRICALLY_API_KEY") ?: ""
 
         variant.buildConfigFields?.putAll(
             mapOf(
                 "LASTFM_API_KEY" to BuildConfigField("String", "\"$lastFmKey\"", "LastFM API Key"),
-                "LASTFM_SECRET" to BuildConfigField("String", "\"$lastFmSecret\"", "LastFM Secret")
+                "LASTFM_SECRET" to BuildConfigField("String", "\"$lastFmSecret\"", "LastFM Secret"),
+                "GENIUS_API_KEY" to BuildConfigField("String", "\"$geniusKey\"", "Genius API Key"),
+                "LYRICALLY_API_KEY" to BuildConfigField("String", "\"$lyricallyKey\"", "Lyrically API Key")
             )
         )
 
@@ -238,7 +242,7 @@ androidComponents {
         variant.outputs.forEach { output ->
             val filter = output.filters.joinToString("-") { it.identifier }
             val abi = filter.ifEmpty { "universal" }
-            output.outputFileName = "BoomingMusic-${output.versionName.get()}-${variant.flavorName}-$abi.apk"
+            output.outputFileName = "ProjectMusic-${output.versionName.get()}-${variant.flavorName}-$abi.apk"
         }
     }
 }
@@ -314,6 +318,8 @@ dependencies {
     implementation(libs.versioncompare)
     implementation(libs.commons.text)
     implementation(libs.juniversalchardet)
+    implementation(libs.uri.kmp)
+    implementation(libs.ksoup.html)
 }
 
 fun getProperties(fileName: String): Properties? {

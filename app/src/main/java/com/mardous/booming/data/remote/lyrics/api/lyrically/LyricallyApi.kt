@@ -26,6 +26,7 @@ import com.mardous.booming.data.remote.lyrics.model.ITunesSearchResponse
 import com.mardous.booming.data.remote.lyrics.model.LyricallyLyricText
 import com.mardous.booming.data.remote.lyrics.model.LyricallyLyricsResponse
 import com.mardous.booming.util.Constants.USER_AGENT
+import com.mardous.booming.util.Preferences
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.timeout
@@ -56,7 +57,13 @@ class LyricallyApi(private val client: HttpClient) : LyricsApi {
         title: String,
         artist: String
     ): RawLyrics.Remote? {
-        val searchResponse = searchHelper.getAppleMusicSearchResponse(title, artist)
+        var searchResponse = searchHelper.getAppleMusicSearchResponse(title, artist)
+        
+        // Fallback to Musixmatch if iTunes search fails or returns nothing
+        if (searchResponse == null || searchResponse.size == 0) {
+            searchResponse = searchHelper.getMusixmatchSearchResponse(title, artist)
+        }
+
         if (searchResponse != null && searchResponse.size > 0) {
             var lyrics: RawLyrics.Remote? = null
 
@@ -183,6 +190,13 @@ class LyricallyApi(private val client: HttpClient) : LyricsApi {
     ) = get(url) {
         header(HttpHeaders.Accept, "application/json")
         header(HttpHeaders.ContentType, "application/json")
+        
+        val userApiKey = Preferences.lyricallyApiKey
+        val apiKey = userApiKey.ifBlank { BuildConfig.LYRICALLY_API_KEY }
+        if (apiKey.isNotEmpty()) {
+            header("x-api-key", apiKey)
+        }
+        
         userAgent(USER_AGENT)
         timeout {
             connectTimeoutMillis = 5000

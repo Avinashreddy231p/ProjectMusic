@@ -108,6 +108,8 @@ sealed class NetworkFeature(
         const val GENIUS_ENABLED_KEY = "genius_enabled"
         const val LYRICSPLUS_ENABLED_KEY = "lyricsplus_enabled"
         const val LRCLIB_ENABLED_KEY = "lrclib_enabled"
+        const val GENIUS_API_KEY_KEY = "genius_api_key"
+        const val LYRICALLY_API_KEY_KEY = "lyrically_api_key"
         const val ONLINE_MUSIC_PROVIDER_KEY = "online_music_provider"
         const val LASTFM_SCROBBLING_ENABLED_KEY = "lastfm_scrobbling_enabled"
         const val LASTFM_NOW_PLAYING_ENABLED_KEY = "lastfm_now_playing_enabled"

@@ -22,8 +22,10 @@ import com.mardous.booming.data.model.Song
 import com.mardous.booming.data.model.lyrics.RawLyrics
 import com.mardous.booming.data.model.network.NetworkFeature
 import com.mardous.booming.data.remote.lyrics.api.betterlyrics.BetterLyricsApi
+import com.mardous.booming.data.remote.lyrics.api.genius.GeniusApi
 import com.mardous.booming.data.remote.lyrics.api.lrclib.LrcLibApi
 import com.mardous.booming.data.remote.lyrics.api.lyrically.LyricallyApi
+import com.mardous.booming.data.remote.lyrics.api.lyricsplus.LyricsPlusApi
 import com.mardous.booming.extensions.media.albumArtistName
 import com.mardous.booming.extensions.media.extractMainArtistName
 import io.ktor.client.HttpClient
@@ -33,8 +35,10 @@ class LyricsDownloadService(client: HttpClient) {
 
     private val lyricsApi = listOf(
         LyricallyApi(client),
+        LyricsPlusApi(client),
+        LrcLibApi(client),
         BetterLyricsApi(client),
-        LrcLibApi(client)
+        GeniusApi(client)
     )
 
     @Throws(IOException::class)

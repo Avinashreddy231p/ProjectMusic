@@ -29,4 +29,11 @@ class PaxsenixSearchHelper(
     ): ITunesSearchResponse? {
         return null
     }
+
+    suspend fun getMusixmatchSearchResponse(
+        songTitle: String,
+        artistName: String
+    ): ITunesSearchResponse? {
+        return null
+    }
 }

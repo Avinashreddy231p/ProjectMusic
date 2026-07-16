@@ -1,63 +1,61 @@
-# Implementation Plan: Expand Lyrics Providers
+# Implementation Plan: User-defined Lyrics API Keys
 
-Expand the lyrics capabilities of the app by adding Genius API and LyricsPlus (KPoe) providers, and expanding the existing Lyrically (Paxsenix) provider.
+Allow users to enter their own API keys or client access tokens for Genius and Lyrically providers via the settings UI using `SplitButtonPreference` components.
+
+## User Review Required
+
+> [!IMPORTANT]
+> - User-entered keys will be stored in `SharedPreferences` and will take precedence over the keys provided in `BuildConfig`.
+> - The UI will use `SplitButtonPreference` which allows toggling the provider while also providing an expandable section for API key configuration.
 
 ## Proposed Changes
 
-### [Component: Data Models]
-
-#### [MODIFY] [SearchResponse.kt](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/booming/data/remote/lyrics/model/SearchResponse.kt)
-- Add `GeniusSearchResponse` and its nested classes (`Hit`, `Result`, `PrimaryArtist`) to support Genius search results.
-
-#### [MODIFY] [LyricsResponse.kt](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/booming/data/remote/lyrics/model/LyricsResponse.kt)
-- Add `LyricsPlusResponse` and its nested `LyricsPlusLine` class to support the KPoe backend response format.
-
----
-
-### [Component: Network Features & Preferences]
+### [Component: Preferences & Data]
 
 #### [MODIFY] [NetworkFeature.kt](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/booming/data/model/network/NetworkFeature.kt)
-- Add `Genius` and `LyricsPlus` objects to the `Lyrics` sealed class.
-- Define new preference keys: `GENIUS_ENABLED_KEY` and `LYRICSPLUS_ENABLED_KEY`.
+- Add constants for user API keys: `GENIUS_API_KEY_KEY` and `LYRICALLY_API_KEY_KEY`.
+
+#### [MODIFY] [Preferences.kt](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/booming/util/Preferences.kt)
+- Add `geniusApiKey` and `lyricallyApiKey` properties with getters and setters.
 
 #### [MODIFY] [SettingsViewModel.kt](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/booming/ui/screen/settings/SettingsViewModel.kt)
-- Update `SettingsUiState` to include `geniusEnabled` and `lyricsPlusEnabled`.
-- Add `setGeniusEnabled` and `setLyricsPlusEnabled` methods.
-
-#### [MODIFY] [NetworkSettingsComposeScreen.kt](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/booming/ui/screen/settings/NetworkSettingsComposeScreen.kt)
-- Add UI toggles for Genius and LyricsPlus in the "Lyrics Providers" section.
+- Update `SettingsUiState` to include `geniusApiKey` and `lyricallyApiKey`.
+- Update `loadInitialState` to load these keys.
+- Add `setGeniusApiKey` and `setLyricallyApiKey` methods.
 
 ---
 
 ### [Component: Lyrics APIs]
 
+#### [MODIFY] [GeniusApi.kt](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/booming/data/remote/lyrics/api/genius/GeniusApi.kt)
+- Prioritize user-entered API key from `Preferences` over `BuildConfig.GENIUS_API_KEY`.
+
 #### [MODIFY] [LyricallyApi.kt](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/booming/data/remote/lyrics/api/lyrically/LyricallyApi.kt)
-- Expand to support Musixmatch search via Paxsenix if the Apple Music search doesn't yield results.
+- Update `paxsenix` extension to prioritize user-entered API key.
 
-#### [NEW] [GeniusApi.kt](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/booming/data/remote/lyrics/api/genius/GeniusApi.kt)
-- Implement `LyricsApi` for Genius.
-- Use Genius search API to find the song.
-- Implement a basic scraper to extract lyrics from the Genius webpage (since their API doesn't provide lyrics text).
-
-#### [NEW] [LyricsPlusApi.kt](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/booming/data/remote/lyrics/api/lyricsplus/LyricsPlusApi.kt)
-- Implement `LyricsApi` for the LyricsPlus (KPoe) backend.
-- Fetch synced lyrics from `https://lyricsplus.prjktla.my.id/v2/lyrics/get`.
+#### [MODIFY] [PaxsenixSearchHelper.kt](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/shared/java/com/mardous/booming/data/remote/lyrics/api/lyrically/PaxsenixSearchHelper.kt)
+- Prioritize user-entered API key in `getMusixmatchSearchResponse`.
 
 ---
 
-### [Component: Integration]
+### [Component: UI]
 
-#### [MODIFY] [LyricsDownloadService.kt](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/booming/data/remote/lyrics/LyricsDownloadService.kt)
-- Add `GeniusApi` and `LyricsPlusApi` to the `lyricsApi` list.
+#### [MODIFY] [NetworkSettingsComposeScreen.kt](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/booming/ui/screen/settings/NetworkSettingsComposeScreen.kt)
+- Replace `SegmentedPreferenceItem` for Genius and Lyrically with `SplitButtonPreference`.
+- Add `InputDialog` for entering the API keys.
+- Update strings to support labels and hints for API keys.
 
 ---
 
 ## Verification Plan
 
+### Automated Tests
+- Build the project to ensure no regressions in settings UI.
+
 ### Manual Verification
-- **Settings**: Verify that new toggles appear in Network Settings and correctly persist their state.
-- **Lyrics Download**:
-    - Play various songs and observe the Logcat to see which provider successfully returns lyrics.
-    - Verify that Genius lyrics (scraped) are correctly displayed as plain text.
-    - Verify that LyricsPlus lyrics are correctly displayed as synced lyrics.
-    - Test edge cases like no internet or no lyrics found.
+- Go to Network Settings.
+- Expand Genius or Lyrically item using the split button.
+- Click on the API Key item to open the input dialog.
+- Enter a key and verify it persists (reopen settings).
+- Toggle the provider and verify it persists.
+- (Optional) Use a proxy or logs to verify the correct API key is being sent in requests.

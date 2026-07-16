@@ -17,6 +17,7 @@ import com.mardous.booming.data.model.network.ScrobblingService
 import com.mardous.booming.data.model.network.LoginState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mardous.booming.ui.component.compose.CollapsibleAppBarScaffold
+import com.mardous.booming.ui.component.compose.InputDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,6 +33,39 @@ fun NetworkSettingsComposeScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val lastfmLoginState by libraryViewModel.getLoginState(ScrobblingService.Lastfm).collectAsStateWithLifecycle(LoginState.Empty)
     val lbLoginState by libraryViewModel.getLoginState(ScrobblingService.ListenBrainz).collectAsStateWithLifecycle(LoginState.Empty)
+
+    var showGeniusKeyDialog by remember { mutableStateOf(false) }
+    var showLyricallyKeyDialog by remember { mutableStateOf(false) }
+
+    if (showGeniusKeyDialog) {
+        InputDialog(
+            onConfirm = { 
+                viewModel.setGeniusApiKey(it)
+                showGeniusKeyDialog = false 
+            },
+            onDismiss = { showGeniusKeyDialog = false },
+            message = "Genius requires a Client Access Token for searching. You can generate one in your Genius API dashboard.",
+            confirmButton = stringResource(android.R.string.ok),
+            title = stringResource(R.string.lyrics_client_access_token_title),
+            inputHint = stringResource(R.string.lyrics_api_key_hint),
+            inputPrefill = uiState.geniusApiKey
+        )
+    }
+
+    if (showLyricallyKeyDialog) {
+        InputDialog(
+            onConfirm = { 
+                viewModel.setLyricallyApiKey(it)
+                showLyricallyKeyDialog = false 
+            },
+            onDismiss = { showLyricallyKeyDialog = false },
+            message = "Enter your Lyrically (Paxsenix) API key. This is optional but recommended for better rate limits.",
+            confirmButton = stringResource(android.R.string.ok),
+            title = stringResource(R.string.lyrics_api_key_title),
+            inputHint = stringResource(R.string.lyrics_api_key_hint),
+            inputPrefill = uiState.lyricallyApiKey
+        )
+    }
 
     CollapsibleAppBarScaffold(
         title = stringResource(R.string.network_title),
@@ -115,20 +149,45 @@ fun NetworkSettingsComposeScreen(
                                 Switch(checked = uiState.betterLyricsEnabled, onCheckedChange = { viewModel.setBetterLyricsEnabled(it) })
                             }
                         )
-                        SegmentedPreferenceItem(
+                        
+                        var lyricallyExpanded by remember { mutableStateOf(false) }
+                        SplitButtonPreference(
                             title = "Lyrically",
                             summary = stringResource(R.string.use_lyrically_provider_summary),
-                            trailingContent = {
-                                Switch(checked = uiState.lyricallyEnabled, onCheckedChange = { viewModel.setLyricallyEnabled(it) })
-                            }
-                        )
-                        SegmentedPreferenceItem(
+                            checked = uiState.lyricallyEnabled,
+                            onCheckedChange = { viewModel.setLyricallyEnabled(it) },
+                            expanded = lyricallyExpanded,
+                            onExpandClick = { lyricallyExpanded = !lyricallyExpanded }
+                        ) {
+                            SegmentedPreferenceItem(
+                                title = stringResource(R.string.lyrics_api_key_title),
+                                summary = if (uiState.lyricallyApiKey.isNotEmpty()) 
+                                    stringResource(R.string.lyrics_api_key_summary, uiState.lyricallyApiKey.take(8) + "...") 
+                                    else stringResource(R.string.lyrics_api_key_not_set),
+                                onClick = { showLyricallyKeyDialog = true },
+                                showDivider = false
+                            )
+                        }
+
+                        var geniusExpanded by remember { mutableStateOf(false) }
+                        SplitButtonPreference(
                             title = "Genius",
                             summary = stringResource(R.string.use_genius_provider_summary),
-                            trailingContent = {
-                                Switch(checked = uiState.geniusEnabled, onCheckedChange = { viewModel.setGeniusEnabled(it) })
-                            }
-                        )
+                            checked = uiState.geniusEnabled,
+                            onCheckedChange = { viewModel.setGeniusEnabled(it) },
+                            expanded = geniusExpanded,
+                            onExpandClick = { geniusExpanded = !geniusExpanded }
+                        ) {
+                            SegmentedPreferenceItem(
+                                title = stringResource(R.string.lyrics_client_access_token_title),
+                                summary = if (uiState.geniusApiKey.isNotEmpty()) 
+                                    stringResource(R.string.lyrics_api_key_summary, uiState.geniusApiKey.take(8) + "...") 
+                                    else stringResource(R.string.lyrics_api_key_not_set),
+                                onClick = { showGeniusKeyDialog = true },
+                                showDivider = false
+                            )
+                        }
+
                         SegmentedPreferenceItem(
                             title = "LyricsPlus",
                             summary = stringResource(R.string.use_lyricsplus_provider_summary),

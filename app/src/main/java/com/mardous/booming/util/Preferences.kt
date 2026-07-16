@@ -35,6 +35,7 @@ import com.mardous.booming.core.model.player.MetadataField
 import com.mardous.booming.core.model.player.PlayerColorSchemeMode
 import com.mardous.booming.core.model.player.PlayerTransition
 import com.mardous.booming.core.model.shuffle.GroupShuffleMode
+import com.mardous.booming.data.model.network.NetworkFeature
 import com.mardous.booming.core.model.theme.AppTheme
 import com.mardous.booming.core.model.theme.NowPlayingScreen
 import com.mardous.booming.core.model.theme.VibrantBackgroundMode
@@ -571,6 +572,14 @@ object Preferences : KoinComponent {
     var lastUpdateId: Long
         get() = preferences.getLong(LAST_UPDATE_ID, -1)
         set(value) = preferences.edit { putLong(LAST_UPDATE_ID, value) }
+
+    var geniusApiKey: String
+        get() = preferences.requireString(NetworkFeature.GENIUS_API_KEY_KEY, "")
+        set(value) = preferences.edit { putString(NetworkFeature.GENIUS_API_KEY_KEY, value) }
+
+    var lyricallyApiKey: String
+        get() = preferences.requireString(NetworkFeature.LYRICALLY_API_KEY_KEY, "")
+        set(value) = preferences.edit { putString(NetworkFeature.LYRICALLY_API_KEY_KEY, value) }
 
     var hierarchyFolderView: Boolean
         get() = preferences.getBoolean(HIERARCHY_FOLDER_VIEW, false)

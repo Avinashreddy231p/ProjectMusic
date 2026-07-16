@@ -121,7 +121,8 @@ class SettingsFragment : AbsMainActivityFragment(R.layout.fragment_settings), Na
         val isComposeScreenWithInternalToolbar = destination.id == R.id.nav_pending_scrobbles || 
                 destination.id == R.id.nav_network_preferences || 
                 destination.id == R.id.nav_lastfm_profile ||
-                destination.id == R.id.nav_advanced_preferences
+                destination.id == R.id.nav_advanced_preferences ||
+                destination.id == R.id.nav_library_preferences
         
         binding.appBarLayout.visibility = if (isComposeScreenWithInternalToolbar) View.GONE else View.VISIBLE
         binding.appBarLayout.title = destination.label ?: getString(R.string.settings_title)

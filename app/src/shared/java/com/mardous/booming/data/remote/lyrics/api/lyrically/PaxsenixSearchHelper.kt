@@ -18,7 +18,9 @@
 package com.mardous.booming.data.remote.lyrics.api.lyrically
 
 import android.util.Log
+import com.mardous.booming.BuildConfig
 import com.mardous.booming.data.remote.lyrics.model.ITunesSearchResponse
+import com.mardous.booming.util.Preferences
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -56,8 +58,34 @@ class PaxsenixSearchHelper(
         return searchResponse
     }
 
+    suspend fun getMusixmatchSearchResponse(
+        songTitle: String,
+        artistName: String
+    ): ITunesSearchResponse? {
+        val response = client.get("${LYRICALLY_API_URL}/search/musixmatch") {
+            header(HttpHeaders.Accept, "application/json")
+            
+            val userApiKey = Preferences.lyricallyApiKey
+            val apiKey = userApiKey.ifBlank { BuildConfig.LYRICALLY_API_KEY }
+            if (apiKey.isNotEmpty()) {
+                header("x-api-key", apiKey)
+            }
+            
+            parameter("q", "$songTitle $artistName")
+        }
+
+        val responseBody = response.bodyAsText(Charsets.UTF_8)
+        return try {
+            json.decodeFromString<ITunesSearchResponse>(responseBody)
+        } catch (e: Exception) {
+            Log.e("PaxsenixSearchHelper", "Failed to decode Musixmatch search response", e)
+            null
+        }
+    }
+
     companion object {
         private const val SEARCH_URL = "https://itunes.apple.com"
+        private const val LYRICALLY_API_URL = "https://lyrics.paxsenix.org"
         private const val ITUNES_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36"
     }
 }

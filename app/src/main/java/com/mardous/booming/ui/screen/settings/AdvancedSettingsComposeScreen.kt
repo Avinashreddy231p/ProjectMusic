@@ -239,7 +239,7 @@ fun AdvancedSettingsComposeScreen(
                     )
                     SegmentedPreferenceItem(
                         title = stringResource(R.string.stop_when_closed_from_recents_title),
-                        summary = stringResource(R.string.stop_when_closed_from_recents_summary),
+                        summary = stringResource(R.string.stop_when_closed_from_recents_summary) + "\n\n" + stringResource(R.string.stop_when_closed_from_recents_note),
                         trailingContent = {
                             Switch(checked = uiState.stopWhenClosedFromRecents, onCheckedChange = { viewModel.setStopWhenClosedFromRecents(it) })
                         },

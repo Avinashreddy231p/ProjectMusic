@@ -35,8 +35,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.Fragment
-import com.mardous.booming.ui.screen.update.UpdateViewModel
-import com.mardous.booming.ui.screen.update.UpdateSearchResult
+import com.mardous.booming.ui.theme.BoomingMusicTheme
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.lifecycle.lifecycleScope
@@ -182,9 +181,32 @@ class PlaybackPreferencesFragment : PreferenceScreenFragment() {
     }
 }
 
-class LibraryPreferencesFragment : PreferenceScreenFragment() {
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        addPreferencesFromResource(R.xml.preferences_screen_library)
+class LibraryPreferencesFragment : Fragment() {
+    private val viewModel: SettingsViewModel by activityViewModel()
+    private val libraryViewModel: LibraryViewModel by activityViewModel()
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        return ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                BoomingMusicTheme {
+                    LibrarySettingsComposeScreen(
+                        viewModel = viewModel,
+                        onBackClick = { findNavController().popBackStack() },
+                        onReloadSuggestions = { libraryViewModel.forceReload(ReloadType.Suggestions) }
+                    )
+                }
+            }
+        }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        materialSharedAxis(view)
     }
 }
 
