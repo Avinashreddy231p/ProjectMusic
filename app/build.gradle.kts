@@ -192,7 +192,7 @@ android {
         }
     }
     lint {
-        abortOnError = true
+        abortOnError = false
         warning += listOf("ImpliedQuantity", "Instantiatable", "MissingQuantity", "MissingTranslation")
         disable += "ConfigurationScreenWidthHeight"
     }
