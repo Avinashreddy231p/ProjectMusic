@@ -1,0 +1,8 @@
+- [ ] Setup dependencies in `libs.versions.toml` and `build.gradle.kts`
+- [ ] Update `automotive_app_desc.xml` to include `iot` category
+- [ ] Register `BoomingCarAppService` in `AndroidManifest.xml`
+- [ ] Create `BoomingCarAppService.kt`
+- [ ] Create `LyricsScreen.kt` for Android Auto
+- [ ] Connect `LyricsScreen` to `PlaybackService` to get current song and lyrics
+- [ ] Implement sync logic in `LyricsScreen` to update lines in real-time
+- [ ] Verify build and integration
