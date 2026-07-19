@@ -1,0 +1,2 @@
+- [ ] Add loading indicator to MusicBrainz scan buttons in `NetworkSettingsComposeScreen.kt`
+- [ ] Verify implementation

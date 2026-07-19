@@ -74,13 +74,13 @@ jobs:
           if [ -z "$SIGNING_KEY" ]; then
             echo "::warning::SIGNING_KEY secret is missing. The build might fail at the signing stage."
           else
-            echo $SIGNING_KEY | base64 -di > ./projectmusic_keystore.jks
+            printf '%s' "$SIGNING_KEY" | base64 -d > ./projectmusic_keystore.jks
           fi
           
           if [ -z "$SIGNING_PROPERTIES" ]; then
             echo "::warning::SIGNING_PROPERTIES secret is missing. The build might fail at the signing stage."
           else
-            echo $SIGNING_PROPERTIES | base64 -di > ./keystore.properties
+            printf '%s' "$SIGNING_PROPERTIES" | base64 -d > ./keystore.properties
           fi
 
       - name: Make Gradle executable
