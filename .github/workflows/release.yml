@@ -181,17 +181,39 @@ jobs:
 
       - name: Send to Telegram
         if: env.APK_FILE != ''
-        uses: xz-dev/TelegramFileUploader@v1
-        with:
-          to-who: ${{ secrets.TG_CHAT_ID }}
-          message: |
-            🚀 **New Build: ${{ steps.metadata.outputs.name }}**
-            
-            📋 **Changelog:**
-            ${{ steps.changelog.outputs.result }}
-          files: |
-            ${{ env.APK_FILE }}
+        run: |
+          pip install telethon
+          python <<EOF
+          import os
+          import asyncio
+          from telethon import TelegramClient
+
+          async def send_file():
+              api_id = int(os.environ['API_ID'])
+              api_hash = os.environ['API_HASH']
+              bot_token = os.environ['BOT_TOKEN']
+              chat_id = int(os.environ['TG_CHAT_ID'])
+              file_path = os.environ['APK_FILE']
+              message = os.environ['TG_MESSAGE']
+              
+              client = TelegramClient('bot', api_id, api_hash)
+              await client.start(bot_token=bot_token)
+              
+              # thread_id 3 based on user link: https://t.me/c/4326107882/3
+              await client.send_file(chat_id, file_path, caption=message, reply_to=3)
+              await client.disconnect()
+
+          if __name__ == '__main__':
+              loop = asyncio.get_event_loop()
+              loop.run_until_complete(send_file())
+          EOF
         env:
           API_ID: ${{ secrets.TG_API_ID }}
           API_HASH: ${{ secrets.TG_API_HASH }}
           BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          TG_MESSAGE: |
+            🚀 **New Build: ${{ steps.metadata.outputs.name }}**
+            
+            📋 **Changelog:**
+            ${{ steps.changelog.outputs.result }}
