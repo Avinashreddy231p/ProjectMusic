@@ -1,9 +1,0 @@
-- `[x]` Update `SettingsUiState` and `SettingsViewModel` to support advanced preferences
-- `[x]` Create `AdvancedSettingsComposeScreen.kt` with modern M3 Expressive components
-- `[x]` Modify `AdvancedPreferencesFragment` to host the new Compose screen
-- `[x]` Verify the implementation
-- `[x]` Update `SettingsUiState` and `SettingsViewModel` for Library settings
-- `[x]` Create `LibrarySettingsComposeScreen.kt` with modern M3 Expressive components
-- `[x]` Modify `LibraryPreferencesFragment` to host the new Compose screen
-- `[x]` Update `SettingsFragment` navigation logic
-- `[x]` Verify the implementation

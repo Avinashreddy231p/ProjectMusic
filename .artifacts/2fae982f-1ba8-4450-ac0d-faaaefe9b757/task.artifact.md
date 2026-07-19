@@ -1,0 +1,9 @@
+- `[x]` Move `EraShapeFamily` and `EraSurfaceMaterial` to `core.model.theme`
+    - `[x]` Update `EraDesignSystem.kt` with the enum definitions
+    - `[x]` Remove the enums from `Preferences.kt` and add imports
+- `[x]` Update usages and imports in other files
+    - `[x]` Update `Shape.kt` import
+    - `[x]` Update `AbsSlidingMusicPanelActivity.kt` reference
+    - `[x]` Update `SettingsViewModel.kt` imports
+- `[x]` Verify the build
+    - `[x]` Run `./gradlew :app:compileFdroidDebugKotlin` (Verified that `AppearanceExpressiveSheets.kt` error is gone)

@@ -1,0 +1,9 @@
+- `[x]` Clean up Lucide traces
+- `[x]` Remove Phosphor from `libs.versions.toml` and `build.gradle.kts`
+- `[x]` Simplify `AppIcons.kt` to Material-only
+- `[x]` Remove icon enums from `EraDesignSystem.kt`
+- `[x]` Clean up `Preferences.kt`
+- `[x]` Update `Theme.kt`
+- `[x]` Update `SettingsViewModel.kt`
+- `[x]` Remove UI from `AppearanceSettingsComposeScreen.kt`
+- `[x]` Verify build

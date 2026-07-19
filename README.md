@@ -1,15 +1,15 @@
 <div align="center">
 
-<img src="metadata/en-US/images/icon.png" width="160" height="160" alt="Booming Music icon">
+<img src="metadata/en-US/images/icon.png" width="160" height="160" alt="Project Music icon">
 
-# 🎵 Booming Music
+# 🎵 Project Music
 
 ### Modern design. Pure sound. Fully yours.
 
-[![Latest Release](https://img.shields.io/github/v/release/mardous/BoomingMusic?style=for-the-badge&label=Release&logo=github)](https://github.com/mardous/BoomingMusic/releases/latest)
-[![F-Droid version](https://img.shields.io/f-droid/v/com.mardous.booming?style=for-the-badge&label=F-Droid&logo=fdroid)](https://f-droid.org/packages/com.mardous.booming/)
-[![Downloads](https://img.shields.io/github/downloads/mardous/BoomingMusic/total?style=for-the-badge&logo=github&label=Downloads)](https://github.com/mardous/BoomingMusic/releases)
-[![License: GPL v3](https://img.shields.io/github/license/mardous/BoomingMusic?style=for-the-badge&color=orange&label=License&logo=gnu)](LICENSE.txt)
+[![Latest Release](https://img.shields.io/github/v/release/mardous/ProjectMusic?style=for-the-badge&label=Release&logo=github)](https://github.com/mardous/ProjectMusic/releases/latest)
+[![F-Droid version](https://img.shields.io/f-droid/v/com.mardous.projectmusic?style=for-the-badge&label=F-Droid&logo=fdroid)](https://f-droid.org/packages/com.mardous.projectmusic/)
+[![Downloads](https://img.shields.io/github/downloads/mardous/ProjectMusic/total?style=for-the-badge&logo=github&label=Downloads)](https://github.com/mardous/ProjectMusic/releases)
+[![License: GPL v3](https://img.shields.io/github/license/mardous/ProjectMusic?style=for-the-badge&color=orange&label=License&logo=gnu)](LICENSE.txt)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor_Covenant-2.1-4baaaa.svg?style=for-the-badge&logo=contributorcovenant)](CODE_OF_CONDUCT.md)
 [![Telegram Channel](https://img.shields.io/badge/Telegram-Join_Chat-blue?style=for-the-badge&logo=telegram)](https://t.me/mardousdev)
 
@@ -76,18 +76,18 @@
 
 ## 📥 Download & Install
 
-Booming Music is available for download from various sources:
+Project Music is available for download from various sources:
 
 <div align="center">
 
 |                                                                                   Source                                                                                    | Details                                   |
 |:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:------------------------------------------|
-|                               [<img src="assets/badge-playstore.png" alt="Play Store" height="40">](https://github.com/mardous/BoomingMusic)                                | Coming soon!                              |                                     |
-|                      [<img src="assets/badge-github.png" alt="GitHub Releases" height="40">](https://github.com/mardous/BoomingMusic/releases/latest)                       | Direct APK download                       |
-|                              [<img src="assets/badge-fdroid.png" alt="F-Droid" height="40">](https://f-droid.org/packages/com.mardous.booming)                              | Fully FOSS version                        |
-|                       [<img src="assets/badge-izzyondroid.png" alt="IzzyOnDroid" height="40">](https://apt.izzysoft.de/packages/com.mardous.booming/)                       | Just like F-Droid but with faster updates |                         |
-| [<img src="assets/badge-obtainium.png" alt="Obtainium" height="40">](https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/mardous/BoomingMusic/) | Automatic updates from GitHub             |
-|                         [<img src="assets/badge-openapk.png" alt="OpenAPK" height="40">](https://www.openapk.net/boomingmusic/com.mardous.booming/)                         | Alternative APK source                    |
+|                               [<img src="assets/badge-playstore.png" alt="Play Store" height="40">](https://github.com/mardous/ProjectMusic)                                | Coming soon!                              |                                     |
+|                      [<img src="assets/badge-github.png" alt="GitHub Releases" height="40">](https://github.com/mardous/ProjectMusic/releases/latest)                       | Direct APK download                       |
+|                              [<img src="assets/badge-fdroid.png" alt="F-Droid" height="40">](https://f-droid.org/packages/com.mardous.projectmusic)                              | Fully FOSS version                        |
+|                       [<img src="assets/badge-izzyondroid.png" alt="IzzyOnDroid" height="40">](https://apt.izzysoft.de/packages/com.mardous.projectmusic/)                       | Just like F-Droid but with faster updates |                         |
+| [<img src="assets/badge-obtainium.png" alt="Obtainium" height="40">](https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/mardous/ProjectMusic/) | Automatic updates from GitHub             |
+|                         [<img src="assets/badge-openapk.png" alt="OpenAPK" height="40">](https://www.openapk.net/projectmusic/com.mardous.projectmusic/)                         | Alternative APK source                    |
 
 </div>
 
@@ -116,27 +116,27 @@ Booming Music is available for download from various sources:
 
 ## 🔗 Useful Links
 
-- 🔐 **[Requested Permissions](https://github.com/mardous/BoomingMusic/wiki/Advanced-Info#-permissions)**  
+- 🔐 **[Requested Permissions](https://github.com/mardous/ProjectMusic/wiki/Advanced-Info#-permissions)**  
   What the app needs and why
 
-- 🚘 **[Android Auto Setup](https://github.com/mardous/BoomingMusic/wiki/Advanced-Info#-android-auto-setup)**  
+- 🚘 **[Android Auto Setup](https://github.com/mardous/ProjectMusic/wiki/Advanced-Info#-android-auto-setup)**  
   How to enable and troubleshoot
 
-- 🎧 **[Supported Formats](https://github.com/mardous/BoomingMusic/wiki/Advanced-Info#-supported-formats)**  
+- 🎧 **[Supported Formats](https://github.com/mardous/ProjectMusic/wiki/Advanced-Info#-supported-formats)**  
   Compatible audio formats
 
-- 💬 **[Community](https://github.com/mardous/BoomingMusic/wiki/Community)**  
+- 💬 **[Community](https://github.com/mardous/ProjectMusic/wiki/Community)**  
   Users and contributors
 
-- 🌐 **[Translations](https://hosted.weblate.org/projects/booming-music/)**  
-  Help us translate Booming Music into your language
+- 🌐 **[Translations](https://hosted.weblate.org/projects/project-music/)**  
+  Help us translate Project Music into your language
 
-- ❓ **[FAQ](https://github.com/mardous/BoomingMusic/wiki/FAQ)**  
+- ❓ **[FAQ](https://github.com/mardous/ProjectMusic/wiki/FAQ)**  
   Common questions
 
 ## 🤝 Contributing
 
-Booming Music is open-source — contributions are **always welcome!**
+Project Music is open-source — contributions are **always welcome!**
 Check the [Contributing Guide](CONTRIBUTING.md) for details.
 
 If you enjoy the app or want to support its development, give the repo a ⭐ — it really helps!
@@ -145,17 +145,17 @@ You can also:
 - Submit pull requests
 - Suggest new ideas
 
-**Translations:** Managed on [Hosted Weblate](https://hosted.weblate.org/projects/booming-music/).
+**Translations:** Managed on [Hosted Weblate](https://hosted.weblate.org/projects/project-music/).
 
-[![Translation Status](https://hosted.weblate.org/widget/booming-music/horizontal-auto.svg)](https://hosted.weblate.org/projects/booming-music/)
+[![Translation Status](https://hosted.weblate.org/widget/project-music/horizontal-auto.svg)](https://hosted.weblate.org/projects/project-music/)
 
 ## 💖 Support Development
 
-Booming Music is an open-source project developed and maintained with passion in my spare time.
+Project Music is an open-source project developed and maintained with passion in my spare time.
 If you enjoy the app and the free features it offers, please consider supporting me to help cover
 development costs and dedicate more time to new features.
 
-Your support is greatly appreciated and keeps me motivated to continue improving Booming Music!
+Your support is greatly appreciated and keeps me motivated to continue improving Project Music!
 
 <div align="center">
 

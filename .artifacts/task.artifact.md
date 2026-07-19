@@ -1,0 +1,7 @@
+- [x] Update `SettingsViewModel.kt` and `SettingsUiState` with missing appearance settings
+- [x] Create `AppearanceSettingsComposeScreen.kt` using Material3 Expressive components
+- [x] Implement Design System console (Bottom Sheet/Sub-page)
+- [x] Implement Widget Settings hub (Bottom Sheet/Sub-page)
+- [x] Modify `PreferencesScreenFragment.kt` to host the new Appearance screen
+- [x] Verify functionality and visual design
+- [x] Mark `preferences_screen_appearance.xml` as legacy

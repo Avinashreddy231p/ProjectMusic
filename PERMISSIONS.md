@@ -1,6 +1,6 @@
 # Requested permissions
 
-Booming Music requests the following permissions:
+Project Music requests the following permissions:
 
 | Permission                   | Description                                                                                 | Android version |
 |------------------------------|---------------------------------------------------------------------------------------------|-----------------|

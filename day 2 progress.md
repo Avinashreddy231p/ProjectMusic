@@ -1,6 +1,6 @@
 # Day 2 Progress: Statistical Sorting & Settings Upgrades
 
-Today, we successfully integrated deep analytical metrics natively into the core sorting flows of BoomingMusic, alongside significant UI and structural improvements. Below is a comprehensive breakdown of the changes, implementation details, and architectural decisions.
+Today, we successfully integrated deep analytical metrics natively into the core sorting flows of ProjectMusic, alongside significant UI and structural improvements. Below is a comprehensive breakdown of the changes, implementation details, and architectural decisions.
 
 ## 1. Global Settings Search
 **Goal:** Allow users to search through the application's global settings efficiently.

@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.Booming" parent="Base.Theme.Booming"/>
+    <style name="Theme.ProjectMusic" parent="Base.Theme.ProjectMusic"/>
 
-    <style name="Theme.Booming.Light" parent="Base.Theme.Booming.Light"/>
+    <style name="Theme.ProjectMusic.Light" parent="Base.Theme.ProjectMusic.Light"/>
 
-    <style name="Theme.Booming.Black" parent="Base.Theme.Booming.Black"/>
+    <style name="Theme.ProjectMusic.Black" parent="Base.Theme.ProjectMusic.Black"/>
 
-    <style name="Theme.Booming.FollowSystem" parent="Base.Theme.Booming.Adaptive"/>
+    <style name="Theme.ProjectMusic.FollowSystem" parent="Base.Theme.ProjectMusic.Adaptive"/>
 
-    <style name="Theme.Booming.SplashScreen" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Theme.ProjectMusic.SplashScreen" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:windowBackground">@drawable/splash</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 
-    <style name="Widget.Booming.Expressive.Button" parent="Widget.Material3Expressive.Button">
+    <style name="Widget.ProjectMusic.Expressive.Button" parent="Widget.Material3Expressive.Button">
         <item name="iconGravity">textStart</item>
     </style>
 
-    <style name="Widget.Booming.Expressive.Button.Tonal" parent="Widget.Material3Expressive.Button.TonalButton">
+    <style name="Widget.ProjectMusic.Expressive.Button.Tonal" parent="Widget.Material3Expressive.Button.TonalButton">
         <item name="iconGravity">textStart</item>
     </style>
 
@@ -103,7 +103,7 @@
         <item name="android:progressDrawable">@drawable/media_squiggly_progress</item>
     </style>
 
-    <style name="Widget.Booming.BottomNavigationView.Spotify" parent="Widget.Material3.BottomNavigationView">
+    <style name="Widget.ProjectMusic.BottomNavigationView.Spotify" parent="Widget.Material3.BottomNavigationView">
         <item name="backgroundTint">@android:color/black</item>
         <item name="itemIconTint">@color/spotify_nav_item_color</item>
         <item name="itemTextColor">@color/spotify_nav_item_color</item>

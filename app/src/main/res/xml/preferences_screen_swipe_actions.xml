@@ -7,13 +7,13 @@
         app:title="@string/pref_swipe_actions_songs"
         app:layout="@layout/preference_category_title">
 
-        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+        <com.mardous.projectmusic.ui.component.preferences.CustomDialogPreference
             app:title="@string/swipe_left_title"
             app:layout="@layout/list_item_view"
             app:persistent="false"
             app:key="swipe_action_left_songs"/>
 
-        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+        <com.mardous.projectmusic.ui.component.preferences.CustomDialogPreference
             app:title="@string/swipe_right_title"
             app:layout="@layout/list_item_view"
             app:persistent="false"
@@ -25,13 +25,13 @@
         app:title="@string/pref_swipe_actions_albums"
         app:layout="@layout/preference_category_title">
 
-        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+        <com.mardous.projectmusic.ui.component.preferences.CustomDialogPreference
             app:title="@string/swipe_left_title"
             app:layout="@layout/list_item_view"
             app:persistent="false"
             app:key="swipe_action_left_albums"/>
 
-        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+        <com.mardous.projectmusic.ui.component.preferences.CustomDialogPreference
             app:title="@string/swipe_right_title"
             app:layout="@layout/list_item_view"
             app:persistent="false"
@@ -43,13 +43,13 @@
         app:title="@string/pref_swipe_actions_artists"
         app:layout="@layout/preference_category_title">
 
-        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+        <com.mardous.projectmusic.ui.component.preferences.CustomDialogPreference
             app:title="@string/swipe_left_title"
             app:layout="@layout/list_item_view"
             app:persistent="false"
             app:key="swipe_action_left_artists"/>
 
-        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+        <com.mardous.projectmusic.ui.component.preferences.CustomDialogPreference
             app:title="@string/swipe_right_title"
             app:layout="@layout/list_item_view"
             app:persistent="false"
@@ -61,13 +61,13 @@
         app:title="@string/pref_swipe_actions_playlists"
         app:layout="@layout/preference_category_title">
 
-        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+        <com.mardous.projectmusic.ui.component.preferences.CustomDialogPreference
             app:title="@string/swipe_left_title"
             app:layout="@layout/list_item_view"
             app:persistent="false"
             app:key="swipe_action_left_playlists"/>
 
-        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+        <com.mardous.projectmusic.ui.component.preferences.CustomDialogPreference
             app:title="@string/swipe_right_title"
             app:layout="@layout/list_item_view"
             app:persistent="false"
@@ -79,13 +79,13 @@
         app:title="@string/pref_swipe_actions_queue"
         app:layout="@layout/preference_category_title">
 
-        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+        <com.mardous.projectmusic.ui.component.preferences.CustomDialogPreference
             app:title="@string/swipe_left_title"
             app:layout="@layout/list_item_view"
             app:persistent="false"
             app:key="swipe_action_left_queue"/>
 
-        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+        <com.mardous.projectmusic.ui.component.preferences.CustomDialogPreference
             app:title="@string/swipe_right_title"
             app:layout="@layout/list_item_view"
             app:persistent="false"
@@ -97,13 +97,13 @@
         app:title="@string/pref_swipe_actions_stats"
         app:layout="@layout/preference_category_title">
 
-        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+        <com.mardous.projectmusic.ui.component.preferences.CustomDialogPreference
             app:title="@string/swipe_left_title"
             app:layout="@layout/list_item_view"
             app:persistent="false"
             app:key="swipe_action_left_stats"/>
 
-        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+        <com.mardous.projectmusic.ui.component.preferences.CustomDialogPreference
             app:title="@string/swipe_right_title"
             app:layout="@layout/list_item_view"
             app:persistent="false"

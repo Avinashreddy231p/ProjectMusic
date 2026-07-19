@@ -13,6 +13,9 @@
     <item name="action_sort_order_number_of_songs" type="id"/>
     <item name="action_sort_order_play_count" type="id"/>
     <item name="action_sort_order_listen_duration" type="id"/>
+    <item name="action_sort_order_rank" type="id"/>
+    <item name="action_sort_order_confidence" type="id"/>
+    <item name="action_sort_order_source" type="id"/>
     <item name="action_sort_order_descending" type="id"/>
     <item name="action_sort_order_ignore_articles" type="id"/>
 

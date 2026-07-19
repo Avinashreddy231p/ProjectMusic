@@ -397,7 +397,7 @@
     <string name="profiles_exported_successfully">Se exportaron los perfiles correctamente.</string>
     <string name="import_profiles">Importar perfiles</string>
     <string name="select_profiles_to_import">Seleccione los perfiles que quiere importar:</string>
-    <string name="select_a_file_containing_booming_eq_profiles">Seleccione un archivo que contenga perfiles de EQ de Booming Music.</string>
+    <string name="select_a_file_containing_project_music_eq_profiles">Seleccione un archivo que contenga perfiles de EQ de Project Music.</string>
     <string name="imported_x_profiles">Se importaron %d perfiles.</string>
     <string name="no_profile_imported">No se importó ningún perfil.</string>
     <string name="import_autoeq_profile">Importar perfil de AutoEq</string>
@@ -458,7 +458,7 @@
     <string name="synced_lyrics">Sincronizada</string>
     <string name="embedded_lyrics">Incrustada</string>
     <string name="downloaded_lyrics">Descargada</string>
-    <string name="cannot_download_lyrics">Booming Music no pudo encontrar la letra de esta canción. ¿Quiere buscar manualmente?</string>
+    <string name="cannot_download_lyrics">Project Music no pudo encontrar la letra de esta canción. ¿Quiere buscar manualmente?</string>
     <string name="search_lyrics">Buscar letra</string>
     <string name="choose_lyrics">Elige el tipo de letra</string>
     <string name="download_lyrics">Descargar letra</string>
@@ -498,22 +498,22 @@
     <string name="mardous_summary">Desarrollador principal</string>
     <string name="contributors">Colaboradores</string>
     <string name="translators_title">Traductores</string>
-    <string name="translators_summary">Gracias a quienes hacen que Booming Music esté disponible en muchos idiomas.</string>
+    <string name="translators_summary">Gracias a quienes hacen que Project Music esté disponible en muchos idiomas.</string>
     <string name="view_profile_on_github">Ver perfil en GitHub</string>
     <string name="write_an_email">Escribe un email</string>
     <string name="support_development">Apoyar desarrollo</string>
     <string name="help_with_translations">Ayuda con traducciones</string>
-    <string name="help_with_translations_summary">Puedes contribuir al proyecto ayudando a traducir Booming Music a otros idiomas.</string>
+    <string name="help_with_translations_summary">Puedes contribuir al proyecto ayudando a traducir Project Music a otros idiomas.</string>
     <string name="report_bugs">Reportar errores</string>
     <string name="report_bugs_summary">Informar de defectos o solicitar funcionalidades nuevas.</string>
     <string name="share_app">Compartir esta aplicación</string>
     <string name="share_app_summary">Puede ayudar a que esta aplicación crezca si la comparte con amigos.</string>
     <string name="send_invitation_message">Enviar mensaje de invitación</string>
-    <string name="invitation_message_content">Hola. ¡Échale un vistazo a Booming Music! La mejor aplicación para escuchar música local en Android. Puedes descargarla desde aquí: %s</string>
+    <string name="invitation_message_content">Hola. ¡Échale un vistazo a Project Music! La mejor aplicación para escuchar música local en Android. Puedes descargarla desde aquí: %s</string>
     <!-- Bug report -->
     <!-- SAF -->
     <string name="saf_access_required_title">Se requiere acceso al almacenamiento</string>
-    <string name="saf_access_required_message">Booming Music requiere permiso para acceder a estos archivos. Por favor, seleccione la carpeta raíz donde se almacenan sus archivos de música.</string>
+    <string name="saf_access_required_message">Project Music requiere permiso para acceder a estos archivos. Por favor, seleccione la carpeta raíz donde se almacenan sus archivos de música.</string>
     <string name="saf_show_files_button">Mostrar archivos</string>
     <string name="saf_error_uri">No se puede obtener SAF URI</string>
     <string name="saf_write_failed">Error al escribir el archivo: %s</string>
@@ -534,7 +534,7 @@
     <string name="advanced_summary">Idioma en la aplicación y otros ajustes para usuarios avanzados.</string>
     <string name="update_title">Actualizar</string>
     <string name="about_title">Acerca de</string>
-    <string name="about_summary">Booming Music %s, toque para más información.</string>
+    <string name="about_summary">Project Music %s, toque para más información.</string>
     <!-- Preference headers -->
     <string name="general_header">General</string>
     <string name="library_header">Fonoteca</string>
@@ -706,7 +706,7 @@
     <string name="online_album_covers_title">Descargar portadas de álbumes faltantes</string>
     <string name="online_album_covers_summary">Las imágenes descargadas no se incrustan en los archivos de audio; solo son visibles dentro de la aplicación.</string>
     <string name="delete_downloaded_lyrics_title">Borrar letras descargadas</string>
-    <string name="delete_downloaded_lyrics_summary">Solo letras descargadas por Booming Music. No afecta las letras incrustadas en etiquetas ID3v2 o archivos LRC.</string>
+    <string name="delete_downloaded_lyrics_summary">Solo letras descargadas por Project Music. No afecta las letras incrustadas en etiquetas ID3v2 o archivos LRC.</string>
     <string name="lyrics_cleared">Letra borrada.</string>
     <!-- Library preferences -->
     <string name="ignore_articles_when_sorting_title">Ignorar artículos al ordenar</string>
@@ -816,7 +816,7 @@
     <string name="update_available_title">Actualización disponible</string>
     <string name="more_info_action">Más información.</string>
     <string name="download_action">Descargar</string>
-    <string name="downloading_update">Descargando la actualización de Música en Booming.</string>
+    <string name="downloading_update">Descargando la actualización de Música en Project Music</string>
     <string name="uncaught_error_title">¡Uy! ¡Eso no iba a ocurrir!</string>
     <string name="uncaught_error_message">Parece que ha ocurrido algún error y la aplicación se ha cerrado. Sería de ayuda que nos enviara el informe de error a nuestro grupo de Telegram o por correo electrónico.</string>
     <string name="uncaught_error_report">Informe de error</string>
@@ -824,7 +824,7 @@
     <string name="uncaught_error_restart_app">Reiniciar la app</string>
     <string name="uncaught_error_github">Abrir error en GitHub</string>
     <string name="uncaught_error_send">Enviar informe</string>
-    <string name="permission_read_images_summary">Este permiso es necesario para que Booming Music pueda encontrar las portadas de los álbumes en sus carpetas de música. Si no piensa usar esta función, puede optar por no concederlo.</string>
+    <string name="permission_read_images_summary">Este permiso es necesario para que Project Music pueda encontrar las portadas de los álbumes en sus carpetas de música. Si no piensa usar esta función, puede optar por no concederlo.</string>
     <string name="genres_label">Géneros</string>
     <string name="lyrics_center_horizontally_title">Centrar letra horizontalmente</string>
     <string name="channel_surround_5_0">Envolvente 5.0</string>
@@ -923,7 +923,7 @@
     <string name="ttml_file_lyrics">TTML</string>
     <string name="file_lyrics">Archivo</string>
     <string name="undo_changes">Deshace cambios</string>
-    <string name="cannot_edit_lyrics_file">No puedes editar el contenido del archivo directamente desde Booming Music.</string>
+    <string name="cannot_edit_lyrics_file">No puedes editar el contenido del archivo directamente desde Project Music.</string>
     <string name="lyrics_by_x">Letras por %s</string>
     <string name="preferred_lyrics_file_format_title">Formato de archivo preferido</string>
     <string name="preferred_lyrics_file_format_summary">Si una canción tiene archivos de letras en diferentes formatos, esta opción le permite elegir cuál es la prioridad.</string>

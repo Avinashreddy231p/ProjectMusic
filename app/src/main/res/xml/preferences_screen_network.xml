@@ -7,7 +7,7 @@
         app:title="@string/lastfm_title"
         app:layout="@layout/preference_category_title">
 
-        <com.mardous.booming.ui.component.preferences.ServiceHubPreference
+        <com.mardous.projectmusic.ui.component.preferences.ServiceHubPreference
             app:key="lastfm_hub"
             app:title="@string/lastfm_title"
             app:layout="@layout/preference_compose_host"/>
@@ -18,7 +18,7 @@
         app:title="ListenBrainz"
         app:layout="@layout/preference_category_title">
 
-        <com.mardous.booming.ui.component.preferences.ServiceHubPreference
+        <com.mardous.projectmusic.ui.component.preferences.ServiceHubPreference
             app:key="listenbrainz_hub"
             app:title="ListenBrainz"
             app:layout="@layout/preference_compose_host"/>
@@ -158,7 +158,7 @@
             app:isPreferenceVisible="@bool/enable_builtin_updater"
             app:key="experimental_updates"/>
 
-        <com.mardous.booming.ui.component.preferences.ProgressIndicatorPreference
+        <com.mardous.projectmusic.ui.component.preferences.ProgressIndicatorPreference
             app:title="@string/search_for_update_title"
             app:persistent="false"
             app:layout="@layout/list_item_view"

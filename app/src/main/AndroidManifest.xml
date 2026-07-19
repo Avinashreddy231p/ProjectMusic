@@ -53,13 +53,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
-        android:theme="@style/Theme.Booming.FollowSystem"
+        android:theme="@style/Theme.ProjectMusic.FollowSystem"
         tools:ignore="UnusedAttribute">
 
         <activity
             android:name=".ui.screen.MainActivity"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.Booming.SplashScreen"/>
+            android:theme="@style/Theme.ProjectMusic.SplashScreen"/>
 
         <activity
             android:label="@string/action_tag_editor"
@@ -204,7 +204,7 @@
 
         <!-- Begin: App Widgets -->
         <receiver
-            android:name=".core.appwidgets.BoomingGlanceWidgetReceiver"
+            android:name=".core.appwidgets.ProjectMusicGlanceWidgetReceiver"
             android:label="@string/app_widget_responsive"
             android:exported="false">
             <intent-filter>

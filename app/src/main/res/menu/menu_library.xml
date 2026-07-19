@@ -76,6 +76,11 @@
     </item>
     <item
         android:orderInCategory="10"
+        android:id="@+id/action_export_db"
+        android:title="@string/action_export_db"
+        app:showAsAction="never" />
+    <item
+        android:orderInCategory="10"
         android:id="@+id/action_scan"
         android:title="@string/scan_media"
         app:showAsAction="never" />
@@ -88,6 +93,21 @@
         android:orderInCategory="10"
         android:id="@+id/action_library_stats"
         android:title="Library Stats"
+        app:showAsAction="never" />
+    <item
+        android:orderInCategory="10"
+        android:id="@+id/action_moods"
+        android:title="Moods"
+        app:showAsAction="never" />
+    <item
+        android:orderInCategory="10"
+        android:id="@+id/action_tags"
+        android:title="Tags"
+        app:showAsAction="never" />
+    <item
+        android:orderInCategory="10"
+        android:id="@+id/action_instruments"
+        android:title="Instruments"
         app:showAsAction="never" />
     <item
         android:orderInCategory="10"

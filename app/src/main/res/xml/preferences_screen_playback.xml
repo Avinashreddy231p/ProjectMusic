@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  This file is kept for search indexing purposes only (see SettingsSearchHelper.kt).
+  The UI is now implemented in PlaybackSettingsComposeScreen.kt.
+-->
 <androidx.preference.PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
@@ -27,7 +31,7 @@
             app:layout="@layout/list_item_view"
             app:key="queue_next_mode"/>
 
-        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+        <com.mardous.projectmusic.ui.component.preferences.CustomDialogPreference
             app:icon="@drawable/ic_touch_app_24dp"
             app:title="@string/on_song_click_title"
             app:useSimpleSummaryProvider="false"
@@ -35,7 +39,7 @@
             app:layout="@layout/list_item_view"
             app:key="on_song_click_action"/>
 
-        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+        <com.mardous.projectmusic.ui.component.preferences.CustomDialogPreference
             app:icon="@drawable/ic_clear_all_24dp"
             app:title="@string/on_clear_queue_title"
             app:useSimpleSummaryProvider="false"

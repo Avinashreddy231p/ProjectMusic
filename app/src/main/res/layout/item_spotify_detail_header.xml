@@ -44,8 +44,22 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:textColor="?attr/colorOnSurfaceVariant"
-        app:layout_constraintBottom_toTopOf="@+id/followingButton"
+        app:layout_constraintBottom_toTopOf="@+id/description"
         tools:text="Listeners" />
+
+    <TextView
+        android:id="@+id/description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textSize="14sp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/subtitle"
+        app:layout_constraintBottom_toTopOf="@+id/followingButton"
+        tools:text="Rank: #1 • Played: 42x • Listened: 3h 15m"
+        tools:visibility="visible" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/followingButton"

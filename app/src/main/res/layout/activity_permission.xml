@@ -31,7 +31,7 @@
         android:maxLines="2"
         android:textAppearance="?textAppearanceHeadline6"
         android:textColor="?android:textColorSecondary"
-        tools:text="Welcome to Booming Music"
+        tools:text="Welcome to Project Music"
         app:layout_constraintTop_toBottomOf="@+id/hello_label"
         app:layout_constraintStart_toStartOf="@+id/hello_label"
         app:layout_constraintEnd_toEndOf="@+id/hello_label"/>
@@ -61,7 +61,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <com.mardous.booming.ui.component.views.PermissionView
+            <com.mardous.projectmusic.ui.component.views.PermissionView
                 android:id="@+id/storage_access"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -70,7 +70,7 @@
                 app:buttonText="@string/grant_access_action"
                 app:buttonIcon="@drawable/ic_sd_card_24dp"/>
 
-            <com.mardous.booming.ui.component.views.PermissionView
+            <com.mardous.projectmusic.ui.component.views.PermissionView
                 android:id="@+id/nearby_devices"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -79,7 +79,7 @@
                 app:buttonText="@string/grant_access_action"
                 app:buttonIcon="@drawable/ic_bluetooth_connected_24dp"/>
 
-            <com.mardous.booming.ui.component.views.PermissionView
+            <com.mardous.projectmusic.ui.component.views.PermissionView
                 android:id="@+id/read_images"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -88,7 +88,7 @@
                 app:buttonText="@string/grant_access_action"
                 app:buttonIcon="@drawable/ic_image_24dp"/>
 
-            <com.mardous.booming.ui.component.views.PermissionView
+            <com.mardous.projectmusic.ui.component.views.PermissionView
                 android:id="@+id/schedule_exact_alarms"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

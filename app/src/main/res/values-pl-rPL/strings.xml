@@ -126,7 +126,7 @@
     <string name="permission_bluetooth_description">Dostęp do pobliskich urządzeń jest wymagany do wykrywania urządzeń Bluetooth</string>
     <string name="permission_bluetooth_denied">Nie przyznano dostępu do pobliskich urządzeń.</string>
     <string name="permission_read_images_title">Dostęp do zdjęć (opcjonalny)</string>
-    <string name="permission_read_images_summary">Pozwala aplikacji Booming Music znajdować okładki albumów w folderach z muzyką. Nie jest wymagane, jeśli nie zależy ci na tej funkcji.</string>
+    <string name="permission_read_images_summary">Pozwala aplikacji Project Music znajdować okładki albumów w folderach z muzyką. Nie jest wymagane, jeśli nie zależy ci na tej funkcji.</string>
     <string name="permission_read_images_denied">Wymagane jest uprawnienie do odczytu obrazów z urządzenia.</string>
     <string name="permission_exact_alarms_title">Alarmy i przypomnienia (opcjonalnie)</string>
     <string name="permission_exact_alarms_description">Aby zegar uśpienia działał poprawnie, potrzebna jest zgoda na ustawianie alarmów</string>
@@ -410,7 +410,7 @@
     <string name="profiles_exported_successfully">Profiles exported successfully.</string>
     <string name="import_profiles">Importuj profile</string>
     <string name="select_profiles_to_import">Wybierz profile do importu:</string>
-    <string name="select_a_file_containing_booming_eq_profiles">Select a file containing Booming Music EQ Profiles.</string>
+    <string name="select_a_file_containing_project_music_eq_profiles">Select a file containing Project Music EQ Profiles.</string>
     <string name="imported_x_profiles">Zaimportowano %d profili.</string>
     <string name="no_profile_imported">Nie zaimportowano profilu.</string>
     <string name="import_autoeq_profile">Importuj profil AutoEq</string>
@@ -471,7 +471,7 @@
     <string name="synced_lyrics">Zsynchronizowany</string>
     <string name="embedded_lyrics">Osadzone w pliku</string>
     <string name="downloaded_lyrics">Pobrano</string>
-    <string name="cannot_download_lyrics">Booming Music nie udało się znaleźć tekstu dla tej piosenki. Czy chcesz wyszukać ręcznie?</string>
+    <string name="cannot_download_lyrics">Project Music nie udało się znaleźć tekstu dla tej piosenki. Czy chcesz wyszukać ręcznie?</string>
     <string name="search_lyrics">Szukaj tekstu utworu</string>
     <string name="choose_lyrics">Wybierz typ tekstu piosenki</string>
     <string name="download_lyrics">Pobierz tekst</string>
@@ -511,22 +511,22 @@
     <string name="mardous_summary">Główny programista</string>
     <string name="contributors">Współtwórcy</string>
     <string name="translators_title">Tłumacze</string>
-    <string name="translators_summary">Podziękowania dla tych, którzy umożliwiają korzystanie z Booming Music w wielu językach.</string>
+    <string name="translators_summary">Podziękowania dla tych, którzy umożliwiają korzystanie z Project Music w wielu językach.</string>
     <string name="view_profile_on_github">Zobacz profil GitHub</string>
     <string name="write_an_email">Wyślij email</string>
     <string name="support_development">Wesprzyj rozwój</string>
     <string name="help_with_translations">Pomóż z tłumaczeniem</string>
-    <string name="help_with_translations_summary">Możesz przyczynić się do rozwoju projektu pomagając w tłumaczeniu Booming Music na inne języki.</string>
+    <string name="help_with_translations_summary">Możesz przyczynić się do rozwoju projektu pomagając w tłumaczeniu Project Music na inne języki.</string>
     <string name="report_bugs">Zgłoś błędy</string>
     <string name="report_bugs_summary">Zgłoś błędy lub poproś o nowe funkcje.</string>
     <string name="share_app">Udostępnij aplikację</string>
     <string name="share_app_summary">Możesz pomóc w rozwoju tej aplikacji, jeśli podzielisz się nią ze znajomymi.</string>
     <string name="send_invitation_message">Wyślij wiadomość z zaproszeniem</string>
-    <string name="invitation_message_content">Cześć. Sprawdź Booming Music! Najlepsza aplikacja do słuchania lokalnej muzyki na Androida. Możesz ją pobrać tutaj: %s</string>
+    <string name="invitation_message_content">Cześć. Sprawdź Project Music! Najlepsza aplikacja do słuchania lokalnej muzyki na Androida. Możesz ją pobrać tutaj: %s</string>
     <!-- Bug report -->
     <!-- SAF -->
     <string name="saf_access_required_title">Wymagany dostęp do pamięci</string>
-    <string name="saf_access_required_message">Booming Music potrzebuje uprawnień, by mieć dostęp do plików. Proszę wybrać główny folder z Twoją muzyką.</string>
+    <string name="saf_access_required_message">Project Music potrzebuje uprawnień, by mieć dostęp do plików. Proszę wybrać główny folder z Twoją muzyką.</string>
     <string name="saf_show_files_button">Pokaż pliki</string>
     <string name="saf_error_uri">Nie można uzyskać URI SAF</string>
     <string name="saf_write_failed">Błąd zapisu pliku: %s</string>
@@ -547,7 +547,7 @@
     <string name="advanced_summary">Język aplikacji i inne ustawienia dla zaawansowanych użytkowników.</string>
     <string name="update_title">Aktualizacje</string>
     <string name="about_title">O programie</string>
-    <string name="about_summary">Booming Music %s, naciśnij, aby dowiedzieć się więcej.</string>
+    <string name="about_summary">Project Music %s, naciśnij, aby dowiedzieć się więcej.</string>
     <!-- Preference headers -->
     <string name="general_header">Ogólny</string>
     <string name="library_header">Biblioteka</string>
@@ -829,7 +829,7 @@
     <string name="update_available_title">Dostępna aktualizacja</string>
     <string name="more_info_action">Więcej informacji.</string>
     <string name="download_action">Pobierz</string>
-    <string name="downloading_update">Pobieranie aktualizacji Booming Music.</string>
+    <string name="downloading_update">Pobieranie aktualizacji Project Music.</string>
     <string name="uncaught_error_title">Ups! Nie mieliśmy tego w planach!</string>
     <string name="uncaught_error_message">Wygląda na to, że coś poszło nie tak i aplikacja uległa awarii. Pomocne byłoby, gdybyś mógł przesłać nam raport błędu na naszą grupę na Telegramie lub e-mailem.</string>
     <string name="uncaught_error_report">Raport błędu</string>

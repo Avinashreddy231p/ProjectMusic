@@ -28,7 +28,7 @@
         app:layout_constraintTop_toTopOf="@+id/metadataComposeView"
         app:layout_constraintVertical_bias="0.5">
 
-        <com.mardous.booming.ui.component.views.FavoriteBurstView
+        <com.mardous.projectmusic.ui.component.views.FavoriteBurstView
             android:id="@+id/favoriteBurstView"
             android:layout_width="80dp"
             android:layout_height="80dp"
@@ -57,7 +57,7 @@
         app:layout_constraintTop_toTopOf="@+id/metadataComposeView"
         app:layout_constraintVertical_bias="0.5"/>
 
-    <com.mardous.booming.ui.component.views.MusicSlider
+    <com.mardous.projectmusic.ui.component.views.MusicSlider
         android:id="@+id/progressSlider"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -168,7 +168,7 @@
         app:title="@string/visuals_header"
         app:layout="@layout/preference_category_title">
 
-        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+        <com.mardous.projectmusic.ui.component.preferences.CustomDialogPreference
             app:icon="@drawable/ic_palette_24dp"
             app:title="@string/lyrics_accent_color_title"
             app:summary="@string/lyrics_accent_color_summary"

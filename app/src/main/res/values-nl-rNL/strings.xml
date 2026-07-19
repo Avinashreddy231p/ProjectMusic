@@ -394,7 +394,7 @@
     <string name="profiles_exported_successfully">Profielen succesvol geëxporteerd.</string>
     <string name="import_profiles">Importeer profielen</string>
     <string name="select_profiles_to_import">Selecteer de profielen die u wilt importeren:</string>
-    <string name="select_a_file_containing_booming_eq_profiles">Selecteer een bestand met Booming Music EQ-profielen.</string>
+    <string name="select_a_file_containing_project_music_eq_profiles">Selecteer een bestand met Project Music EQ-profielen.</string>
     <string name="imported_x_profiles">%d profielen geïmporteerd.</string>
     <string name="no_profile_imported">Geen profiel geïmporteerd.</string>
     <string name="import_autoeq_profile">Importeer AutoEq profiel</string>
@@ -455,7 +455,7 @@
     <string name="synced_lyrics">Gesynchroniseerd</string>
     <string name="embedded_lyrics">Ingebouwd</string>
     <string name="downloaded_lyrics">Gedownload</string>
-    <string name="cannot_download_lyrics">Booming Music kon de songtekst van dit nummer niet vinden. Wil je handmatig zoeken?</string>
+    <string name="cannot_download_lyrics">Project Music kon de songtekst van dit nummer niet vinden. Wil je handmatig zoeken?</string>
     <string name="search_lyrics">Zoek songteksten</string>
     <string name="choose_lyrics">Kies het type songtekst</string>
     <string name="download_lyrics">Download songteksten</string>
@@ -495,22 +495,22 @@
     <string name="mardous_summary">Hoofdontwikkelaar</string>
     <string name="contributors">Bijdragers</string>
     <string name="translators_title">Vertalers</string>
-    <string name="translators_summary">Dank aan degenen die Booming Music in veel talen beschikbaar maken.</string>
+    <string name="translators_summary">Dank aan degenen die Project Music in veel talen beschikbaar maken.</string>
     <string name="view_profile_on_github">Bekijk profiel op GitHub</string>
     <string name="write_an_email">Schrijf een email</string>
     <string name="support_development">Ondersteun ontwikkeling</string>
     <string name="help_with_translations">Help met vertalingen</string>
-    <string name="help_with_translations_summary">Je kunt bijdragen aan het project door Booming Music naar andere talen te vertalen.</string>
+    <string name="help_with_translations_summary">Je kunt bijdragen aan het project door Project Music naar andere talen te vertalen.</string>
     <string name="report_bugs">Meld bugs</string>
     <string name="report_bugs_summary">Rapporteer bugs of verzoek nieuwe functies.</string>
     <string name="share_app">Deel deze app</string>
     <string name="share_app_summary">U kunt deze app helpen groeien als u het met vrienden deelt.</string>
     <string name="send_invitation_message">Stuur uitnodigingsbericht</string>
-    <string name="invitation_message_content">Hoi. Bekijk Booming Music! De beste app om lokale muziek te beluisteren op Android. Je kunt deze hier downloaden: %s</string>
+    <string name="invitation_message_content">Hoi. Bekijk Project Music! De beste app om lokale muziek te beluisteren op Android. Je kunt deze hier downloaden: %s</string>
     <!-- Bug report -->
     <!-- SAF -->
     <string name="saf_access_required_title">Opslagtoegang vereist</string>
-    <string name="saf_access_required_message">Booming Music vereist toestemming te krijgen tot deze bestanden. Selecteer de hoofdmap waar je muziekbestanden opgeslagen worden.</string>
+    <string name="saf_access_required_message">Project Music vereist toestemming te krijgen tot deze bestanden. Selecteer de hoofdmap waar je muziekbestanden opgeslagen worden.</string>
     <string name="saf_show_files_button">Bestanden weergeven</string>
     <string name="saf_error_uri">Kan geen SAF URI verkrijgen</string>
     <string name="saf_write_failed">Bestand schrijven mislukt: %s</string>
@@ -703,7 +703,7 @@
     <string name="online_album_covers_title">Ontbrekende albumhoes downloaden</string>
     <string name="online_album_covers_summary">Gedownloade afbeeldingen zijn niet ingesloten in audiobestanden; ze zijn alleen zichtbaar binnen de app.</string>
     <string name="delete_downloaded_lyrics_title">Verwijder gedownloade songteksten</string>
-    <string name="delete_downloaded_lyrics_summary">Alleen songteksten gedownload door Booming Music. Heeft geen invloed op songteksten die zijn ingebed in ID3v2 tags of LRC bestanden.</string>
+    <string name="delete_downloaded_lyrics_summary">Alleen songteksten gedownload door Project Music. Heeft geen invloed op songteksten die zijn ingebed in ID3v2 tags of LRC bestanden.</string>
     <string name="lyrics_cleared">Songteksten gewist.</string>
     <!-- Library preferences -->
     <string name="ignore_articles_when_sorting_title">Negeer artikelen bij het sorteren</string>
@@ -813,7 +813,7 @@
     <string name="update_available_title">Update beschikbaar</string>
     <string name="more_info_action">Meer informatie.</string>
     <string name="download_action">Downloaden</string>
-    <string name="downloading_update">Booming muziek update wordt gedownload.</string>
+    <string name="downloading_update">Project Music muziek update wordt gedownload.</string>
     <string name="uncaught_error_title">Oeps! Dat had niet moeten gebeuren!</string>
     <string name="uncaught_error_message">Het lijkt erop dat er iets mis ging en de app crashte. Het zou handig zijn als je ons het foutmelding zou kunnen sturen naar onze Telegram-groep of via e-mail.</string>
     <string name="uncaught_error_report">Fout rapport</string>
@@ -922,7 +922,7 @@
     <string name="lrc_file_lyrics">LRC</string>
     <string name="undo_changes">Ongedaan maken</string>
     <string name="preferred_lyrics_file_format_title">Voorkeurs bestandsformaat</string>
-    <string name="cannot_edit_lyrics_file">U kan de bestandsinhoud niet direct via Booming Music aanpassen.</string>
+    <string name="cannot_edit_lyrics_file">U kan de bestandsinhoud niet direct via Project Music aanpassen.</string>
     <string name="preferred_lyrics_file_format_summary">Als een nummer songtekstbestanden in verschillende formaten heeft laat deze optie u kiezen welk formaat voorkeur heeft.</string>
     <string name="lyrics_by_x">Songteksten door %s</string>
     <string name="mini_player_swipe_to_skip_title">Sleep minispeler om over te slaan</string>

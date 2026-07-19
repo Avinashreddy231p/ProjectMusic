@@ -126,7 +126,7 @@
     <string name="permission_bluetooth_description">此应用需要附近的设备权限来检查蓝牙设备</string>
     <string name="permission_bluetooth_denied">附近设备权限被拒绝。</string>
     <string name="permission_read_images_title">查看图片（可选）</string>
-    <string name="permission_read_images_summary">为了帮您自动查找并显示歌曲的专辑封面，Booming Music 需要获取访问您音乐文件夹的权限。 您可以根据需要决定是否授予此权限。</string>
+    <string name="permission_read_images_summary">为了帮您自动查找并显示歌曲的专辑封面，Project Music 需要获取访问您音乐文件夹的权限。 您可以根据需要决定是否授予此权限。</string>
     <string name="permission_read_images_denied">您需要授予访问所有文件的权限以允许软件读取封面图片。</string>
     <string name="permission_exact_alarms_title">设置精确闹钟(可选)</string>
     <string name="permission_exact_alarms_description">睡眠计时器需要获取设置精确闹钟的权限才能正常工作</string>
@@ -386,7 +386,7 @@
     <string name="profiles_exported_successfully">配置文件导出成功。</string>
     <string name="import_profiles">导入配置</string>
     <string name="select_profiles_to_import">选择要导入的配置：</string>
-    <string name="select_a_file_containing_booming_eq_profiles">选择一个 Booming Music 均衡器配置文件。</string>
+    <string name="select_a_file_containing_project_music_eq_profiles">选择一个 Project Music 均衡器配置文件。</string>
     <string name="imported_x_profiles">导入了 %d 个配置文件。</string>
     <string name="no_profile_imported">没有配置文件被导入。</string>
     <string name="import_autoeq_profile">导入 AutoEq 配置</string>
@@ -447,7 +447,7 @@
     <string name="synced_lyrics">同步歌词</string>
     <string name="embedded_lyrics">内嵌歌词</string>
     <string name="downloaded_lyrics">已下载</string>
-    <string name="cannot_download_lyrics">Booming Music 无法找到这首歌的歌词。您想手动搜索吗？</string>
+    <string name="cannot_download_lyrics">Project Music 无法找到这首歌的歌词。您想手动搜索吗？</string>
     <string name="search_lyrics">搜索歌词</string>
     <string name="choose_lyrics">选择歌词类型</string>
     <string name="download_lyrics">下载歌词</string>
@@ -487,22 +487,22 @@
     <string name="mardous_summary">主要开发者</string>
     <string name="contributors">贡献者</string>
     <string name="translators_title">译者</string>
-    <string name="translators_summary">感谢那些为 Booming Music 提供多种语言的人们。</string>
+    <string name="translators_summary">感谢那些为 Project Music 提供多种语言的人们。</string>
     <string name="view_profile_on_github">在 GitHub 上查看个人资料</string>
     <string name="write_an_email">电子邮件</string>
     <string name="support_development">支持开发</string>
     <string name="help_with_translations">帮助翻译</string>
-    <string name="help_with_translations_summary">您可以通过帮助将 Booming Music 翻译成其他语言来为该项目做出贡献。</string>
+    <string name="help_with_translations_summary">您可以通过帮助将 Project Music 翻译成其他语言来为该项目做出贡献。</string>
     <string name="report_bugs">报告错误</string>
     <string name="report_bugs_summary">报告错误或请求新功能。</string>
     <string name="share_app">分享此应用</string>
     <string name="share_app_summary">您可以与朋友分享本应用，帮助它成长壮大。</string>
     <string name="send_invitation_message">发送邀请信息</string>
-    <string name="invitation_message_content">你好，来看看 Booming Music 吧！这是 Android 平台最好的本地音乐播放器。下载链接： %s</string>
+    <string name="invitation_message_content">你好，来看看 Project Music 吧！这是 Android 平台最好的本地音乐播放器。下载链接： %s</string>
     <!-- Bug report -->
     <!-- SAF -->
     <string name="saf_access_required_title">需要存储访问</string>
-    <string name="saf_access_required_message">Booming Music 需要访问这些文件的权限。请选择您存储音乐文件的根文件夹。</string>
+    <string name="saf_access_required_message">Project Music 需要访问这些文件的权限。请选择您存储音乐文件的根文件夹。</string>
     <string name="saf_show_files_button">显示文件</string>
     <string name="saf_error_uri">无法获取 SAF URI</string>
     <string name="saf_write_failed">文件写入失败： %s</string>
@@ -523,7 +523,7 @@
     <string name="advanced_summary">高级用户的应用内语言和其他设置。</string>
     <string name="update_title">更新</string>
     <string name="about_title">关于</string>
-    <string name="about_summary">Booming Music %s，触摸以获取更多信息。</string>
+    <string name="about_summary">Project Music %s，触摸以获取更多信息。</string>
     <!-- Preference headers -->
     <string name="general_header">常规</string>
     <string name="library_header">曲库</string>
@@ -695,7 +695,7 @@
     <string name="online_album_covers_title">下载缺失的专辑封面</string>
     <string name="online_album_covers_summary">下载的图片不会嵌入到音频文件中，仅在本应用内可见。</string>
     <string name="delete_downloaded_lyrics_title">删除下载的歌词</string>
-    <string name="delete_downloaded_lyrics_summary">仅影响 Booming Music 下载的歌词。不影响嵌入到 ID3v2 标签或 LRC 文件中的歌词。</string>
+    <string name="delete_downloaded_lyrics_summary">仅影响 Project Music 下载的歌词。不影响嵌入到 ID3v2 标签或 LRC 文件中的歌词。</string>
     <string name="lyrics_cleared">歌词已清除。</string>
     <!-- Library preferences -->
     <string name="ignore_articles_when_sorting_title">在排序时忽略冠词</string>
@@ -805,7 +805,7 @@
     <string name="update_available_title">有可用更新</string>
     <string name="more_info_action">更多信息。</string>
     <string name="download_action">下载</string>
-    <string name="downloading_update">正在下载 Booming Music 更新。</string>
+    <string name="downloading_update">正在下载 Project Music 更新。</string>
     <string name="uncaught_error_title">哎呀！出现了意料之外的事！</string>
     <string name="uncaught_error_message">似乎出了些问题，导致本软件崩溃。 如果您能够向我们发送错误报告到我们的 Telegram 群组或邮箱，将有助于解决。</string>
     <string name="uncaught_error_report">错误报告</string>
@@ -912,7 +912,7 @@
     <string name="ttml_file_lyrics">TTML</string>
     <string name="lrc_file_lyrics">LRC</string>
     <string name="undo_changes">撤销更改</string>
-    <string name="cannot_edit_lyrics_file">您无法在 Booming Music 中直接编辑文件内容。</string>
+    <string name="cannot_edit_lyrics_file">您无法在 Project Music 中直接编辑文件内容。</string>
     <string name="preferred_lyrics_file_format_title">首选文件格式</string>
     <string name="preferred_lyrics_file_format_summary">如果一首曲目有不同格式的歌词文件，使用本选项选择优先使用的格式。</string>
     <string name="mini_player_swipe_to_skip_title">滑动迷你播放器跳过曲目</string>

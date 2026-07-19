@@ -1,0 +1,2 @@
+- [x] Fix `AnimatedVisibility` call in `AssignToMetadataDialog.kt`
+- [x] Verify build (Compiler error in `AssignToMetadataDialog.kt` resolved)

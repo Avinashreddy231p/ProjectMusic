@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  This file is kept for search indexing purposes only (see SettingsSearchHelper.kt).
+  The UI is now implemented in AppearanceSettingsComposeScreen.kt.
+-->
 <androidx.preference.PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
@@ -15,27 +19,27 @@
             app:widgetLayout="@layout/preference_switch"
             app:key="era_harmony_mode"/>
 
-        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+        <com.mardous.projectmusic.ui.component.preferences.CustomDialogPreference
             app:title="@string/era_primary_seed_title"
             app:layout="@layout/list_item_view"
             app:persistent="false"
             app:key="era_primary_seed"/>
 
-        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+        <com.mardous.projectmusic.ui.component.preferences.CustomDialogPreference
             app:title="@string/era_secondary_seed_title"
             app:layout="@layout/list_item_view"
             app:persistent="false"
             app:dependency="era_harmony_mode"
             app:key="era_secondary_seed"/>
 
-        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+        <com.mardous.projectmusic.ui.component.preferences.CustomDialogPreference
             app:title="@string/era_tertiary_seed_title"
             app:layout="@layout/list_item_view"
             app:persistent="false"
             app:dependency="era_harmony_mode"
             app:key="era_tertiary_seed"/>
 
-        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+        <com.mardous.projectmusic.ui.component.preferences.CustomDialogPreference
             app:title="@string/era_error_seed_title"
             app:layout="@layout/list_item_view"
             app:persistent="false"
@@ -107,9 +111,26 @@
             app:layout="@layout/list_item_view"
             app:key="era_motion_intensity"/>
 
+        <SeekBarPreference
+            app:title="Era Vibrancy"
+            android:max="20"
+            app:min="0"
+            app:defaultValue="10"
+            app:showSeekBarValue="true"
+            app:layout="@layout/list_item_view_bottom_widget"
+            app:widgetLayout="@layout/preference_seekbar"
+            app:key="era_vibrancy"/>
+
+        <SwitchPreferenceCompat
+            app:title="Adaptive Iconography"
+            app:defaultValue="true"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="era_adaptive_iconography"/>
+
     </PreferenceCategory>
 
-    <com.mardous.booming.ui.component.preferences.ThemePreference
+    <com.mardous.projectmusic.ui.component.preferences.ThemePreference
         app:icon="@drawable/ic_contrast_24dp"
         app:title="@string/general_theme_title"
         app:persistent="false"
@@ -127,7 +148,7 @@
         app:layout="@layout/list_item_view"
         app:key="ui_theme"/>
 
-    <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+    <com.mardous.projectmusic.ui.component.preferences.CustomDialogPreference
         app:icon="@drawable/ic_palette_24dp"
         app:title="@string/accent_color_title"
         app:summary="@string/accent_color_summary"
@@ -173,7 +194,7 @@
         app:title="@string/library_header"
         app:layout="@layout/preference_category_title">
 
-        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+        <com.mardous.projectmusic.ui.component.preferences.CustomDialogPreference
             app:icon="@drawable/ic_tab_24dp"
             app:title="@string/library_categories_title"
             app:summary="@string/library_categories_summary"
@@ -267,7 +288,7 @@
             app:widgetLayout="@layout/preference_seekbar"
             app:key="widget_image_corner_radius"/>
 
-        <com.mardous.booming.ui.component.preferences.CustomDialogPreference
+        <com.mardous.projectmusic.ui.component.preferences.CustomDialogPreference
             app:iconSpaceReserved="true"
             app:title="@string/widget_third_line_title"
             app:summary="@string/widget_third_line_summary"

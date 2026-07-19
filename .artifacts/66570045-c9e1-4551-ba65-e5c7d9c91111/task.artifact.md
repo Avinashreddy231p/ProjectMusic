@@ -1,0 +1,3 @@
+- [x] Replace `ic_color_lens_24dp` with `ic_palette_24dp` in `AppearanceSettingsComposeScreen.kt`
+- [x] Fix remaining unresolved references and parameter mismatch in `AppearanceSettingsComposeScreen.kt`
+- [x] Verify build by compiling the project

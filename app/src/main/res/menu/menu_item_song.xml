@@ -12,6 +12,24 @@
         android:id="@+id/action_add_to_playlist"
         android:title="@string/action_add_to_playlist" />
     <item
+        android:id="@+id/menu_assign_metadata"
+        android:title="Assign Metadata">
+        <menu>
+            <item
+                android:id="@+id/action_add_to_mood"
+                android:icon="@drawable/ic_sentiment_satisfied_24dp"
+                android:title="Add to Mood" />
+            <item
+                android:id="@+id/action_add_to_tag"
+                android:icon="@drawable/ic_tag_24dp"
+                android:title="Add to Tag" />
+            <item
+                android:id="@+id/action_add_to_instrument"
+                android:icon="@drawable/ic_piano_24dp"
+                android:title="Add to Instrument" />
+        </menu>
+    </item>
+    <item
         android:id="@+id/menu_go_to"
         android:title="@string/go_to_label">
         <menu>

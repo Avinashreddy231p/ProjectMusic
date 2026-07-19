@@ -80,7 +80,7 @@ val currentVersionCode = currentVersion.code
 
 android {
     compileSdk = 37
-    namespace = "com.mardous.booming"
+    namespace = "com.mardous.projectmusic"
 
     defaultConfig {
         minSdk = 26
@@ -266,6 +266,7 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.palette)
     implementation(libs.androidx.preference)
+    implementation(libs.androidx.work)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.dynamicanimation)
     implementation(libs.androidx.swiperefreshlayout)
@@ -281,6 +282,7 @@ dependencies {
     implementation(libs.compose.material.icons.extended)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
+    implementation(libs.google.fonts)
     debugImplementation(libs.compose.ui.tooling)
 
     implementation(libs.bundles.kotlinx)

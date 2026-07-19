@@ -1,4 +1,4 @@
-# Booming Music — Advanced Listening Stats Schema & Analytics (v2)
+# Project Music — Advanced Listening Stats Schema & Analytics (v2)
 
 ---
 
@@ -1327,7 +1327,7 @@ data class WrappedScore(
 ### Files to Edit
 | File | Path | Change |
 |------|------|--------|
-| `BoomingDatabase.kt` | `core/` | Add MIGRATION_8_9, new entity, version 9 |
+| `ProjectMusicDatabase.kt` | `core/` | Add MIGRATION_8_9, new entity, version 9 |
 | `StatsFlusher.kt` | `playback/stats/` | Pass DeviceContext + SessionCoordinator |
 | `PlaybackService.kt` | `playback/` | Wire DeviceContextCollector, SessionCoordinator |
 | `Song.kt` | `data/model/` | Add `artistId: Long` field |

@@ -1,0 +1,3 @@
+- [x] Fix type mismatch in `SongRepository.kt`
+- [x] Verify fix by compiling the project
+- [x] Create walkthrough artifact

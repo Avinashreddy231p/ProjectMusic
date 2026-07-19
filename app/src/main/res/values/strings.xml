@@ -217,6 +217,9 @@
     <string name="last_added_artists">Newly added artists</string>
     <string name="last_added_albums">Newly added albums</string>
     <string name="top_tracks_label">Top Tracks</string>
+    <string name="moods_label">Moods</string>
+    <string name="tags_label">Tags</string>
+    <string name="instruments_label">Instruments</string>
     <string name="history_label">History</string>
     <string name="not_recently_played">Not Recently Played</string>
     <string name="play_info">Play info</string>
@@ -257,6 +260,9 @@
     <string name="sort_order_number_of_albums">Number of albums</string>
     <string name="sort_order_play_count">Play count</string>
     <string name="sort_order_listen_duration">Listen duration</string>
+    <string name="sort_order_rank">Rank</string>
+    <string name="sort_order_confidence">Confidence</string>
+    <string name="sort_order_source">Source</string>
     <string name="sort_order_last_played_date">Last played date</string>
     <string name="sort_order_track_list">Track list</string>
     <string name="sort_order_descending">Descending</string>
@@ -452,7 +458,7 @@
     <string name="profiles_exported_successfully">Profiles exported successfully.</string>
     <string name="import_profiles">Import profiles</string>
     <string name="select_profiles_to_import">Select profiles to import:</string>
-    <string name="select_a_file_containing_booming_eq_profiles">Select a file containing Project Music EQ Profiles.</string>
+    <string name="select_a_file_containing_project_music_eq_profiles">Select a file containing Project Music EQ Profiles.</string>
     <string name="imported_x_profiles">Imported %d profiles.</string>
     <string name="no_profile_imported">No profile imported.</string>
     <string name="import_autoeq_profile">Import AutoEq profile</string>
@@ -1114,7 +1120,35 @@
     <string name="stats_export_json">Export as JSON</string>
     <string name="stats_export_success">Data exported successfully</string>
     <string name="stats_export_failed">Export failed</string>
+    <string name="action_export_db">Export DB (CSV + JSON)</string>
     <string name="stats_listening_history">Listening History</string>
+    <string name="stats_listening_analytics">Listening Analytics</string>
+    <string name="stats_insights">Insights</string>
+    <string name="stats_library_profile">Library Profile</string>
+    <string name="stats_behavior">Behavior</string>
+    <string name="stats_context">Context</string>
+    <string name="stats_top_charts">Top Charts</string>
+    <string name="stats_explorer">Explorer</string>
+    <string name="stats_wrapped">Wrapped</string>
+    <string name="stats_library_analytics">Library Analytics</string>
+    <string name="stats_core">Core</string>
+    <string name="stats_audiophile">Audiophile</string>
+    <string name="stats_storage">Storage</string>
+    <string name="stats_health">Health</string>
+    <string name="stats_avg_pauses">Avg Pauses</string>
+    <string name="stats_peak_activity">Peak Activity</string>
+    <string name="stats_audio_profile">Audio Profile</string>
+    <string name="stats_time_period">Time Period</string>
+    <string name="stats_audio_format">Audio Format</string>
+    <string name="stats_mood_distribution">Mood Distribution</string>
+    <string name="stats_genre_distribution">Genre Distribution</string>
+    <string name="stats_tag_distribution">Tag Distribution</string>
+    <string name="stats_mood">Mood</string>
+    <string name="stats_genre">Genre</string>
+    <string name="stats_tag">Tag</string>
+    <string name="stats_instrument">Instrument</string>
+    <string name="stats_top_tags">Top Tags</string>
+    <string name="stats_top_instruments">Top Instruments</string>
     <string name="stats_minutes">min</string>
     <string name="stats_hours">h</string>
     <string name="stats_plays">plays</string>
@@ -1181,4 +1215,20 @@
     <string name="vibrant_background_noise_level_summary">Adjust the density and intensity of the film grain effect</string>
     <string name="vibrant_background_global_title">Global Vibrant Background</string>
     <string name="vibrant_background_global_summary">Apply the animated background across all app screens.</string>
+
+    <!-- Song Detail Play Info -->
+    <string name="overall_score">Overall Score</string>
+    <string name="overall_rank">Overall Rank</string>
+    <string name="play_rank">Play Count Rank</string>
+    <string name="duration_rank">Duration Rank</string>
+    <string name="avg_completion">Avg Completion</string>
+    <string name="total_pauses">Total Pauses</string>
+    <string name="total_seeks">Total Seeks</string>
+    <string name="first_played">First Played</string>
+    <string name="longest_streak">Longest Streak</string>
+    <string name="effective_duration">Effective Duration</string>
+    <string name="monthly_plays">Monthly Plays</string>
+    <string name="weekly_plays">Weekly Plays</string>
+    <string name="daily_plays">Daily Plays</string>
+    <string name="listening_duration">Listening Duration</string>
 </resources>

@@ -1,4 +1,4 @@
-Booming Music adalah pemutar musik lokal modern dan canggih untuk Android, dirancang untuk pengalaman yang mulus, dapat disesuaikan, dan menarik secara visual. Dibangun dengan desain Material You dan didukung oleh Media3, aplikasi ini memadukan kesederhanaan dengan fitur pemutaran tingkat lanjut.
+Project Music adalah pemutar musik lokal modern dan canggih untuk Android, dirancang untuk pengalaman yang mulus, dapat disesuaikan, dan menarik secara visual. Dibangun dengan desain Material You dan didukung oleh Media3, aplikasi ini memadukan kesederhanaan dengan fitur pemutaran tingkat lanjut.
 
 Nikmati lagu favorit Anda dengan lirik tersinkronisasi kata per kata, dukungan lirik terjemahan (TTML/LRC), dan antarmuka Sedang Diputar yang sepenuhnya dirancang ulang dengan visual yang ditingkatkan, transisi yang lebih halus, dan opsi kustomisasi yang lebih banyak.
 

@@ -1,0 +1,16 @@
+- [x] Core Logic & Preferences
+    - [x] Update `Preferences.kt` with `THUMB_SIZE`
+    - [x] Update `SettingsViewModel.kt` with `thumbSize` state and methods
+- [x] UI Component Styling (Dynamic Coloring)
+    - [x] Update `MiniPlayerFragment.kt` for dynamic progress bar color
+    - [x] Update `DefaultPlayerControlsFragment.kt` tinting
+    - [x] Update `PlainPlayerControlsFragment.kt` tinting
+    - [x] Update `FullCoverPlayerControlsFragment.kt` tinting
+- [x] Seek Bar Customization Enhancements
+    - [x] Update `MusicThumbDrawable.kt` for scaling support
+    - [x] Update `MusicSlider.kt` to apply scale and listen for preference changes
+    - [x] Update `NowPlayingSlider.kt` (Compose) for scaling support
+    - [x] Update `NowPlayingSettingsComposeScreen.kt` UI with Thumb Size slider
+- [x] Verification
+    - [x] Build and verify dynamic coloring
+    - [x] Build and verify customization options

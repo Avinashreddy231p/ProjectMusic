@@ -56,4 +56,43 @@
         app:layout_constraintStart_toStartOf="@+id/last_added"
         app:layout_constraintEnd_toEndOf="@+id/last_added"/>
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/moods"
+        style="@style/HomeActionButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="4dp"
+        android:text="@string/moods_label"
+        app:icon="@drawable/ic_sentiment_satisfied_24dp"
+        app:layout_constraintTop_toBottomOf="@+id/history"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/tags"
+        app:layout_constraintHorizontal_chainStyle="spread"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/tags"
+        style="@style/HomeActionButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="4dp"
+        android:text="@string/tags_label"
+        app:icon="@drawable/ic_tag_24dp"
+        app:layout_constraintTop_toTopOf="@+id/moods"
+        app:layout_constraintStart_toEndOf="@+id/moods"
+        app:layout_constraintEnd_toStartOf="@+id/instruments"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/instruments"
+        style="@style/HomeActionButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:text="@string/instruments_label"
+        app:icon="@drawable/ic_piano_24dp"
+        app:layout_constraintTop_toTopOf="@+id/moods"
+        app:layout_constraintStart_toEndOf="@+id/tags"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

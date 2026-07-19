@@ -1,0 +1,3 @@
+- `[x]` Update `MetadataDao.kt` entities and queries
+- `[x]` Update `MetadataRepository.kt` usages
+- `[x]` Verify build with `./gradlew :app:kspFdroidDebugKotlin`

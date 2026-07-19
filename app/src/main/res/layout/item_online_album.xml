@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <com.mardous.booming.ui.component.views.WidthFitSquareLayout
+        <com.mardous.projectmusic.ui.component.views.WidthFitSquareLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -30,7 +30,7 @@
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.ExtraSmall"
                 tools:src="@tools:sample/backgrounds/scenic"/>
 
-        </com.mardous.booming.ui.component.views.WidthFitSquareLayout>
+        </com.mardous.projectmusic.ui.component.views.WidthFitSquareLayout>
 
         <LinearLayout
             android:layout_width="match_parent"

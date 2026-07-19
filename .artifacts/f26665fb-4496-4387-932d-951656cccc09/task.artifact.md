@@ -1,0 +1,7 @@
+- [x] Update shuffle icon drawables (Initial Spotify design)
+- [x] Update UI logic in `AbsPlayerControlsFragment.kt`
+- [x] Update shuffle icons with user-provided SVG path
+    - [x] Update `ic_shuffle_24dp.xml` with stroked path
+    - [x] Update `ic_shuffle_on_24dp.xml` with stroked path and dot
+    - [x] Update `ic_launcher_shuffle_all.xml` with stroked path
+- [x] Verify changes in the app

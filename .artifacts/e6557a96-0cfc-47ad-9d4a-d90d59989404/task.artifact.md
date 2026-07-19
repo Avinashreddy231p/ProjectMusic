@@ -1,0 +1,2 @@
+- [x] Add missing playlist category strings to `strings.xml`
+- [x] Verify the resource linking and build
