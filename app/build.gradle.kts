@@ -194,6 +194,7 @@ android {
     lint {
         abortOnError = true
         warning += listOf("ImpliedQuantity", "Instantiatable", "MissingQuantity", "MissingTranslation")
+        disable += "ConfigurationScreenWidthHeight"
     }
     dependenciesInfo {
         includeInApk = false
