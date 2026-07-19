@@ -36,8 +36,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
-import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
+import kotlinx.datetime.Instant
 
 @Parcelize
 @Serializable
@@ -63,7 +62,6 @@ class GitHubRelease(
     val hasApk: Boolean
         get() = downloads.any { it.isApk }
 
-    @OptIn(ExperimentalTime::class)
     val publishedAt: Instant
         get() = Instant.parse(date)
 
