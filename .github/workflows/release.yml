@@ -216,9 +216,9 @@ jobs:
 
           async def send_file():
               try:
-                  api_id = int(os.environ['API_ID'])
-                  api_hash = os.environ['API_HASH']
-                  bot_token = os.environ['BOT_TOKEN']
+                  api_id = int(os.environ['TG_API_ID'])
+                  api_hash = os.environ['TG_API_HASH']
+                  bot_token = os.environ['TG_BOT_TOKEN']
                   chat_id = int(os.environ['TG_CHAT_ID'])
                   file_path = os.environ['APK_FILE']
                   message = os.environ['TG_MESSAGE']
@@ -227,7 +227,7 @@ jobs:
                   client = TelegramClient('bot', api_id, api_hash)
                   await client.start(bot_token=bot_token)
                   
-                  print(f"Uploading file: {file_path}...")
+                  print(f"Uploading file to Topic 3: {file_path}...")
                   # thread_id 3 based on user link: https://t.me/c/4326107882/3
                   await client.send_file(chat_id, file_path, caption=message, reply_to=3)
                   print("Upload successful!")
@@ -241,9 +241,9 @@ jobs:
               loop.run_until_complete(send_file())
           EOF
         env:
-          API_ID: ${{ secrets.TG_API_ID }}
-          API_HASH: ${{ secrets.TG_API_HASH }}
-          BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
           TG_MESSAGE: |
             🚀 **New Build: ${{ steps.metadata.outputs.name }}**
