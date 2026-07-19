@@ -212,8 +212,8 @@ androidComponents {
 
         variant.buildConfigFields?.putAll(
             mapOf(
-                "IS_CI_BUILD" to BuildConfigField("boolean", isCI, null),
-                "BUILD_TIME" to BuildConfigField("long", System.currentTimeMillis(), "Build timestamp")
+                "IS_CI_BUILD" to BuildConfigField("boolean", isCI.toString(), null),
+                "BUILD_TIME" to BuildConfigField("long", "${System.currentTimeMillis()}L", "Build timestamp")
             )
         )
 
