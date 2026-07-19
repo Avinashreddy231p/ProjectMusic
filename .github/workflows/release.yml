@@ -1,23 +1,60 @@
-name: Build Release APK
+name: Master Build & Release
 
 on:
   push:
     branches: [ master ]
     tags: [ 'v*' ]
+    paths-ignore:
+      - ".github/**"
+      - "!.github/workflows/**"
+      - ".idea/"
+      - "assets/"
+      - "metadata/"
+      - '.gitignore'
+      - "*.md"
+      - "LICENSE.txt"
+  pull_request:
+    branches: [ master ]
+    paths-ignore:
+      - ".github/**"
+      - "!.github/workflows/**"
+      - ".idea/"
+      - "assets/"
+      - "metadata/"
+      - '.gitignore'
+      - "*.md"
+      - "LICENSE.txt"
 
 permissions:
   contents: write
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'zulu'
+          cache: gradle
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+      - name: Run Lint
+        run: ./gradlew lint
 
+  build:
+    needs: lint
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         variant: [ github, fdroid, playstore ]
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: set up JDK 21
         uses: actions/setup-java@v5
@@ -40,11 +77,18 @@ jobs:
       - name: Make Gradle executable
         run: chmod +x ./gradlew
 
+      - name: Create Last.fm config
+        env:
+          LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
+          LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
+        run: |
+          echo "LASTFM_API_KEY=${LASTFM_API_KEY}" >> local.properties
+          echo "LASTFM_SECRET=${LASTFM_SECRET}" >> local.properties
+
       - name: Build app
         env:
           VARIANT: ${{ matrix.variant }}
-          LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
-          LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
+          RELEASE_TYPE: "CI"
         run: |
           CAP_VARIANT="$(echo ${VARIANT:0:1} | tr '[:lower:]' '[:upper:]')${VARIANT:1}"
           if [ "$VARIANT" == "playstore" ]; then
@@ -61,17 +105,36 @@ jobs:
             app/build/outputs/apk/*/release/ProjectMusic-*.apk
             app/build/outputs/bundle/*/*.aab
 
-  publish-release:
+  publish:
     needs: build
     runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
 
     steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
       - name: Download Artifacts
         uses: actions/download-artifact@v8
         with:
           path: release-artifacts
           pattern: artifacts-*-release
           merge-multiple: true
+
+      - name: Create Changelog
+        id: changelog
+        uses: actions/github-script@v9
+        env:
+          COMMITS: ${{ toJSON(github.event.commits) }}
+        with:
+          result-encoding: string
+          script: |
+            const commits = JSON.parse(process.env.COMMITS || "[]");
+            if (commits.length === 0) return "Regular build update.";
+            return commits
+              .map(commit => `- ${commit.message.split("\n")[0]}`)
+              .join("\n");
 
       - name: Set Release Metadata
         id: metadata
@@ -80,7 +143,6 @@ jobs:
             TAG="${{ github.ref_name }}"
             NAME="Release $TAG"
             PRERELEASE="false"
-            # Detect prerelease from tag name
             if [[ "$TAG" == *alpha* || "$TAG" == *beta* || "$TAG" == *rc* ]]; then
               PRERELEASE="true"
             fi
@@ -102,7 +164,34 @@ jobs:
           name: ${{ steps.metadata.outputs.name }}
           prerelease: ${{ steps.metadata.outputs.prerelease }}
           make_latest: ${{ steps.metadata.outputs.make_latest }}
-          generate_release_notes: true
+          body: |
+            ## Changelog
+            ${{ steps.changelog.outputs.result }}
           files: |
             release-artifacts/**/ProjectMusic-*.apk
             release-artifacts/**/ProjectMusic-*.aab
+
+      - name: Find Telegram APK
+        run: |
+          APK_PATH=$(find release-artifacts -name '*github-universal.apk' | head -n 1)
+          if [ -z "$APK_PATH" ]; then
+            APK_PATH=$(find release-artifacts -name 'ProjectMusic-*-github-*.apk' | head -n 1)
+          fi
+          echo "APK_FILE=$APK_PATH" >> $GITHUB_ENV
+
+      - name: Send to Telegram
+        if: env.APK_FILE != ''
+        uses: xz-dev/TelegramFileUploader@v1
+        with:
+          to-who: ${{ secrets.TG_CHAT_ID }}
+          message: |
+            🚀 **New Build: ${{ steps.metadata.outputs.name }}**
+            
+            📋 **Changelog:**
+            ${{ steps.changelog.outputs.result }}
+          files: |
+            ${{ env.APK_FILE }}
+        env:
+          API_ID: ${{ secrets.TG_API_ID }}
+          API_HASH: ${{ secrets.TG_API_HASH }}
+          BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
