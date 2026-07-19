@@ -71,8 +71,17 @@ jobs:
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
           SIGNING_PROPERTIES: ${{ secrets.SIGNING_PROPERTIES }}
         run: |
-          echo $SIGNING_KEY | base64 -di > ./projectmusic_keystore.jks
-          echo $SIGNING_PROPERTIES | base64 -di > ./keystore.properties
+          if [ -z "$SIGNING_KEY" ]; then
+            echo "::warning::SIGNING_KEY secret is missing. The build might fail at the signing stage."
+          else
+            echo $SIGNING_KEY | base64 -di > ./projectmusic_keystore.jks
+          fi
+          
+          if [ -z "$SIGNING_PROPERTIES" ]; then
+            echo "::warning::SIGNING_PROPERTIES secret is missing. The build might fail at the signing stage."
+          else
+            echo $SIGNING_PROPERTIES | base64 -di > ./keystore.properties
+          fi
 
       - name: Make Gradle executable
         run: chmod +x ./gradlew
@@ -82,8 +91,10 @@ jobs:
           LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
           LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
         run: |
-          echo "LASTFM_API_KEY=${LASTFM_API_KEY}" >> local.properties
-          echo "LASTFM_SECRET=${LASTFM_SECRET}" >> local.properties
+          if [ ! -z "$LASTFM_API_KEY" ]; then
+            echo "LASTFM_API_KEY=${LASTFM_API_KEY}" >> local.properties
+            echo "LASTFM_SECRET=${LASTFM_SECRET}" >> local.properties
+          fi
 
       - name: Build app
         env:
@@ -173,35 +184,57 @@ jobs:
 
       - name: Find Telegram APK
         run: |
+          echo "Listing files in release-artifacts..."
+          find release-artifacts -maxdepth 5 -name "*.apk"
+          
           APK_PATH=$(find release-artifacts -name '*github-universal.apk' | head -n 1)
           if [ -z "$APK_PATH" ]; then
             APK_PATH=$(find release-artifacts -name 'ProjectMusic-*-github-*.apk' | head -n 1)
           fi
-          echo "APK_FILE=$APK_PATH" >> $GITHUB_ENV
+          
+          if [ -z "$APK_PATH" ]; then
+            echo "::error::No matching APK found for Telegram uploader."
+          else
+            echo "Found APK: $APK_PATH"
+            echo "APK_FILE=$APK_PATH" >> $GITHUB_ENV
+          fi
 
       - name: Send to Telegram
         if: env.APK_FILE != ''
         run: |
+          if [ -z "${{ secrets.TG_BOT_TOKEN }}" ] || [ -z "${{ secrets.TG_API_ID }}" ]; then
+            echo "::warning::Telegram secrets are missing. Skipping Telegram upload."
+            exit 0
+          fi
+          
           pip install telethon
           python <<EOF
           import os
           import asyncio
+          import sys
           from telethon import TelegramClient
 
           async def send_file():
-              api_id = int(os.environ['API_ID'])
-              api_hash = os.environ['API_HASH']
-              bot_token = os.environ['BOT_TOKEN']
-              chat_id = int(os.environ['TG_CHAT_ID'])
-              file_path = os.environ['APK_FILE']
-              message = os.environ['TG_MESSAGE']
-              
-              client = TelegramClient('bot', api_id, api_hash)
-              await client.start(bot_token=bot_token)
-              
-              # thread_id 3 based on user link: https://t.me/c/4326107882/3
-              await client.send_file(chat_id, file_path, caption=message, reply_to=3)
-              await client.disconnect()
+              try:
+                  api_id = int(os.environ['API_ID'])
+                  api_hash = os.environ['API_HASH']
+                  bot_token = os.environ['BOT_TOKEN']
+                  chat_id = int(os.environ['TG_CHAT_ID'])
+                  file_path = os.environ['APK_FILE']
+                  message = os.environ['TG_MESSAGE']
+                  
+                  print(f"Starting Telegram client for chat {chat_id}...")
+                  client = TelegramClient('bot', api_id, api_hash)
+                  await client.start(bot_token=bot_token)
+                  
+                  print(f"Uploading file: {file_path}...")
+                  # thread_id 3 based on user link: https://t.me/c/4326107882/3
+                  await client.send_file(chat_id, file_path, caption=message, reply_to=3)
+                  print("Upload successful!")
+                  await client.disconnect()
+              except Exception as e:
+                  print(f"Error during Telegram upload: {e}")
+                  sys.exit(1)
 
           if __name__ == '__main__':
               loop = asyncio.get_event_loop()

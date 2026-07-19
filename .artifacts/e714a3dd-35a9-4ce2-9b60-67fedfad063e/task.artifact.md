@@ -1,0 +1,3 @@
+- [ ] Create `README.md` with project description, features, tech stack, and package structure.
+- [ ] Create `ABOUT.md` with authorship, contributors, and community links.
+- [ ] Verify both files reflect the latest information from the codebase.
