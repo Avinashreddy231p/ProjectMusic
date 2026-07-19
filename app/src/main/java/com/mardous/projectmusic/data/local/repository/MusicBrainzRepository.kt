@@ -33,8 +33,8 @@ class MusicBrainzRepository(
 
     suspend fun scanArtists(): ArtistScanResult = withContext(Dispatchers.IO) {
         var result = ArtistScanResult()
-        val allArtists = metadataDao.getAllArtists().value
-        val allAlbumArtists = metadataDao.getAllAlbumArtists().value
+        val allArtists = metadataDao.getAllArtistsList()
+        val allAlbumArtists = metadataDao.getAllAlbumArtistsList()
 
         for ((index, artist) in allArtists.withIndex()) {
             try {
@@ -47,7 +47,7 @@ class MusicBrainzRepository(
                     for (song in songs) {
                         val meta = rankingDao.getSongMetadata(song.songKey)
                         if (meta != null && meta.musicbrainzArtistId.isNullOrEmpty()) {
-                            metadataDao.upsertSongMetadata(meta.copy(musicbrainzArtistId = artist.id))
+                            metadataDao.upsertSongMetadata(meta.copy(musicbrainzArtistId = updated.musicbrainzId))
                         }
                         if (updated.musicbrainzId != null) {
                             writeTags(song.data, updated.musicbrainzId, updated.type)
@@ -64,7 +64,7 @@ class MusicBrainzRepository(
             }
         }
 
-        for ((index, aa) in allAlbumArtists.withIndex()) {
+        for (aa in allAlbumArtists) {
             try {
                 if (allArtists.any { it.name.equals(aa.name, ignoreCase = true) }) continue
                 val aaSearch = try {
@@ -124,7 +124,7 @@ class MusicBrainzRepository(
                     if (updated != null) {
                         metadataDao.upsertSongMetadata(updated)
                         result = result.copy(songsUpdated = result.songsUpdated + 1)
-                        writeTags(song.data, updated)
+                        writeTags(song.data, updated.musicbrainzArtistId, null) // FIXED
                         result = result.copy(tagsWritten = result.tagsWritten + 1)
                     }
                 }

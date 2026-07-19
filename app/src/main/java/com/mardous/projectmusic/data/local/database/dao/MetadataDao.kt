@@ -115,12 +115,18 @@ interface MetadataDao {
     @Query("SELECT * FROM artists ORDER BY name ASC")
     fun getAllArtists(): Flow<List<ArtistEntity>>
 
+    @Query("SELECT * FROM artists ORDER BY name ASC")
+    suspend fun getAllArtistsList(): List<ArtistEntity>
+
     // --- AlbumArtistEntity CRUD ---
     @Upsert
     suspend fun upsertAlbumArtist(albumArtist: AlbumArtistEntity): Long
 
     @Query("SELECT * FROM album_artists WHERE name = :name")
     suspend fun getAlbumArtistByName(name: String): AlbumArtistEntity?
+
+    @Query("SELECT * FROM album_artists ORDER BY name ASC")
+    suspend fun getAllAlbumArtistsList(): List<AlbumArtistEntity>
 
     // --- AlbumEntity CRUD ---
     @Upsert
