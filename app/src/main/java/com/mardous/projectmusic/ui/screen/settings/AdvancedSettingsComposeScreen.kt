@@ -1,0 +1,259 @@
+package com.mardous.projectmusic.ui.screen.settings
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.fragment.app.FragmentActivity
+import com.mardous.projectmusic.R
+import com.mardous.projectmusic.BuildConfig
+import com.mardous.projectmusic.extensions.files.getFormattedFileName
+import com.mardous.projectmusic.ui.component.compose.preferences.*
+import com.mardous.projectmusic.ui.dialogs.MultiCheckDialog
+import com.mardous.projectmusic.ui.screen.settings.search.SettingsSearchHelper
+import com.mardous.projectmusic.util.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun AdvancedSettingsComposeScreen(
+    viewModel: SettingsViewModel,
+    onBackClick: () -> Unit,
+    onCheckForUpdates: () -> Unit,
+    onClearCache: () -> Unit
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val context = LocalContext.current
+
+    var showLanguageDialog by remember { mutableStateOf(false) }
+    var showUpdateModeDialog by remember { mutableStateOf(false) }
+
+    if (showLanguageDialog) {
+        val entries = context.resources.getStringArray(R.array.pref_language_names)
+        val values = context.resources.getStringArray(R.array.pref_language_codes)
+        SingleChoiceDialog(
+            title = stringResource(R.string.app_language_title),
+            options = values.toList(),
+            selectedOption = uiState.languageName,
+            onOptionSelected = { viewModel.setLanguageName(it) },
+            onDismissRequest = { showLanguageDialog = false },
+            optionTitle = { entries[values.indexOf(it)] }
+        )
+    }
+
+    if (showUpdateModeDialog) {
+        val entries = context.resources.getStringArray(R.array.pref_update_mode_titles)
+        val values = context.resources.getStringArray(R.array.pref_update_mode_values)
+        SingleChoiceDialog(
+            title = stringResource(R.string.auto_update_title),
+            options = values.toList(),
+            selectedOption = uiState.updateSearchMode,
+            onOptionSelected = { viewModel.setUpdateSearchMode(it) },
+            onDismissRequest = { showUpdateModeDialog = false },
+            optionTitle = { entries[values.indexOf(it)] }
+        )
+    }
+
+    val createBackupLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/*")) { uri ->
+        if (uri != null) {
+            GlobalScope.launch(Dispatchers.IO) {
+                BackupHelper.createBackup(context, uri)
+            }
+        }
+    }
+
+    val selectBackupLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { selection ->
+        if (selection != null) {
+            val contentEntries = BackupContent.entries
+            val items = contentEntries.map { context.resources.getString(it.titleRes) }
+            MultiCheckDialog.Builder(context)
+                .title(R.string.select_content_to_restore)
+                .items(items)
+                .createDialog { _, whichPos, _ ->
+                    val content = contentEntries.filterIndexed { i, _ -> whichPos.contains(i) }
+                    GlobalScope.launch(Dispatchers.IO) {
+                        BackupHelper.restoreBackup(context, selection, content)
+                    }
+                    true
+                }
+                .show((context as FragmentActivity).supportFragmentManager, "RESTORE_DIALOG")
+        }
+    }
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            MediumTopAppBar(
+                title = { Text(stringResource(R.string.advanced_title)) },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(painter = painterResource(R.drawable.ic_back_24dp), contentDescription = null)
+                    }
+                },
+                scrollBehavior = scrollBehavior
+            )
+        }
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(padding),
+            contentPadding = PaddingValues(top = 16.dp, bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // --- GENERAL ---
+            item { DashboardCategoryHeader("General") }
+            item {
+                SegmentedPreferenceGroup {
+                    ExpressivePreferenceItem(
+                        title = stringResource(R.string.app_language_title),
+                        summary = uiState.languageName.replaceFirstChar { it.uppercase() },
+                        icon = R.drawable.ic_language_24dp,
+                        onClick = { showLanguageDialog = true }
+                    )
+                    ExpressiveSwitchItem(
+                        title = "Rotation Lock",
+                        checked = uiState.rotationLock,
+                        onCheckedChange = { viewModel.setRotationLock(it) },
+                        icon = R.drawable.ic_phone_android_24dp
+                    )
+                }
+            }
+
+            // --- BACKUP & RESTORE ---
+            item { DashboardCategoryHeader("Data Management") }
+            item {
+                Row(modifier = Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Button(
+                        onClick = { 
+                            createBackupLauncher.launch(getFormattedFileName("Backup", BackupHelper.BACKUP_EXTENSION))
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = MaterialTheme.shapes.large
+                    ) {
+                        Icon(painterResource(R.drawable.ic_file_export_24dp), null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Backup")
+                    }
+                    FilledTonalButton(
+                        onClick = { 
+                            selectBackupLauncher.launch(arrayOf("application/*"))
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = MaterialTheme.shapes.large
+                    ) {
+                        Icon(painterResource(R.drawable.ic_restart_alt_24dp), null)
+                        Spacer(Modifier.width(8.dp))
+                        Text("Restore")
+                    }
+                }
+            }
+
+            // --- PLAYBACK ENGINE ---
+            item { DashboardCategoryHeader("Engine Internals") }
+            item {
+                SegmentedPreferenceGroup {
+                    ExpressiveSwitchItem(
+                        title = stringResource(R.string.mp3_index_seeking_title),
+                        summary = "Direct byte-offset seeking",
+                        checked = uiState.mp3IndexSeeking,
+                        onCheckedChange = { viewModel.setMp3IndexSeeking(it) }
+                    )
+                    ExpressiveSwitchItem(
+                        title = stringResource(R.string.pause_on_zero_volume_title),
+                        checked = uiState.pauseOnZeroVolume,
+                        onCheckedChange = { viewModel.setPauseOnZeroVolume(it) }
+                    )
+                    ExpressiveSwitchItem(
+                        title = stringResource(R.string.stop_when_closed_from_recents_title),
+                        checked = uiState.stopWhenClosedFromRecents,
+                        onCheckedChange = { viewModel.setStopWhenClosedFromRecents(it) }
+                    )
+                }
+            }
+
+            // --- UPDATES ---
+            item { DashboardCategoryHeader("System Updates") }
+            item {
+                SegmentedPreferenceGroup {
+                    ExpressivePreferenceItem(
+                        title = "Search for Updates",
+                        summary = "Stay on the latest version",
+                        icon = R.drawable.ic_update_24dp,
+                        onClick = onCheckForUpdates
+                    )
+                    SegmentedPreferenceItem(
+                        title = stringResource(R.string.auto_update_title),
+                        summary = uiState.updateSearchMode.replaceFirstChar { it.uppercase() },
+                        onClick = { showUpdateModeDialog = true }
+                    )
+                    ExpressiveSwitchItem(
+                        title = "Experimental Updates",
+                        summary = "Receive beta and alpha builds",
+                        checked = uiState.experimentalUpdates,
+                        onCheckedChange = { viewModel.setExperimentalUpdates(it) }
+                    )
+                }
+            }
+
+            // --- TROUBLESHOOTING ---
+            item { DashboardCategoryHeader("Troubleshooting") }
+            item {
+                SegmentedPreferenceGroup {
+                    ExpressivePreferenceItem(
+                        title = "Clear Image Cache",
+                        summary = "Free up storage used by covers",
+                        icon = R.drawable.ic_delete_24dp,
+                        onClick = onClearCache
+                    )
+                    ExpressivePreferenceItem(
+                        title = "System Diagnostics",
+                        summary = "Index settings and view device info",
+                        icon = R.drawable.ic_bug_report_24dp,
+                        onClick = {
+                            SettingsSearchHelper.indexSettings(context)
+                        }
+                    )
+                }
+            }
+
+            item {
+                Card(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
+                    shape = MaterialTheme.shapes.large
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("Device Information", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
+                        Spacer(Modifier.height(8.dp))
+                        DiagnosticInfoRow("App Version", "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
+                        DiagnosticInfoRow("Android Version", "${android.os.Build.VERSION.RELEASE} (SDK ${android.os.Build.VERSION.SDK_INT})")
+                        DiagnosticInfoRow("Device", "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}")
+                        DiagnosticInfoRow("Build", android.os.Build.DISPLAY)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun DiagnosticInfoRow(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(value, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+    }
+}

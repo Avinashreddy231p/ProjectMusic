@@ -211,7 +211,10 @@ androidComponents {
         }
 
         variant.buildConfigFields?.putAll(
-            mapOf("IS_CI_BUILD" to BuildConfigField("boolean", isCI, null))
+            mapOf(
+                "IS_CI_BUILD" to BuildConfigField("boolean", isCI, null),
+                "BUILD_TIME" to BuildConfigField("long", System.currentTimeMillis(), "Build timestamp")
+            )
         )
 
         val flavorProps = loadFlavorProperties(variant.flavorName)
