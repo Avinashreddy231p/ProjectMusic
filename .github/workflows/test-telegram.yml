@@ -1,0 +1,55 @@
+name: Test Telegram Connection
+
+on:
+  workflow_dispatch: # Allows manual trigger from the GitHub Actions tab
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Test Message
+        run: |
+          if [ -z "${{ secrets.TG_BOT_TOKEN }}" ] || [ -z "${{ secrets.TG_API_ID }}" ] || [ -z "${{ secrets.TG_API_HASH }}" ] || [ -z "${{ secrets.TG_CHAT_ID }}" ]; then
+            echo "::error::One or more Telegram secrets are missing! Please check TG_BOT_TOKEN, TG_API_ID, TG_API_HASH, and TG_CHAT_ID."
+            exit 1
+          fi
+          
+          pip install telethon
+          python <<EOF
+          import os
+          import asyncio
+          import sys
+          from telethon import TelegramClient
+
+          async def send_test():
+              try:
+                  api_id = int(os.environ['TG_API_ID'])
+                  api_hash = os.environ['TG_API_HASH']
+                  bot_token = os.environ['TG_BOT_TOKEN']
+                  chat_id = int(os.environ['TG_CHAT_ID'])
+                  
+                  print(f"Connecting to Telegram for chat {chat_id}...")
+                  client = TelegramClient('bot_test', api_id, api_hash)
+                  await client.start(bot_token=bot_token)
+                  
+                  message = "✅ **ProjectMusic Telegram Test**\n\nYour GitHub Actions automation is successfully connected to this topic!"
+                  
+                  print("Sending test message to Topic 3...")
+                  # thread_id 3 based on your group link
+                  await client.send_message(chat_id, message, reply_to=3)
+                  
+                  print("Test message sent successfully!")
+                  await client.disconnect()
+              except Exception as e:
+                  print(f"❌ Error during Telegram test: {e}")
+                  sys.exit(1)
+
+          if __name__ == '__main__':
+              loop = asyncio.get_event_loop()
+              loop.run_until_complete(send_test())
+          EOF
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
