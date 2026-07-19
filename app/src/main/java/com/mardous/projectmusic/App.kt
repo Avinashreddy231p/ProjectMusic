@@ -66,6 +66,7 @@ import java.util.concurrent.TimeUnit
 class App : Application(), SingletonImageLoader.Factory {
 
     override fun onCreate() {
+        // Test Telegram Automation
         super.onCreate()
         startKoin {
             androidContext(this@App)
