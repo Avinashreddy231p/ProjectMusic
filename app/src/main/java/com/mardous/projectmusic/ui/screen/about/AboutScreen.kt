@@ -435,7 +435,7 @@ private fun AboutHeroHeader(
             shadowElevation = 8.dp
         ) {
             Image(
-                painter = painterResource(id = R.drawable.icon_web),
+                painter = painterResource(id = R.drawable.ic_app_logo),
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxSize()

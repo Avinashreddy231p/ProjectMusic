@@ -17,8 +17,11 @@ I have updated the app icon and splash screen logo using the provided `Frame 8.s
 - **[README.md](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/README.md)**: Updated the main project header to use the new `icon.svg` instead of the legacy PNG.
 
 ### 4. Wiki
-- **[Home.md](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/.wiki_init/Home.md)**: Updated the Wiki home page with the new project branding and icon URL.
+- **[Home.md](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/.wiki_init/Home.md)**: Updated the Wiki home page with the new project branding and icon URL. Successfully pushed the changes to the remote Wiki repository.
 
-## Design Normalization
+### 5. Cleanup
+- **Legacy Assets**: Deleted 18 legacy `.webp` and `.png` files that contained the old circular icon design. This includes all mipmap fallbacks, the Play Store icon, and the old metadata image.
+- **[AboutScreen.kt](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/projectmusic/ui/screen/about/AboutScreen.kt)**: Updated the logo reference to use the new vector-based `ic_app_logo.xml`.
+- **[ic_app_logo.xml](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/res/drawable/ic_app_logo.xml)**: Created a new standalone vector drawable for UI components, ensuring the app doesn't depend on deleted raster assets.
 - The original SVG's rounded rectangle was $138 \times 144$. I have normalized it to $144 \times 144$ (square) and centered it.
 - All logo elements are centered within their respective viewports to ensure they remain in the "safe zone" for adaptive icons and splash screens.

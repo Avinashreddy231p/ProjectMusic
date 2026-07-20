@@ -1,26 +1,32 @@
-# Update Icon in Wiki
+# Remove Legacy Icon Assets
 
-The user wants to update the app icon in the project wiki. The project wiki is managed in the `.wiki_init` directory, which is a separate Git repository for GitHub Wikis.
+The user wants to completely remove the old icon designs from the project. This involves deleting legacy `.webp` and `.png` files and updating UI references that were pointing to those assets.
 
 ## Proposed Changes
 
-### Wiki Documentation
+### Assets
 
-#### [MODIFY] [Home.md](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/.wiki_init/Home.md)
+#### [NEW] [ic_app_logo.xml](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/res/drawable/ic_app_logo.xml)
+Create a new vector drawable for use in the app UI (like the About screen) that uses the normalized square logo design.
 
-Update the Wiki home page to include the project header and the new square icon. Since the Wiki is a separate repository on GitHub, we will use an absolute URL to the main repository's raw content to ensure the icon renders correctly.
+#### [DELETE] Legacy Image Assets
+Remove all instances of the old logo design:
+- `app/src/main/res/mipmap-*/ic_launcher.webp`
+- `app/src/main/res/mipmap-*/ic_launcher_round.webp`
+- `app/src/main/res/drawable-*/icon_web.webp`
+- `app/src/main/ic_launcher-playstore.png`
+- `metadata/en-US/images/icon.png`
 
-**New Header:**
-```markdown
-# 🎵 Project Music (Booming Music)
+### UI Updates
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/Avinashreddy231p/ProjectMusic/master/metadata/en-US/images/icon.svg" width="128">
-</p>
-```
+#### [MODIFY] [AboutScreen.kt](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/projectmusic/ui/screen/about/AboutScreen.kt)
+Update the logo reference in the About screen from `R.drawable.icon_web` to the new `R.drawable.ic_app_logo`.
 
 ## Verification Plan
 
+### Automated Tests
+- Run a build to ensure no broken resource references remain.
+
 ### Manual Verification
-- Review the content of `.wiki_init/Home.md` to ensure it matches the branding in `README.md`.
-- Note: Final verification requires pushing the changes to the GitHub Wiki repository, which should be done by the user.
+- Navigate to the "About" screen in the app and verify the new square logo is displayed correctly.
+- Check the project structure to ensure the deleted files are gone.

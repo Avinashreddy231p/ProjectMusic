@@ -3,3 +3,5 @@
 - [x] Verify changes
 - [x] Create walkthrough
 - [x] Update Wiki Home page with new icon
+- [x] Remove all legacy icon files (.webp, .png)
+- [x] Update About screen logo reference
