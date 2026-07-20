@@ -2,3 +2,4 @@
 - [x] Update `ic_launcher_monochrome.xml` with normalized square icon
 - [x] Verify changes
 - [x] Create walkthrough
+- [x] Update Wiki Home page with new icon

@@ -1,24 +1,26 @@
-# Add Reveal Animation to App Opening
+# Update Icon in Wiki
 
-The user wants to add a "reveal animation" when the app opens. I will implement a circular reveal transition that occurs when the splash screen finishes, revealing the main app content.
+The user wants to update the app icon in the project wiki. The project wiki is managed in the `.wiki_init` directory, which is a separate Git repository for GitHub Wikis.
 
 ## Proposed Changes
 
-### Logic
+### Wiki Documentation
 
-#### [MODIFY] [MainActivity.kt](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/projectmusic/ui/screen/MainActivity.kt)
-- Update `installSplashScreen()` usage to set an `OnExitAnimationListener`.
-- Implement a circular reveal animation on the `SplashScreenView`. The animation will start from the center of the logo and shrink the splash screen to reveal the app content underneath.
-- Add an interpolator for a smooth "reveal" feel.
+#### [MODIFY] [Home.md](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/.wiki_init/Home.md)
 
-### Assets
+Update the Wiki home page to include the project header and the new square icon. Since the Wiki is a separate repository on GitHub, we will use an absolute URL to the main repository's raw content to ensure the icon renders correctly.
 
-#### [MODIFY] [m_reveal.xml](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/res/animator/m_reveal.xml)
-- Update `valueTo` for `scaleX` and `scaleY` to `0.43` to match the non-clipping scale recently established for the splash logo.
+**New Header:**
+```markdown
+# 🎵 Project Music (Booming Music)
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Avinashreddy231p/ProjectMusic/master/metadata/en-US/images/icon.svg" width="128">
+</p>
+```
 
 ## Verification Plan
 
 ### Manual Verification
-- Deploy the app to an AVD (Android 12+ preferred to see the `core-splashscreen` behavior).
-- Observe the splash screen icon animation.
-- Observe the transition from splash screen to the main screen, verifying the circular reveal effect.
+- Review the content of `.wiki_init/Home.md` to ensure it matches the branding in `README.md`.
+- Note: Final verification requires pushing the changes to the GitHub Wiki repository, which should be done by the user.

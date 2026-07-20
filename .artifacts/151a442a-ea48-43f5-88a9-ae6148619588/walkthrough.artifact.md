@@ -16,6 +16,9 @@ I have updated the app icon and splash screen logo using the provided `Frame 8.s
 - **[icon.svg](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/metadata/en-US/images/icon.svg)**: Created a new high-quality SVG version of the square logo for project documentation.
 - **[README.md](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/README.md)**: Updated the main project header to use the new `icon.svg` instead of the legacy PNG.
 
+### 4. Wiki
+- **[Home.md](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/.wiki_init/Home.md)**: Updated the Wiki home page with the new project branding and icon URL.
+
 ## Design Normalization
 - The original SVG's rounded rectangle was $138 \times 144$. I have normalized it to $144 \times 144$ (square) and centered it.
 - All logo elements are centered within their respective viewports to ensure they remain in the "safe zone" for adaptive icons and splash screens.
