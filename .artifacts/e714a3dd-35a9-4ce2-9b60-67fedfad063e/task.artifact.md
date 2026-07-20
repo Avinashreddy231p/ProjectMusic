@@ -1,3 +1,3 @@
-- [ ] Create `README.md` with project description, features, tech stack, and package structure.
-- [ ] Create `ABOUT.md` with authorship, contributors, and community links.
-- [ ] Verify both files reflect the latest information from the codebase.
+- [x] Create consolidated `README.md` with project description, features, tech stack, package structure, and authorship.
+- [x] Remove separate `ABOUT.md` to keep documentation centralized.
+- [x] Verify `README.md` contains all critical information from the codebase.

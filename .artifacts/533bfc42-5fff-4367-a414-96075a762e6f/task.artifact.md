@@ -1,2 +1,7 @@
-- [ ] Add loading indicator to MusicBrainz scan buttons in `NetworkSettingsComposeScreen.kt`
-- [ ] Verify implementation
+- [x] Update `MusicBrainzRepository` with selection lookup methods
+- [x] Update `LibraryViewModel` with lookup state and methods
+- [x] Add strings and menu items
+- [x] Create `MusicBrainzSelectionDialog` (Compose)
+- [x] Create `MusicBrainzProgressDialog` (Compose)
+- [x] Integrate lookup actions in `MenuItemClickExt.kt`
+- [x] Verify functionality

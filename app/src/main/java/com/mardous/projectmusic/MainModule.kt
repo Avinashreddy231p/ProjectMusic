@@ -371,7 +371,8 @@ private val dataModule = module {
         com.mardous.projectmusic.data.local.repository.FileTagScanner(
             rankingDao = get(),
             metadataDao = get(),
-            lyricsDao = get()
+            lyricsDao = get(),
+            contentResolver = get<android.content.Context>().contentResolver
         )
     }
 }

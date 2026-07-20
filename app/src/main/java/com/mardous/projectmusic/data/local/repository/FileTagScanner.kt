@@ -1,6 +1,10 @@
 package com.mardous.projectmusic.data.local.repository
 
-import android.os.ParcelFileDescriptor
+import android.content.ContentResolver
+import android.content.ContentUris
+import android.net.Uri
+import android.provider.MediaStore
+import android.util.Log
 import com.kyant.taglib.TagLib
 import com.mardous.projectmusic.data.local.database.core.SongEntity
 import com.mardous.projectmusic.data.local.database.core.SongMetadataEntity
@@ -8,14 +12,15 @@ import com.mardous.projectmusic.data.local.database.dao.LyricsDao
 import com.mardous.projectmusic.data.local.database.dao.MetadataDao
 import com.mardous.projectmusic.data.local.database.dao.RankingDao
 import com.mardous.projectmusic.data.local.database.intel.LyricsEntity
+import com.mardous.projectmusic.extensions.hasQ
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.File
 
 class FileTagScanner(
     private val rankingDao: RankingDao,
     private val metadataDao: MetadataDao,
-    private val lyricsDao: LyricsDao
+    private val lyricsDao: LyricsDao,
+    private val contentResolver: ContentResolver
 ) {
     data class ScanResult(
         val songsScanned: Int = 0,
@@ -30,18 +35,14 @@ class FileTagScanner(
         val metadataMap = rankingDao.getAllSongMetadata().associateBy { it.songKey }
         val total = songs.size
 
+        Log.d(TAG, "Starting scan of $total songs")
+
         for ((index, song) in songs.withIndex()) {
             try {
-                val existingMeta = metadataMap[song.songKey]
+                val uri = getSongUri(song)
+                Log.v(TAG, "Scanning [${index + 1}/$total]: ${song.title} (Uri: $uri)")
                 
-                val file = File(song.data)
-                if (!file.exists()) {
-                    result = result.copy(songsScanned = result.songsScanned + 1)
-                    continue
-                }
-
-                val fd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
-                try {
+                contentResolver.openFileDescriptor(uri, "r")?.use { fd ->
                     val tagMetadata = TagLib.getMetadata(fd.dup().detachFd(), false)
                     if (tagMetadata != null) {
                         val tags = tagMetadata.propertyMap
@@ -50,42 +51,64 @@ class FileTagScanner(
                         val updatedSong = updateSongEntityIfNeeded(song, tags)
                         if (updatedSong != null) {
                             rankingDao.upsertSong(updatedSong)
-                            // result = result.copy(songsUpdated = result.songsUpdated + 1) // Counted in metadata update usually
+                            Log.v(TAG, "Updated core tags for: ${song.title}")
                         }
 
                         // 2. Update SongMetadataEntity
+                        val existingMeta = metadataMap[song.songKey]
                         val updatedMeta = updateMetadataEntity(song.songKey, existingMeta, tags)
                         if (updatedMeta != null) {
                             metadataDao.upsertSongMetadata(updatedMeta)
                             result = result.copy(songsUpdated = result.songsUpdated + 1)
+                            Log.v(TAG, "Updated metadata for: ${song.title}")
                         }
 
                         // 3. Update Lyrics if present
-                        val lyrics = tags[MetadataReaderConsts.LYRICS]?.firstOrNull { it.isNotBlank() }
+                        var lyrics = tags[MetadataReaderConsts.LYRICS]?.firstOrNull { it.isNotBlank() }
+                        if (lyrics.isNullOrEmpty()) {
+                            lyrics = tags["UNSYNCEDLYRICS"]?.firstOrNull { it.isNotBlank() }
+                        }
+                        
                         if (!lyrics.isNullOrEmpty()) {
-                            val existingLyrics = lyricsDao.getLyrics(song.songKey)
+                            // Use mediaStoreId for lyrics consistency
+                            val lyricsId = song.mediaStoreId
+                            val existingLyrics = lyricsDao.getLyrics(lyricsId)
                             if (existingLyrics == null || existingLyrics.embeddedLyrics != lyrics) {
-                                val lyricsEntity = (existingLyrics ?: LyricsEntity(id = song.songKey)).copy(
+                                val lyricsEntity = (existingLyrics ?: LyricsEntity(id = lyricsId)).copy(
                                     embeddedLyrics = lyrics,
                                     hasEmbeddedLyrics = true
                                 )
                                 lyricsDao.insertLyrics(lyricsEntity)
                                 result = result.copy(lyricsUpdated = result.lyricsUpdated + 1)
+                                Log.v(TAG, "Updated embedded lyrics for: ${song.title}")
                             }
                         }
                     }
-                } finally {
-                    fd.close()
                 }
-                
                 result = result.copy(songsScanned = result.songsScanned + 1)
             } catch (e: Exception) {
+                Log.e(TAG, "Error scanning ${song.title}: ${e.message}")
                 result = result.copy(errors = result.errors + 1)
             }
             onProgress?.invoke(index + 1, total, song.title)
         }
         onProgress?.invoke(total, total, "Done")
+        Log.d(TAG, "Scan finished: $result")
         result
+    }
+
+    private fun getSongUri(song: SongEntity): Uri {
+        return if (hasQ()) {
+            song.volumeName.let { volume ->
+                if (volume != null && volume != MediaStore.VOLUME_EXTERNAL) {
+                    ContentUris.withAppendedId(MediaStore.Audio.Media.getContentUri(volume), song.mediaStoreId)
+                } else {
+                    ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, song.mediaStoreId)
+                }
+            }
+        } else {
+            ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, song.mediaStoreId)
+        }
     }
 
     private fun updateSongEntityIfNeeded(song: SongEntity, tags: Map<String, Array<String>>): SongEntity? {
@@ -166,5 +189,9 @@ class FileTagScanner(
         const val COMMENT = "COMMENT"
         const val ENCODER = "ENCODER"
         const val COPYRIGHT = "COPYRIGHT"
+    }
+
+    companion object {
+        private const val TAG = "FileTagScanner"
     }
 }
