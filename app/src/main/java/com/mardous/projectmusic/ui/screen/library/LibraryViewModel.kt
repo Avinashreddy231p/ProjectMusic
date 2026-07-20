@@ -726,31 +726,3 @@ enum class ReloadType {
     Years,
     Suggestions
 }
-
-sealed class AssignToMetadataUiState(open val isLoading: Boolean) {
-    data object Loading : AssignToMetadataUiState(true)
-    data class Ready(
-        val moods: List<Mood> = emptyList(),
-        val tags: Map<TagCategory, List<Tag>> = emptyMap(),
-        val instruments: Map<InstrumentFamily, List<Instrument>> = emptyMap(),
-        override val isLoading: Boolean = false
-    ) : AssignToMetadataUiState(isLoading)
-
-    data class Completed(val isSuccess: Boolean) : AssignToMetadataUiState(false)
-}
-
-data class MusicBrainzScanState(
-    val isScanning: Boolean = false,
-    val progress: Int = 0,
-    val total: Int = 0,
-    val label: String? = null,
-    val result: String? = null
-)
-
-data class LyricsScanState(
-    val isScanning: Boolean = false,
-    val progress: Int = 0,
-    val total: Int = 0,
-    val label: String? = null,
-    val result: String? = null
-)

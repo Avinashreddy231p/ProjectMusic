@@ -50,7 +50,7 @@ import com.mardous.projectmusic.R
 import com.mardous.projectmusic.data.model.Song
 import com.mardous.projectmusic.extensions.withArgs
 import com.mardous.projectmusic.ui.component.compose.BottomSheetDialogSurface
-import com.mardous.projectmusic.ui.dialogs.metadata.SelectionItemData
+import com.mardous.projectmusic.data.model.SelectionItemData
 import com.mardous.projectmusic.ui.screen.library.LibraryViewModel
 import com.mardous.projectmusic.ui.theme.ProjectMusicTheme
 import org.koin.androidx.viewmodel.ext.android.activityViewModel

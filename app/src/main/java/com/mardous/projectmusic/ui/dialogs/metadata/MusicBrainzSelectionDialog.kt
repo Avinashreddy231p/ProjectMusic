@@ -55,18 +55,10 @@ import com.mardous.projectmusic.extensions.showToast
 import com.mardous.projectmusic.extensions.withArgs
 import com.mardous.projectmusic.ui.component.compose.BottomSheetDialogSurface
 import com.mardous.projectmusic.ui.component.compose.MediaImage
+import com.mardous.projectmusic.data.model.SelectionItemData
 import com.mardous.projectmusic.ui.screen.library.LibraryViewModel
 import com.mardous.projectmusic.ui.theme.ProjectMusicTheme
-import kotlinx.parcelize.Parcelize
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
-
-@Parcelize
-data class SelectionItemData(
-    val id: Long,
-    val title: String,
-    val subtitle: String?,
-    val isArtist: Boolean
-) : android.os.Parcelable
 
 class MusicBrainzSelectionDialog : BottomSheetDialogFragment() {
 

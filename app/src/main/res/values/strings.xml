@@ -695,7 +695,9 @@
     <string name="ui_theme_material">Material Design</string>
     <string name="ui_theme_spotify">Spotify</string>
     <string name="pure_black_theme_title">Pure Black</string>
-    <string name="accent_color_title">Accent Color</string>`r`n    <string name="accent_color_summary">Choose a custom color to theme the app</string>`r`n    <string name="material_you_title">Material You</string>
+    <string name="accent_color_title">Accent Color</string>
+    <string name="accent_color_summary">Choose a custom color to theme the app</string>
+    <string name="material_you_title">Material You</string>
 
     <string name="use_custom_font_title">Use custom font</string>
     <string name="appbar_mode_title">Header style</string>
