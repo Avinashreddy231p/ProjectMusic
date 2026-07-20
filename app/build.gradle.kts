@@ -90,9 +90,6 @@ android {
         versionCode = 1310102
         versionName = currentVersion.name
         check(versionCode == currentVersionCode)
-
-        buildConfigField("long", "BUILD_TIME", "${System.currentTimeMillis()}L")
-        buildConfigField("boolean", "IS_CI_BUILD", "false")
     }
 
     flavorDimensions += "version"
@@ -215,6 +212,7 @@ androidComponents {
         }
 
         variant.buildConfigFields?.put("IS_CI_BUILD", BuildConfigField("boolean", isCI.toString(), null))
+        variant.buildConfigFields?.put("BUILD_TIME", BuildConfigField("long", "${System.currentTimeMillis()}L", "Build timestamp"))
 
         val flavorProps = loadFlavorProperties(variant.flavorName)
         flavorProps.forEach { (key, value) ->

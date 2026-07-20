@@ -24,12 +24,32 @@ on:
       - '.gitignore'
       - "*.md"
       - "LICENSE.txt"
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
+  notify-start:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Start Notification
+        continue-on-error: true
+        run: |
+          if [ -z "${{ secrets.TG_BOT_TOKEN }}" ] || [ -z "${{ secrets.TG_CHAT_ID }}" ]; then
+            echo "Telegram secrets missing, skipping notification."
+            exit 0
+          fi
+          MESSAGE="🚀 **Build Started**%0A%0A**Ref:** ${{ github.ref_name }}%0A**Event:** ${{ github.event_name }}%0A[View Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendMessage" \
+            -d "chat_id=${{ secrets.TG_CHAT_ID }}" \
+            -d "message_thread_id=3" \
+            -d "text=$MESSAGE" \
+            -d "parse_mode=Markdown"
+
   lint:
+    needs: notify-start
+    if: always() && (needs.notify-start.result == 'success' || needs.notify-start.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -43,6 +63,16 @@ jobs:
         run: chmod +x gradlew
       - name: Run Lint
         run: ./gradlew lint
+      - name: Notify Failure
+        if: failure()
+        continue-on-error: true
+        run: |
+          MESSAGE="❌ **Lint Failed**%0A%0A**Ref:** ${{ github.ref_name }}%0A[View Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendMessage" \
+            -d "chat_id=${{ secrets.TG_CHAT_ID }}" \
+            -d "message_thread_id=3" \
+            -d "text=$MESSAGE" \
+            -d "parse_mode=Markdown"
 
   build:
     needs: lint
@@ -107,6 +137,16 @@ jobs:
           else
             ./gradlew assemble${CAP_VARIANT}Release
           fi
+      - name: Notify Failure
+        if: failure()
+        continue-on-error: true
+        run: |
+          MESSAGE="❌ **Build Failed (${{ matrix.variant }})**%0A%0A**Ref:** ${{ github.ref_name }}%0A[View Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendMessage" \
+            -d "chat_id=${{ secrets.TG_CHAT_ID }}" \
+            -d "message_thread_id=3" \
+            -d "text=$MESSAGE" \
+            -d "parse_mode=Markdown"
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v7
@@ -182,6 +222,17 @@ jobs:
             release-artifacts/**/ProjectMusic-*.apk
             release-artifacts/**/ProjectMusic-*.aab
 
+      - name: Notify Failure (Publish)
+        if: failure()
+        continue-on-error: true
+        run: |
+          MESSAGE="❌ **Publish Failed**%0A%0A**Ref:** ${{ github.ref_name }}%0A[View Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendMessage" \
+            -d "chat_id=${{ secrets.TG_CHAT_ID }}" \
+            -d "message_thread_id=3" \
+            -d "text=$MESSAGE" \
+            -d "parse_mode=Markdown"
+
       - name: Find Telegram APK
         run: |
           echo "Listing files in release-artifacts..."
@@ -250,3 +301,33 @@ jobs:
             
             📋 **Changelog:**
             ${{ steps.changelog.outputs.result }}
+
+  notify-pr-success:
+    needs: build
+    if: github.event_name == 'pull_request' && success()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Success Notification (PR)
+        continue-on-error: true
+        run: |
+          MESSAGE="✅ **Build Success (PR)**%0A%0A**Ref:** ${{ github.ref_name }}%0A**PR:** #${{ github.event.pull_request.number }}%0A[View Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendMessage" \
+            -d "chat_id=${{ secrets.TG_CHAT_ID }}" \
+            -d "message_thread_id=3" \
+            -d "text=$MESSAGE" \
+            -d "parse_mode=Markdown"
+
+  notify-cancelled:
+    needs: [ lint, build, publish ]
+    if: always() && cancelled()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Cancelled Notification
+        continue-on-error: true
+        run: |
+          MESSAGE="⚠️ **Build Cancelled**%0A%0A**Ref:** ${{ github.ref_name }}%0A[View Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendMessage" \
+            -d "chat_id=${{ secrets.TG_CHAT_ID }}" \
+            -d "message_thread_id=3" \
+            -d "text=$MESSAGE" \
+            -d "parse_mode=Markdown"
