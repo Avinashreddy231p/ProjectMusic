@@ -1,7 +1,7 @@
 # 🎵 Project Music (Booming Music)
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Avinashreddy231p/ProjectMusic/master/metadata/en-US/images/icon.png" width="128">
+  <img src="metadata/en-US/images/icon.svg" width="128">
 </p>
 
 **Project Music** is a high-performance, modern music player for Android, built from the ground up with **Jetpack Compose** and **Material 3**. It offers a premium listening experience with deep analytical insights and a beautiful, fluid interface.
