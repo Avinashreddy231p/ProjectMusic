@@ -45,16 +45,16 @@ class GitHubService(private val context: Context, private val client: HttpClient
     @OptIn(ExperimentalTime::class)
     suspend fun latestRelease(user: String = DEFAULT_USER, repo: String = DEFAULT_REPO, allowExperimental: Boolean = true): GitHubRelease {
         val stableRelease = fetchStableRelease(user, repo)
-        if (stableRelease.hasApk && stableRelease.isNewer(context)) {
-            return stableRelease
-        }
+        
         if (allowExperimental) {
             val allReleases = fetchAllReleases(user, repo)
-                .filter { it.isPrerelease }
-                .sortedByDescending { it.publishedAt }
-            return allReleases.firstOrNull()
-                ?: stableRelease
+            val mostRecent = allReleases.filter { it.hasApk }.maxByOrNull { it.publishedAt }
+            
+            if (mostRecent != null && mostRecent.isNewer(context)) {
+                return mostRecent
+            }
         }
+
         return stableRelease
     }
 

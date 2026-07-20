@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
+import com.mardous.projectmusic.BuildConfig
 import com.mardous.projectmusic.core.model.task.Event
 import com.mardous.projectmusic.data.remote.github.GitHubService
 import com.mardous.projectmusic.data.remote.github.model.GitHubRelease
@@ -29,7 +30,7 @@ class UpdateViewModel(private val updateService: GitHubService): ViewModel() {
 
     val latestRelease get() = updateEvent?.peekContent()?.data
 
-    fun searchForUpdate(fromUser: Boolean, allowExperimental: Boolean = Preferences.experimentalUpdates) =
+    fun searchForUpdate(fromUser: Boolean, allowExperimental: Boolean = Preferences.experimentalUpdates || BuildConfig.IS_CI_BUILD) =
         viewModelScope.launch(Dispatchers.IO) {
             val current = updateEvent?.peekContent() ?: UpdateSearchResult(executedAtMillis = Preferences.lastUpdateSearch)
             if (current.shouldStartNewSearchFor(fromUser, allowExperimental)) {
