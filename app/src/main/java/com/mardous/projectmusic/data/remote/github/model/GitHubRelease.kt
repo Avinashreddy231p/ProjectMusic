@@ -48,6 +48,8 @@ class GitHubRelease(
     val url: String,
     @SerialName("published_at")
     val date: String,
+    @SerialName("updated_at")
+    val updatedAt: String? = null,
     val body: String,
     @SerialName("prerelease")
     val isPrerelease: Boolean,
@@ -64,6 +66,15 @@ class GitHubRelease(
 
     val publishedAt: Instant
         get() = Instant.parse(date)
+
+    val lastUpdatedAt: Instant
+        get() {
+            val assetMax = downloads.filter { it.isApk }
+                .mapNotNull { it.updatedAt?.let { date -> Instant.parse(date) } }
+                .maxOrNull()
+            val releasePublished = publishedAt
+            return if (assetMax != null && assetMax > releasePublished) assetMax else releasePublished
+        }
 
     fun isDownloadable(context: Context): Boolean {
         if (hasApk) {
@@ -82,7 +93,7 @@ class GitHubRelease(
 
     fun isNewer(context: Context): Boolean {
         if (tag == "latest-ci") {
-            return publishedAt.toEpochMilliseconds() > BuildConfig.BUILD_TIME
+            return lastUpdatedAt.toEpochMilliseconds() > BuildConfig.BUILD_TIME
         }
         try {
             val packageInfo = context.packageManager.packageInfo(context)
@@ -150,6 +161,8 @@ class GitHubRelease(
         val contentType: String,
         val state: String,
         val size: Long,
+        @SerialName("updated_at")
+        val updatedAt: String? = null,
         @SerialName("browser_download_url")
         val downloadUrl: String
     ) : Parcelable {

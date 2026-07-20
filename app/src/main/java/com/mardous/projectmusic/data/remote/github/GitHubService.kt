@@ -48,7 +48,7 @@ class GitHubService(private val context: Context, private val client: HttpClient
         
         if (allowExperimental) {
             val allReleases = fetchAllReleases(user, repo)
-            val mostRecent = allReleases.filter { it.hasApk }.maxByOrNull { it.publishedAt }
+            val mostRecent = allReleases.filter { it.hasApk }.maxByOrNull { it.lastUpdatedAt }
             
             if (mostRecent != null && mostRecent.isNewer(context)) {
                 return mostRecent
