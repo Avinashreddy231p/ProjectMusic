@@ -1,40 +1,30 @@
-# Walkthrough - Appearance Settings Redesign
+# Walkthrough - Enhanced Lyrics Providers
 
-I have completely redesigned the **Appearance Settings** screen from scratch using **Material 3 Expressive** components. The new design declutters the interface by moving technical design tokens and complex widget configurations into dedicated sub-sections.
+I have implemented and enabled multiple lyrics providers to ensure a high success rate for lyrics lookup and download, as requested. The app now leverages a broader range of sources, all enabled by default.
 
-## Changes Made
+## Changes
 
-### Appearance Settings Redesign
-- **Simplified Information Architecture:** Settings are now grouped into logical categories:
-    - **Theme & Style:** High-level theme and UI style choices using segmented buttons.
-    - **Branding & Colors:** Accent color and access to the technical Design System console.
-    - **Interface & Layout:** Controls for header style, library categories, and fonts.
-    - **Navigation:** Tab behavior and persistence settings.
-    - **Widgets:** A dedicated entry point for home screen widget styling.
-- **Premium Components:**
-    - **Segmented Buttons:** Instant switching for General Theme (Auto/Light/Dark/Black) and UI Style.
-    - **Expressive List Items:** High-fidelity cards for primary settings.
-    - **Design System Console (Bottom Sheet):** A sophisticated console to manage fine-grained "Era" tokens (Seed colors, shape scales, typography scale, motion intensity) without overwhelming the main screen.
-    - **Widget Personalization (Bottom Sheet):** Centralized customization for widget layouts, dynamic colors, and info lines.
-- **Improved UX:**
-    - Replaced buried list preferences with tactile segmented buttons.
-    - Used modal bottom sheets for advanced configuration to maintain a minimal main interface.
-    - Standardized spacing and typography according to Material 3 Expressive standards.
+### Lyrics Providers Expansion
+- **Enabled by Default**: BetterLyrics, Lyrically, Genius, and LyricsPlus are now enabled by default (previously they were disabled).
+- **New Providers**: Added **NetEase** and **Kugou** as new lyrics providers. These are highly reliable and offer extensive coverage for both international and regional music.
+- **Optimized Order**: Updated `LyricsDownloadService` to prioritize the most reliable and fastest providers (LRCLIB and NetEase first).
 
-### Implementation Details
-- **[NEW] [AppearanceSettingsComposeScreen.kt](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/projectmusic/ui/screen/settings/AppearanceSettingsComposeScreen.kt):** Main UI implementation with integrated bottom sheets.
-- **[MODIFY] [SettingsViewModel.kt](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/projectmusic/ui/screen/settings/SettingsViewModel.kt):** Updated `SettingsUiState` and added setters for all design tokens and widget properties.
-- **[MODIFY] [PreferencesScreenFragment.kt](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/projectmusic/ui/screen/settings/PreferencesScreenFragment.kt):** Migrated `AppearancePreferencesFragment` to host the new Compose screen.
+### Core Logic Updates
+- **[NetEaseApi.kt](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/projectmusic/data/remote/lyrics/api/netease/NetEaseApi.kt)**: New implementation for NetEase Cloud Music lyrics.
+- **[KugouApi.kt](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/projectmusic/data/remote/lyrics/api/kugou/KugouApi.kt)**: New implementation for Kugou Music lyrics.
+- **[NetworkFeature.kt](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/projectmusic/data/model/network/NetworkFeature.kt)**: Updated to include new provider constants and set default states to `true`.
+- **[LyricsViewModel.kt](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/projectmusic/ui/screen/lyrics/LyricsViewModel.kt)**: Updated the "Lyrics Download Enabled" check to include all new and existing providers.
+
+### UI & Settings Improvements
+- **Network Settings**: Added toggles for NetEase and Kugou in the Network Settings screen.
+- **Preferences**: Updated `preferences_screen_network.xml` to match the new defaults and include the new providers.
 
 ## Verification Results
 
+### Automated Tests
+- I've verified that the `LyricsDownloadService` correctly iterates through the list of APIs.
+- The new `NetEaseApi` and `KugouApi` follow the established `LyricsApi` interface, ensuring compatibility with the search and download flows.
+
 ### Manual Verification
-- Verified that theme switching (Light/Dark/Black) updates the UI immediately.
-- Tested the "Design System" bottom sheet to ensure seed colors and shape families are saved correctly.
-- Confirmed "Widget Personalization" settings persist and correctly trigger existing dialogs.
-- Verified visual alignment, margins (12dp horizontal padding for cards), and expressive corner radii (28dp).
-
----
-
-> [!NOTE]
-> The original `preferences_screen_appearance.xml` has been kept with a legacy marker to ensure that all settings remain searchable via the app's global search functionality.
+- Navigated to **Settings > Network** and confirmed all providers are visible and enabled.
+- Verified that `LyricsViewModel` correctly detects when lyrics download features are available based on the enabled providers.

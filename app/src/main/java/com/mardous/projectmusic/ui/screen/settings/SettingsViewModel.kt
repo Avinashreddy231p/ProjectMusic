@@ -172,10 +172,12 @@ class SettingsViewModel(
                 allowOnlineAlbumCovers = preferences.safeBoolean(NetworkFeature.ALLOW_ONLINE_ALBUM_COVERS_KEY, false),
                 preferredImageSize = preferences.requireString(PREFERRED_IMAGE_SIZE, "medium"),
                 lrclibEnabled = preferences.safeBoolean(NetworkFeature.LRCLIB_ENABLED_KEY, true),
-                betterLyricsEnabled = preferences.safeBoolean(NetworkFeature.BETTERLYRICS_ENABLED_KEY, false),
-                lyricallyEnabled = preferences.safeBoolean(NetworkFeature.LYRICALLY_ENABLED_KEY, false),
-                geniusEnabled = preferences.safeBoolean(NetworkFeature.GENIUS_ENABLED_KEY, false),
-                lyricsPlusEnabled = preferences.safeBoolean(NetworkFeature.LYRICSPLUS_ENABLED_KEY, false),
+                betterLyricsEnabled = preferences.safeBoolean(NetworkFeature.BETTERLYRICS_ENABLED_KEY, true),
+                lyricallyEnabled = preferences.safeBoolean(NetworkFeature.LYRICALLY_ENABLED_KEY, true),
+                geniusEnabled = preferences.safeBoolean(NetworkFeature.GENIUS_ENABLED_KEY, true),
+                lyricsPlusEnabled = preferences.safeBoolean(NetworkFeature.LYRICSPLUS_ENABLED_KEY, true),
+                neteaseEnabled = preferences.safeBoolean(NetworkFeature.NETEASE_ENABLED_KEY, true),
+                kugouEnabled = preferences.safeBoolean(NetworkFeature.KUGOU_ENABLED_KEY, true),
                 geniusApiKey = preferences.requireString(NetworkFeature.GENIUS_API_KEY_KEY, ""),
                 lyricallyApiKey = preferences.requireString(NetworkFeature.LYRICALLY_API_KEY_KEY, ""),
                 updateSearchMode = preferences.requireString(NetworkFeature.UPDATE_SEARCH_MODE_KEY, "weekly"),
@@ -865,6 +867,16 @@ class SettingsViewModel(
         _uiState.update { it.copy(lyricsPlusEnabled = enabled) }
     }
 
+    fun setNetEaseEnabled(enabled: Boolean) {
+        preferences.edit().putBoolean(NetworkFeature.NETEASE_ENABLED_KEY, enabled).apply()
+        _uiState.update { it.copy(neteaseEnabled = enabled) }
+    }
+
+    fun setKugouEnabled(enabled: Boolean) {
+        preferences.edit().putBoolean(NetworkFeature.KUGOU_ENABLED_KEY, enabled).apply()
+        _uiState.update { it.copy(kugouEnabled = enabled) }
+    }
+
     fun setGeniusApiKey(key: String) {
         preferences.edit().putString(NetworkFeature.GENIUS_API_KEY_KEY, key).apply()
         _uiState.update { it.copy(geniusApiKey = key) }
@@ -1295,10 +1307,12 @@ data class SettingsUiState(
     val allowOnlineAlbumCovers: Boolean = false,
     val preferredImageSize: String = "medium",
     val lrclibEnabled: Boolean = true,
-    val betterLyricsEnabled: Boolean = false,
-    val lyricallyEnabled: Boolean = false,
-    val geniusEnabled: Boolean = false,
-    val lyricsPlusEnabled: Boolean = false,
+    val betterLyricsEnabled: Boolean = true,
+    val lyricallyEnabled: Boolean = true,
+    val geniusEnabled: Boolean = true,
+    val lyricsPlusEnabled: Boolean = true,
+    val neteaseEnabled: Boolean = true,
+    val kugouEnabled: Boolean = true,
     val geniusApiKey: String = "",
     val lyricallyApiKey: String = "",
     val updateSearchMode: String = "weekly",

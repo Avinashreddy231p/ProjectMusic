@@ -108,9 +108,25 @@
 
         <SwitchPreferenceCompat
             app:iconSpaceReserved="true"
+            app:title="NetEase Provider"
+            app:defaultValue="true"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="netease_enabled"/>
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
+            app:title="Kugou Provider"
+            app:defaultValue="true"
+            app:layout="@layout/list_item_view"
+            app:widgetLayout="@layout/preference_switch"
+            app:key="kugou_enabled"/>
+
+        <SwitchPreferenceCompat
+            app:iconSpaceReserved="true"
             app:title="@string/use_betterlyrics_provider_title"
             app:summary="@string/use_betterlyrics_provider_summary"
-            app:defaultValue="false"
+            app:defaultValue="true"
             app:layout="@layout/list_item_view"
             app:widgetLayout="@layout/preference_switch"
             app:key="betterlyrics_enabled"/>
@@ -119,7 +135,7 @@
             app:iconSpaceReserved="true"
             app:title="@string/use_lyrically_provider_title"
             app:summary="@string/use_lyrically_provider_summary"
-            app:defaultValue="false"
+            app:defaultValue="true"
             app:layout="@layout/list_item_view"
             app:widgetLayout="@layout/preference_switch"
             app:isPreferenceVisible="@bool/enable_lyrically_provider"

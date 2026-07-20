@@ -1,7 +1,10 @@
-- [x] Update `SettingsViewModel.kt` and `SettingsUiState` with missing appearance settings
-- [x] Create `AppearanceSettingsComposeScreen.kt` using Material3 Expressive components
-- [x] Implement Design System console (Bottom Sheet/Sub-page)
-- [x] Implement Widget Settings hub (Bottom Sheet/Sub-page)
-- [x] Modify `PreferencesScreenFragment.kt` to host the new Appearance screen
-- [x] Verify functionality and visual design
-- [x] Mark `preferences_screen_appearance.xml` as legacy
+- [x] Enable existing lyrics providers by default in `NetworkFeature.kt`
+- [x] Add `NetEase` and `Kugou` to `NetworkFeature.kt`
+- [x] Implement `NetEaseApi.kt`
+- [x] Implement `KugouApi.kt`
+- [x] Update `LyricsDownloadService.kt` to include new providers
+- [x] Update `SettingsUiState.kt` and `SettingsViewModel.kt` for new providers
+- [x] Update `NetworkSettingsComposeScreen.kt` UI
+- [/] Verify lyrics download and search contribution
+- [x] Update `LyricsViewModel.kt` to include new providers in enabled check
+- [x] Update `preferences_screen_network.xml` for default values and new providers

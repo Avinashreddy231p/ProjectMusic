@@ -251,6 +251,18 @@ fun NetworkSettingsComposeScreen(
                         enabled = uiState.networkFeatures
                     )
                     ExpressiveSwitchItem(
+                        title = "NetEase Provider",
+                        checked = uiState.neteaseEnabled,
+                        onCheckedChange = { viewModel.setNetEaseEnabled(it) },
+                        enabled = uiState.networkFeatures
+                    )
+                    ExpressiveSwitchItem(
+                        title = "Kugou Provider",
+                        checked = uiState.kugouEnabled,
+                        onCheckedChange = { viewModel.setKugouEnabled(it) },
+                        enabled = uiState.networkFeatures
+                    )
+                    ExpressiveSwitchItem(
                         title = "BetterLyrics Provider",
                         checked = uiState.betterLyricsEnabled,
                         onCheckedChange = { viewModel.setBetterLyricsEnabled(it) },

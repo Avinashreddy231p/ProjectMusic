@@ -27,8 +27,12 @@ import com.mardous.projectmusic.data.model.lyrics.RawLyrics
 import com.mardous.projectmusic.data.remote.lyrics.model.LyricsSearchResult
 import com.mardous.projectmusic.data.model.network.NetworkFeature
 import com.mardous.projectmusic.data.model.network.NetworkFeature.Lyrics.BetterLyrics
+import com.mardous.projectmusic.data.model.network.NetworkFeature.Lyrics.Genius
+import com.mardous.projectmusic.data.model.network.NetworkFeature.Lyrics.Kugou
 import com.mardous.projectmusic.data.model.network.NetworkFeature.Lyrics.LRCLib
 import com.mardous.projectmusic.data.model.network.NetworkFeature.Lyrics.Lyrically
+import com.mardous.projectmusic.data.model.network.NetworkFeature.Lyrics.LyricsPlus
+import com.mardous.projectmusic.data.model.network.NetworkFeature.Lyrics.NetEase
 import com.mardous.projectmusic.extensions.media.isArtistNameUnknown
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
@@ -408,7 +412,7 @@ class LyricsViewModel(
     }
 
     private fun isLyricsDownloadEnabled(): Boolean {
-        return BetterLyrics.isEnabled || Lyrically.isEnabled || LRCLib.isEnabled
+        return BetterLyrics.isEnabled || Lyrically.isEnabled || LRCLib.isEnabled || NetEase.isEnabled || Kugou.isEnabled || Genius.isEnabled || LyricsPlus.isEnabled
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
@@ -444,6 +448,10 @@ class LyricsViewModel(
             NetworkFeature.NETWORK_FEATURES_KEY,
             NetworkFeature.BETTERLYRICS_ENABLED_KEY,
             NetworkFeature.LYRICALLY_ENABLED_KEY,
+            NetworkFeature.GENIUS_ENABLED_KEY,
+            NetworkFeature.LYRICSPLUS_ENABLED_KEY,
+            NetworkFeature.NETEASE_ENABLED_KEY,
+            NetworkFeature.KUGOU_ENABLED_KEY,
             NetworkFeature.LRCLIB_ENABLED_KEY -> {
                 _lyricsDownloadEnabled.value = isLyricsDownloadEnabled()
             }

@@ -24,9 +24,11 @@ import com.mardous.projectmusic.data.model.network.NetworkFeature
 import com.mardous.projectmusic.data.remote.lyrics.api.LyricsApi
 import com.mardous.projectmusic.data.remote.lyrics.api.betterlyrics.BetterLyricsApi
 import com.mardous.projectmusic.data.remote.lyrics.api.genius.GeniusApi
+import com.mardous.projectmusic.data.remote.lyrics.api.kugou.KugouApi
 import com.mardous.projectmusic.data.remote.lyrics.api.lrclib.LrcLibApi
 import com.mardous.projectmusic.data.remote.lyrics.api.lyrically.LyricallyApi
 import com.mardous.projectmusic.data.remote.lyrics.api.lyricsplus.LyricsPlusApi
+import com.mardous.projectmusic.data.remote.lyrics.api.netease.NetEaseApi
 import com.mardous.projectmusic.data.remote.lyrics.model.LyricsSearchResult
 import com.mardous.projectmusic.extensions.media.albumArtistName
 import com.mardous.projectmusic.extensions.media.extractMainArtistName
@@ -36,10 +38,12 @@ import java.io.IOException
 class LyricsDownloadService(client: HttpClient) {
 
     private val lyricsApi = listOf(
-        LyricallyApi(client),
-        LyricsPlusApi(client),
         LrcLibApi(client),
+        NetEaseApi(client),
+        KugouApi(client),
+        LyricallyApi(client),
         BetterLyricsApi(client),
+        LyricsPlusApi(client),
         GeniusApi(client)
     )
 

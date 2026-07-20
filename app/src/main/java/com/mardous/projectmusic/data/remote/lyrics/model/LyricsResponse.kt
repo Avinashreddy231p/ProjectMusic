@@ -74,3 +74,70 @@ data class LyricsPlusMetadata(
     val artist: String? = null,
     val source: String? = null
 )
+
+@Serializable
+data class NetEaseSearchResponse(
+    val result: NetEaseSearchResult? = null,
+    val code: Int
+)
+
+@Serializable
+data class NetEaseSearchResult(
+    val songs: List<NetEaseSong> = emptyList()
+)
+
+@Serializable
+data class NetEaseSong(
+    val id: Long,
+    val name: String,
+    val artists: List<NetEaseArtist> = emptyList(),
+    val album: NetEaseAlbum? = null
+)
+
+@Serializable
+data class NetEaseArtist(
+    val name: String
+)
+
+@Serializable
+data class NetEaseAlbum(
+    val name: String
+)
+
+@Serializable
+data class NetEaseLyricsResponse(
+    val lrc: NetEaseLyric? = null,
+    val tlyric: NetEaseLyric? = null,
+    val code: Int
+)
+
+@Serializable
+data class NetEaseLyric(
+    val lyric: String? = null
+)
+
+@Serializable
+data class KugouSearchResponse(
+    val data: KugouSearchData? = null,
+    val status: Int
+)
+
+@Serializable
+data class KugouSearchData(
+    val info: List<KugouSong> = emptyList()
+)
+
+@Serializable
+data class KugouSong(
+    val hash: String,
+    val songname: String,
+    val singername: String,
+    val album_name: String? = null,
+    val duration: Int
+)
+
+@Serializable
+data class KugouLyricsResponse(
+    val content: String? = null,
+    val status: Int
+)

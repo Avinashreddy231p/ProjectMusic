@@ -44,13 +44,15 @@ sealed class NetworkFeature(
     sealed class Lyrics(preferenceKey: String, isOnByDefault: Boolean) :
         NetworkFeature(preferenceKey, isOnByDefault) {
         object LRCLib : Lyrics(LRCLIB_ENABLED_KEY, true)
-        object BetterLyrics : Lyrics(BETTERLYRICS_ENABLED_KEY, false)
-        object Lyrically : Lyrics(LYRICALLY_ENABLED_KEY, false) {
+        object BetterLyrics : Lyrics(BETTERLYRICS_ENABLED_KEY, true)
+        object Lyrically : Lyrics(LYRICALLY_ENABLED_KEY, true) {
             override val isEnabled: Boolean
                 get() = boolResource(R.bool.enable_lyrically_provider) && super.isEnabled
         }
-        object Genius : Lyrics(GENIUS_ENABLED_KEY, false)
-        object LyricsPlus : Lyrics(LYRICSPLUS_ENABLED_KEY, false)
+        object Genius : Lyrics(GENIUS_ENABLED_KEY, true)
+        object LyricsPlus : Lyrics(LYRICSPLUS_ENABLED_KEY, true)
+        object NetEase : Lyrics(NETEASE_ENABLED_KEY, true)
+        object Kugou : Lyrics(KUGOU_ENABLED_KEY, true)
     }
 
     sealed class Lastfm(preferenceKey: String, isOnByDefault: Boolean) :
@@ -107,6 +109,8 @@ sealed class NetworkFeature(
         const val LYRICALLY_ENABLED_KEY = "lyrically_enabled"
         const val GENIUS_ENABLED_KEY = "genius_enabled"
         const val LYRICSPLUS_ENABLED_KEY = "lyricsplus_enabled"
+        const val NETEASE_ENABLED_KEY = "netease_enabled"
+        const val KUGOU_ENABLED_KEY = "kugou_enabled"
         const val LRCLIB_ENABLED_KEY = "lrclib_enabled"
         const val GENIUS_API_KEY_KEY = "genius_api_key"
         const val LYRICALLY_API_KEY_KEY = "lyrically_api_key"
