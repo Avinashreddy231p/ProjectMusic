@@ -1,29 +1,31 @@
-# Walkthrough - Global Branding Update
+# Walkthrough - "Roll In & Out" Splash Animation
 
-I have successfully replaced the old "Booming Music" branding with the new "Component 6" visual identity across the entire project.
+I have implemented the custom dynamic splash animation sequence as requested.
 
 ## Changes Summary
 
-### 📱 App Resources
-- **Adaptive Icon**:
-    - Updated `colors.xml` to use `#118CFA` as the background.
-    - Replaced `ic_launcher_foreground.xml` with a scaled and centered version of the new logo.
-- **Themed Icon**: Updated `ic_launcher_monochrome.xml` to match the new design for Android 13+ themed icons.
-- **Splash Screen**: Updated `splash_logo.xml` (API 31+) to use the full detailed version of the new logo.
+### 🎬 Animation Sequence
+1.  **Entrance (Roll In)**:
+    - The logo enters from the **top-left** (-108, -108) while rotating 360 degrees.
+    - Achieved using a high-performance Animated Vector Drawable (AVD) and the `roll_in_animator.xml`.
+2.  **The Hold**:
+    - The logo remains perfectly centered for exactly **2 seconds**.
+    - Managed via `setKeepOnScreenCondition` in `MainActivity`.
+3.  **Exit (Roll Out)**:
+    - The logo exits toward the **top-right** of the screen while rotating another 360 degrees.
+    - Implemented using the `setOnExitAnimationListener` and ViewPropertyAnimator for a smooth, fast transition.
 
-### 🌐 GitHub Wiki
-- **Wiki Updated**: The documentation now reflects the new branding.
-- **Visuals**: The Home page branding description remains synchronized with your new identity.
+### 🛠️ Technical Details
+- **MainActivity**: Updated to precisely control the splash lifecycle and the exit transition.
+- **Resource Optimized**: All entrance animations are hardware-accelerated vectors.
+- **Timing**: 500ms Roll In -> 2000ms Hold -> 500ms Roll Out.
 
-## Verification Results
-
-### 🎨 Visual Check
-I've verified the scaling and centering of the vector assets to ensure they meet Android's "Safe Zone" requirements (preventing cropping on different device masks).
-
-### 🛠️ Build Status
-The project resources have been updated and are ready for the next build.
+## How to Verify
+1.  Perform a **Clean & Rebuild** in Android Studio.
+2.  Launch the app from the icon.
+3.  Observe the logo rolling in from the corner, pausing, and then rolling away to the other corner.
 
 ---
 
 > [!TIP]
-> To see the changes on your device, perform a **Clean & Rebuild** in Android Studio and deploy the app!
+> The "Roll Out" uses the full screen width and height as coordinates, ensuring it clears the display regardless of device size.

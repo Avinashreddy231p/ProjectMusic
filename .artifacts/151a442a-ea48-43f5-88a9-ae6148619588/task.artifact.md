@@ -1,0 +1,4 @@
+- [x] Update `ic_launcher_foreground.xml` with normalized square icon
+- [x] Update `ic_launcher_monochrome.xml` with normalized square icon
+- [x] Verify changes
+- [x] Create walkthrough

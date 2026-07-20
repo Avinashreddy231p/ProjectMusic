@@ -7,6 +7,10 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import androidx.annotation.OptIn
 import androidx.core.content.getSystemService
+import android.view.ViewAnimationUtils
+import android.view.animation.AnticipateInterpolator
+import androidx.core.animation.doOnEnd
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionCommand
@@ -46,7 +50,25 @@ class MainActivity : AbsSlidingMusicPanelActivity(), MediaController.Listener {
     private val updateViewModel: UpdateViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        splashScreen.setOnExitAnimationListener { splashScreenView ->
+            val centerX = splashScreenView.view.width / 2
+            val centerY = splashScreenView.view.height / 2
+            val startRadius = Math.hypot(centerX.toDouble(), centerY.toDouble()).toFloat()
+
+            val revealAnim = ViewAnimationUtils.createCircularReveal(
+                splashScreenView.view, centerX, centerY, startRadius, 0f
+            ).apply {
+                duration = 500
+                interpolator = AnticipateInterpolator()
+                doOnEnd { splashScreenView.remove() }
+            }
+
+            revealAnim.start()
+        }
+
         title = null
 
         updateTabs()
