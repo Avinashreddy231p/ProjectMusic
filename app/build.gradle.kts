@@ -136,7 +136,7 @@ android {
             keyAlias = signingProperties.property("keyAlias")
             keyPassword = signingProperties.property("keyPassword")
             storePassword = signingProperties.property("storePassword")
-            storeFile = file(signingProperties.property("storeFile"))
+            storeFile = rootProject.file(signingProperties.property("storeFile"))
         }
     } else {
         signingConfigs.getByName("debug")

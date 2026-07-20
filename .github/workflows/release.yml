@@ -74,7 +74,7 @@ jobs:
           if [ -z "$SIGNING_KEY" ]; then
             echo "::warning::SIGNING_KEY secret is missing. The build might fail at the signing stage."
           else
-            printf '%s' "$SIGNING_KEY" | base64 -d > ./projectmusic_keystore.jks
+            printf '%s' "$SIGNING_KEY" | base64 -d > ./projectmusic_new_key.jks
           fi
           
           if [ -z "$SIGNING_PROPERTIES" ]; then
