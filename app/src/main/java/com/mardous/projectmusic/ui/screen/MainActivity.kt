@@ -319,23 +319,16 @@ class MainActivity : AbsSlidingMusicPanelActivity(), MediaController.Listener {
     private fun prepareUpdateViewModel() {
         updateViewModel.run {
             updateEventObservable.observe(this@MainActivity) { event ->
-                event.getContentIfNotConsumed()?.let { result ->
-                    when (result.state) {
-                        UpdateSearchResult.State.Completed -> {
-                            val release = result.data ?: return@let
-                            if (result.wasFromUser || release.isDownloadable(this@MainActivity)) {
-                                val existingDialog = supportFragmentManager.findFragmentByTag("UPDATE_FOUND")
-                                if (existingDialog == null) {
-                                    UpdateDialog().show(supportFragmentManager, "UPDATE_FOUND")
-                                }
+                val peeked = event.peekContent()
+                if (peeked.state == UpdateSearchResult.State.Completed) {
+                    event.getContentIfNotConsumed()?.let { result ->
+                        val release = result.data ?: return@let
+                        if (result.wasFromUser || release.isDownloadable(this@MainActivity)) {
+                            val existingDialog = supportFragmentManager.findFragmentByTag("UPDATE_FOUND")
+                            if (existingDialog == null) {
+                                UpdateDialog().show(supportFragmentManager, "UPDATE_FOUND")
                             }
                         }
-                        UpdateSearchResult.State.Failed -> {
-                            if (result.wasFromUser) {
-                                showToast(R.string.could_not_check_for_updates)
-                            }
-                        }
-                        else -> {}
                     }
                 }
             }

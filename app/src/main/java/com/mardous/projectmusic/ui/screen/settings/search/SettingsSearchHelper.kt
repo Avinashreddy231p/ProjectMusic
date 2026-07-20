@@ -52,11 +52,9 @@ object SettingsSearchHelper {
                                 attrValue
                             }
                             
-                            when (attrName) {
-                                "title" -> titleStr = resolvedStr
-                                "summary" -> summaryStr = resolvedStr
-                                "key" -> keyStr = resolvedStr 
-                            }
+                            if (attrName.endsWith("title", ignoreCase = true)) titleStr = resolvedStr
+                            if (attrName.endsWith("summary", ignoreCase = true)) summaryStr = resolvedStr
+                            if (attrName.endsWith("key", ignoreCase = true)) keyStr = resolvedStr 
                         }
                         if (titleStr.isNotEmpty() && keyStr.isNotEmpty()) {
                             allResults.add(SettingsSearchResult(keyStr, titleStr, summaryStr, destinationId, parentTitle))

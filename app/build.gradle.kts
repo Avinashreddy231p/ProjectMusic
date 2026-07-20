@@ -90,40 +90,10 @@ android {
         versionCode = 1310102
         versionName = currentVersion.name
         check(versionCode == currentVersionCode)
-    }
 
-    flavorDimensions += "version"
-    productFlavors {
-        create("github") {
-            dimension = "version"
-
-            resValue("bool", "network_features_enabled_by_default", "true")
-            resValue("bool", "enable_builtin_updater", "true")
-            resValue("bool", "enable_lyrically_provider", "true")
-        }
-        create("fdroid") {
-            dimension = "version"
-
-            resValue("bool", "network_features_enabled_by_default", "false")
-            resValue("bool", "enable_builtin_updater", "false")
-            resValue("bool", "enable_lyrically_provider", "true")
-        }
-        create("playstore") {
-            dimension = "version"
-
-            resValue("bool", "network_features_enabled_by_default", "false")
-            resValue("bool", "enable_builtin_updater", "false")
-            resValue("bool", "enable_lyrically_provider", "false")
-        }
-    }
-
-    sourceSets {
-        named("github") {
-            kotlin.directories.add("src/shared/java")
-        }
-        named("fdroid") {
-            kotlin.directories.add("src/shared/java")
-        }
+        resValue("bool", "network_features_enabled_by_default", "true")
+        resValue("bool", "enable_builtin_updater", "true")
+        resValue("bool", "enable_lyrically_provider", "true")
     }
 
     val signingProperties = getProperties("keystore.properties")
@@ -242,7 +212,7 @@ androidComponents {
         variant.outputs.forEach { output ->
             val filter = output.filters.joinToString("-") { it.identifier }
             val abi = filter.ifEmpty { "universal" }
-            output.outputFileName = "ProjectMusic-${output.versionName.get()}-${variant.flavorName}-$abi.apk"
+            output.outputFileName = "ProjectMusic-${output.versionName.get()}-$abi.apk"
         }
     }
 }

@@ -5,6 +5,7 @@ import com.mardous.projectmusic.data.remote.github.model.GitHubRelease
 data class UpdateSearchResult(
     val state: State = State.Idle,
     val data: GitHubRelease? = null,
+    val error: Throwable? = null,
     val executedAtMillis: Long = -1,
     val wasFromUser: Boolean = false,
     val wasExperimentalQuery: Boolean = true,

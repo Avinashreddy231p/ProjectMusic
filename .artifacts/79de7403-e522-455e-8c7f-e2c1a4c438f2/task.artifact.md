@@ -1,7 +1,7 @@
-- [ ] Modify `GitHubRelease.kt`
-    - [ ] Add `updated_at` to `ReleaseAsset` and `GitHubRelease`
-    - [ ] Implement `lastUpdatedAt` logic
-    - [ ] Update `isNewer` check for `latest-ci`
-- [ ] Modify `GitHubService.kt`
-    - [ ] Update `latestRelease` selection logic to use `lastUpdatedAt`
+- [x] Modify `GitHubRelease.kt`
+    - [x] Add `updated_at` to `ReleaseAsset` and `GitHubRelease`
+    - [x] Implement `lastUpdatedAt` logic
+    - [x] Update `isNewer` check for `latest-ci`
+- [x] Modify `GitHubService.kt`
+    - [x] Update `latestRelease` selection logic to use `lastUpdatedAt`
 - [ ] Verify changes (compilation check)

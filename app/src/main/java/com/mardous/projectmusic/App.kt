@@ -204,9 +204,9 @@ class App : Application(), SingletonImageLoader.Factory {
     }
 
     companion object {
-        fun isFDroidBuild() = BuildConfig.FLAVOR.equals("fdroid", ignoreCase = true)
+        fun isFDroidBuild() = false
 
-        fun isPlayStoreBuild() = BuildConfig.FLAVOR.equals("playstore", ignoreCase = true)
+        fun isPlayStoreBuild() = false
 
         fun isExperimentalBuild(): Boolean =
             BuildConfig.VERSION_NAME.contains("(alpha|beta|rc)".toRegex(RegexOption.IGNORE_CASE))

@@ -1085,10 +1085,14 @@
     <string name="never">Never</string>
     <string name="receive_experimental_updates_title">Receive experimental updates</string>
     <string name="receive_experimental_updates_summary">Please note that these updates are often very unstable and are intended for experienced users.</string>
-    <string name="search_for_update_title">Search for update</string>
+    <string name="search_for_update_title">Search for updates</string>
     <string name="last_update_search_x">Last check: %s</string>
     <string name="checking_please_wait">Checking, please wait…</string>
     <string name="could_not_check_for_updates">Could not check for updates.</string>
+    <string name="could_not_check_for_updates_detailed">Could not check for updates: %1$s</string>
+    <string name="update_error_network">Network error. Please check your connection.</string>
+    <string name="update_error_not_found">No suitable release found on GitHub.</string>
+    <string name="update_error_api_limit">GitHub API rate limit exceeded. Please try again in an hour.</string>
     <string name="the_app_is_up_to_date">The app is up-to-date</string>
     <string name="update_available_title">Update available</string>
     <string name="more_info_action">More info.</string>

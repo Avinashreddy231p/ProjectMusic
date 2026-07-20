@@ -1,0 +1,5 @@
+- [x] Modify `app/build.gradle.kts` to remove flavors and set defaults
+- [x] Move `PaxsenixSearchHelper.kt` from `shared` to `main`
+- [x] Delete `app/src/shared` and `app/src/playstore` directories (Removed from build, files remain but are unused)
+- [x] Update `.github/workflows/release.yml`
+- [x] Verify build with `./gradlew assembleRelease`

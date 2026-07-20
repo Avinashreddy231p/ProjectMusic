@@ -60,6 +60,7 @@ class UpdateViewModel(private val updateService: GitHubService): ViewModel() {
                     UpdateSearchResult(
                         state = UpdateSearchResult.State.Failed,
                         data = null,
+                        error = result.exceptionOrNull(),
                         executedAtMillis = executedAtMillis,
                         wasFromUser = fromUser,
                         wasExperimentalQuery = allowExperimental

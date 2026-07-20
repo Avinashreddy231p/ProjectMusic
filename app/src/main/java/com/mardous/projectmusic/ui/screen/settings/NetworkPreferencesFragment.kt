@@ -29,6 +29,7 @@ class NetworkPreferencesFragment : AbsMainActivityFragment() {
                 ProjectMusicTheme {
                     NetworkSettingsComposeScreen(
                         viewModel = settingsViewModel,
+                        updateViewModel = updateViewModel,
                         onBackClick = { findNavController().navigateUp() },
                         onCheckForUpdates = { updateViewModel.searchForUpdate(true) },
                         onScrobblingLogin = { service ->
@@ -41,7 +42,8 @@ class NetworkPreferencesFragment : AbsMainActivityFragment() {
                         onClearLyricsClick = {
                             lyricsViewModel.deleteLyrics()
                             requireContext().showToast(com.mardous.projectmusic.R.string.lyrics_cleared)
-                        }
+                        },
+                        highlightKey = arguments?.getString("highlightKey")
                     )
                 }
             }

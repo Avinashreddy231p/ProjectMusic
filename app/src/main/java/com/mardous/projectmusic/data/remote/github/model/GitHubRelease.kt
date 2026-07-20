@@ -168,7 +168,7 @@ class GitHubRelease(
     ) : Parcelable {
 
         val isApk: Boolean
-            get() = contentType == APK_MIME_TYPE && name.contains(BuildConfig.FLAVOR)
+            get() = contentType == APK_MIME_TYPE
 
         val abi: String?
             get() {

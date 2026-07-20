@@ -1,10 +1,14 @@
 package com.mardous.projectmusic.ui.screen.settings
 
+import androidx.compose.animation.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -19,23 +23,94 @@ import com.mardous.projectmusic.BuildConfig
 import com.mardous.projectmusic.extensions.files.getFormattedFileName
 import com.mardous.projectmusic.ui.component.compose.preferences.*
 import com.mardous.projectmusic.ui.dialogs.MultiCheckDialog
+import androidx.compose.runtime.livedata.observeAsState
 import com.mardous.projectmusic.ui.screen.settings.search.SettingsSearchHelper
+import com.mardous.projectmusic.core.model.task.Event
+import com.mardous.projectmusic.ui.screen.update.UpdateViewModel
+import com.mardous.projectmusic.ui.screen.update.UpdateSearchResult
 import com.mardous.projectmusic.util.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AdvancedSettingsComposeScreen(
     viewModel: SettingsViewModel,
+    updateViewModel: UpdateViewModel,
     onBackClick: () -> Unit,
     onCheckForUpdates: () -> Unit,
-    onClearCache: () -> Unit
+    onClearCache: () -> Unit,
+    highlightKey: String? = null
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val updateEvent by updateViewModel.updateEventObservable.observeAsState()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val context = LocalContext.current
+    val resources = context.resources
+    val listState = rememberLazyListState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    var highlightedKey by remember { mutableStateOf(highlightKey) }
+
+    // --- SCROLL TO HIGHLIGHTED ---
+    LaunchedEffect(highlightedKey) {
+        if (highlightedKey != null) {
+            delay(300)
+            val index = when (highlightedKey) {
+                "language_name" -> 1
+                "enable_rotation_lock" -> 1
+                "backup_data", "restore_data" -> 3
+                "mp3_index_seeking", "pause_on_zero_volume", "stop_when_closed_from_recents" -> 5
+                "search_for_update", "update_search_mode", "experimental_updates" -> 7
+                "clear_cache", "diagnostics" -> 9
+                else -> -1
+            }
+            if (index != -1) {
+                listState.animateScrollToItem(index)
+                delay(2000)
+                highlightedKey = null
+            }
+        }
+    }
+
+    // --- UPDATE ERROR FEEDBACK ---
+    LaunchedEffect(updateEvent) {
+        val result = updateEvent?.getContentIfNotConsumed()
+        if (result != null && result.state == UpdateSearchResult.State.Failed && result.wasFromUser) {
+            val error = result.error
+            val errorMessage = when (error) {
+                is java.io.IOException -> resources.getString(R.string.update_error_network)
+                is IllegalStateException -> {
+                    val msg = error.message ?: ""
+                    if (msg.contains("rate limit", true)) {
+                        resources.getString(R.string.update_error_api_limit)
+                    } else if (msg.contains("not configured", true)) {
+                        msg
+                    } else if (msg.contains("No suitable", true)) {
+                        resources.getString(R.string.update_error_not_found)
+                    } else if (msg.contains("GitHub", true)) {
+                        msg // Use detailed GitHub error message directly
+                    } else {
+                        resources.getString(R.string.could_not_check_for_updates_detailed, msg.ifBlank { "Unknown error" })
+                    }
+                }
+                else -> {
+                    val msg = error?.message
+                    if (msg.isNullOrBlank()) {
+                        resources.getString(R.string.could_not_check_for_updates_detailed, error?.javaClass?.simpleName ?: "Unknown error")
+                    } else {
+                        resources.getString(R.string.could_not_check_for_updates_detailed, msg)
+                    }
+                }
+            }
+            snackbarHostState.showSnackbar(
+                message = errorMessage,
+                duration = SnackbarDuration.Long
+            )
+        }
+    }
 
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showUpdateModeDialog by remember { mutableStateOf(false) }
@@ -104,9 +179,11 @@ fun AdvancedSettingsComposeScreen(
                 },
                 scrollBehavior = scrollBehavior
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         LazyColumn(
+            state = listState,
             modifier = Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(top = 16.dp, bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -191,7 +268,11 @@ fun AdvancedSettingsComposeScreen(
                             title = "Search for Updates",
                             summary = "Stay on the latest version",
                             icon = R.drawable.ic_update_24dp,
-                            onClick = onCheckForUpdates
+                            onClick = onCheckForUpdates,
+                            modifier = Modifier.background(
+                                if (highlightedKey == "search_for_update") MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                                else Color.Transparent
+                            )
                         )
                         SegmentedPreferenceItem(
                             title = stringResource(R.string.auto_update_title),

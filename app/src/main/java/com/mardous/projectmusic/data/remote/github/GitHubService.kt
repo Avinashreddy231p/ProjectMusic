@@ -21,9 +21,11 @@ import com.mardous.projectmusic.BuildConfig
 import com.mardous.projectmusic.data.remote.github.model.GitHubRelease
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.client.statement.HttpResponse
+import io.ktor.http.HttpStatusCode
 import kotlin.time.ExperimentalTime
 
 class GitHubService(private val context: Context, private val client: HttpClient, private val authToken: String? = null) {
@@ -45,8 +47,18 @@ class GitHubService(private val context: Context, private val client: HttpClient
             throw IllegalStateException("GitHub API URL is not configured for this flavor")
         }
 
-        val allReleases = runCatching { fetchAllReleases(user, repo) }.getOrNull() 
-            ?: throw IllegalStateException("Failed to fetch releases from GitHub")
+        val allReleases = try {
+            fetchAllReleases(user, repo)
+        } catch (e: ClientRequestException) {
+            val message = when (e.response.status) {
+                HttpStatusCode.Forbidden, HttpStatusCode.TooManyRequests -> "GitHub API rate limit exceeded (403/429). Please try again later."
+                HttpStatusCode.NotFound -> "GitHub repository not found (404). Check user/repo settings."
+                else -> "GitHub request failed (${e.response.status.value}): ${e.response.status.description}"
+            }
+            throw IllegalStateException(message, e)
+        } catch (e: Exception) {
+            throw IllegalStateException("Network or Parsing error while fetching releases: ${e.localizedMessage ?: e.message ?: "Unknown error"}", e)
+        }
 
         val stableRelease = allReleases.firstOrNull { !it.isPrerelease && it.hasApk }
             ?: allReleases.firstOrNull { it.hasApk } // Fallback to any release with an APK if no stable ones exist

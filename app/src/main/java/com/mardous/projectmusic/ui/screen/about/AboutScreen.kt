@@ -137,10 +137,7 @@ fun AboutScreen(
     val appVersion = try {
         val packageManager = context.packageManager
         val packageInfo = packageManager.getPackageInfo(context.packageName, 0)
-        val versionName = packageInfo.versionName
-        if (BuildConfig.FLAVOR == "fdroid") {
-            "$versionName (F-Droid)"
-        } else versionName ?: "Unknown"
+        packageInfo.versionName ?: "Unknown"
     } catch (_: PackageManager.NameNotFoundException) {
         "Unknown"
     }

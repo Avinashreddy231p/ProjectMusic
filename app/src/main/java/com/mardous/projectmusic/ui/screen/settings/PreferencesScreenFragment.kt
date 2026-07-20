@@ -395,9 +395,11 @@ class AdvancedPreferencesFragment : Fragment() {
                 ProjectMusicTheme {
                     AdvancedSettingsComposeScreen(
                         viewModel = viewModel,
+                        updateViewModel = updateViewModel,
                         onBackClick = { findNavController().popBackStack() },
                         onCheckForUpdates = { updateViewModel.searchForUpdate(true) },
-                        onClearCache = { clearImageLoaderCache() }
+                        onClearCache = { clearImageLoaderCache() },
+                        highlightKey = arguments?.getString("highlightKey")
                     )
                 }
             }
@@ -663,9 +665,41 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
                         updateSearchPreference.summary = getString(R.string.checking_please_wait)
                     }
 
-                    UpdateSearchResult.State.Completed,
+                    UpdateSearchResult.State.Completed -> {
+                        updateSearchState(updateSearchPreference, result.executedAtMillis)
+                    }
+
                     UpdateSearchResult.State.Failed -> {
                         updateSearchState(updateSearchPreference, result.executedAtMillis)
+                        if (result.wasFromUser) {
+                            val error = result.error
+                            val message = when (error) {
+                                is java.io.IOException -> getString(R.string.update_error_network)
+                                is IllegalStateException -> {
+                                    val msg = error.message ?: ""
+                                    if (msg.contains("rate limit", true)) {
+                                        getString(R.string.update_error_api_limit)
+                                    } else if (msg.contains("not configured", true)) {
+                                        msg
+                                    } else if (msg.contains("No suitable", true)) {
+                                        getString(R.string.update_error_not_found)
+                                    } else if (msg.contains("GitHub", true)) {
+                                        msg
+                                    } else {
+                                        getString(R.string.could_not_check_for_updates_detailed, msg.ifBlank { "Unknown error" })
+                                    }
+                                }
+                                else -> {
+                                    val msg = error?.message
+                                    if (msg.isNullOrBlank()) {
+                                        getString(R.string.could_not_check_for_updates_detailed, error?.javaClass?.simpleName ?: "Unknown error")
+                                    } else {
+                                        getString(R.string.could_not_check_for_updates_detailed, msg)
+                                    }
+                                }
+                            }
+                            showToast(message)
+                        }
                     }
 
                     else -> {

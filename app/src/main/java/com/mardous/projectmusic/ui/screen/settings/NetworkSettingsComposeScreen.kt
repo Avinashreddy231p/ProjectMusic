@@ -1,12 +1,16 @@
 package com.mardous.projectmusic.ui.screen.settings
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -14,26 +18,97 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import com.mardous.projectmusic.R
+import com.mardous.projectmusic.core.model.task.Event
 import com.mardous.projectmusic.data.model.network.ScrobblingService
 import com.mardous.projectmusic.data.model.network.LoginState
 import com.mardous.projectmusic.ui.component.compose.preferences.*
+import com.mardous.projectmusic.ui.screen.update.UpdateViewModel
+import com.mardous.projectmusic.ui.screen.update.UpdateSearchResult
 import com.mardous.projectmusic.util.*
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun NetworkSettingsComposeScreen(
     viewModel: SettingsViewModel,
+    updateViewModel: UpdateViewModel,
     onBackClick: () -> Unit,
     onCheckForUpdates: () -> Unit,
     onScrobblingLogin: (ScrobblingService) -> Unit,
     onPendingScrobblesClick: () -> Unit,
-    onClearLyricsClick: () -> Unit
+    onClearLyricsClick: () -> Unit,
+    highlightKey: String? = null
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val updateEvent by updateViewModel.updateEventObservable.observeAsState()
     val lastFmLoginState by viewModel.lastFmLoginState.collectAsState()
     val listenBrainzLoginState by viewModel.listenBrainzLoginState.collectAsState()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val context = LocalContext.current
+    val resources = context.resources
+    val listState = rememberLazyListState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    var highlightedKey by remember { mutableStateOf(highlightKey) }
+
+    // --- SCROLL TO HIGHLIGHTED ---
+    LaunchedEffect(highlightedKey) {
+        if (highlightedKey != null) {
+            delay(300)
+            val index = when (highlightedKey) {
+                "network_features", "wifi_only_network" -> 1
+                "online_music_provider", "allow_online_artist_images", "allow_online_album_covers", "preferred_image_size" -> 3
+                "lrclib_enabled", "betterlyrics_enabled", "lyrically_enabled", "genius_enabled", "clear_lyrics" -> 5
+                "musicbrainz_enabled" -> 7
+                "file_tag_scanner" -> 9
+                "search_for_update", "experimental_updates" -> 11
+                "lastfm_hub", "listenbrainz_hub" -> 13
+                else -> -1
+            }
+            if (index != -1) {
+                listState.animateScrollToItem(index)
+                delay(2000)
+                highlightedKey = null
+            }
+        }
+    }
+
+    // --- UPDATE ERROR FEEDBACK ---
+    LaunchedEffect(updateEvent) {
+        val result = updateEvent?.getContentIfNotConsumed()
+        if (result != null && result.state == UpdateSearchResult.State.Failed && result.wasFromUser) {
+            val error = result.error
+            val errorMessage = when (error) {
+                is java.io.IOException -> resources.getString(R.string.update_error_network)
+                is IllegalStateException -> {
+                    val msg = error.message ?: ""
+                    if (msg.contains("rate limit", true)) {
+                        resources.getString(R.string.update_error_api_limit)
+                    } else if (msg.contains("not configured", true)) {
+                        msg
+                    } else if (msg.contains("No suitable", true)) {
+                        resources.getString(R.string.update_error_not_found)
+                    } else if (msg.contains("GitHub", true)) {
+                        msg // Use detailed GitHub error message directly
+                    } else {
+                        resources.getString(R.string.could_not_check_for_updates_detailed, msg.ifBlank { "Unknown error" })
+                    }
+                }
+                else -> {
+                    val msg = error?.message
+                    if (msg.isNullOrBlank()) {
+                        resources.getString(R.string.could_not_check_for_updates_detailed, error?.javaClass?.simpleName ?: "Unknown error")
+                    } else {
+                        resources.getString(R.string.could_not_check_for_updates_detailed, msg)
+                    }
+                }
+            }
+            snackbarHostState.showSnackbar(
+                message = errorMessage,
+                duration = SnackbarDuration.Long
+            )
+        }
+    }
 
     var showOnlineProviderDialog by remember { mutableStateOf(false) }
     var showImageSizeDialog by remember { mutableStateOf(false) }
@@ -96,9 +171,11 @@ fun NetworkSettingsComposeScreen(
                 },
                 scrollBehavior = scrollBehavior
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         LazyColumn(
+            state = listState,
             modifier = Modifier.fillMaxSize().padding(padding),
             contentPadding = PaddingValues(top = 16.dp, bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -293,7 +370,11 @@ fun NetworkSettingsComposeScreen(
                         ExpressivePreferenceItem(
                             title = "Search for Updates",
                             icon = R.drawable.ic_update_24dp,
-                            onClick = onCheckForUpdates
+                            onClick = onCheckForUpdates,
+                            modifier = Modifier.background(
+                                if (highlightedKey == "search_for_update") MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                                else Color.Transparent
+                            )
                         )
                         ExpressiveSwitchItem(
                             title = "Experimental Updates",
