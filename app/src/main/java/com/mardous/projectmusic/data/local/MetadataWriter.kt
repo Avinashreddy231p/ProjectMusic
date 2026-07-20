@@ -218,7 +218,7 @@ data class EditTarget(
 
     val hasArtwork get() = artworkId > -1
 
-    val first get() = contents.first()
+    val first get() = contents.firstOrNull()
 
     @Parcelize
     data class Content(val id: Long, val uri: Uri, val path: String) : Parcelable

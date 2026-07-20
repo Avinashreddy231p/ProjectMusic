@@ -1,5 +1,6 @@
 package com.mardous.projectmusic.data.remote.lyrics.api.betterlyrics
 
+import android.util.Log
 import com.mardous.projectmusic.data.model.Song
 import com.mardous.projectmusic.data.model.lyrics.RawLyrics
 import com.mardous.projectmusic.data.model.network.NetworkFeature
@@ -22,29 +23,34 @@ class BetterLyricsApi(private val client: HttpClient) : LyricsApi {
         title: String,
         artist: String
     ): RawLyrics.Remote? {
-        val response = client.get(BETTERLYRICS_API_URL) {
-            parameter("s", title)
-            parameter("a", artist)
-            parameter("d", (song.duration / 1000))
-            parameter("al", song.albumName)
-            timeout {
-                connectTimeoutMillis = 5000
-                socketTimeoutMillis = 10000
-                requestTimeoutMillis = 15000
+        return try {
+            val response = client.get(BETTERLYRICS_API_URL) {
+                parameter("s", title)
+                parameter("a", artist)
+                parameter("d", (song.duration / 1000))
+                parameter("al", song.albumName)
+                timeout {
+                    connectTimeoutMillis = 5000
+                    socketTimeoutMillis = 10000
+                    requestTimeoutMillis = 15000
+                }
             }
+            if (response.status == HttpStatusCode.OK) {
+                val result = response.body<BetterLyricsResponse>()
+                if (!result.ttml.isNullOrEmpty()) {
+                    RawLyrics.Remote(
+                        synced = RawLyrics.Remote.Content(name, result.ttml)
+                    )
+                } else null
+            } else null
+        } catch (e: Exception) {
+            Log.e(TAG, "BetterLyrics request failed", e)
+            null
         }
-        if (response.status == HttpStatusCode.OK) {
-            val result = response.body<BetterLyricsResponse>()
-            if (result.ttml.isNotEmpty()) {
-                return RawLyrics.Remote(
-                    synced = RawLyrics.Remote.Content(name, result.ttml)
-                )
-            }
-        }
-        return null
     }
 
     companion object {
+        private const val TAG = "BetterLyricsApi"
         private const val BETTERLYRICS_API_URL = "https://lyrics-api.boidu.dev/getLyrics"
     }
 }

@@ -36,7 +36,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 @Parcelize
 @Serializable

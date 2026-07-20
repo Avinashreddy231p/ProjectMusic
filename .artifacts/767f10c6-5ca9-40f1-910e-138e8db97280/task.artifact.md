@@ -1,5 +1,5 @@
-- [x] Modify `app/build.gradle.kts` to remove flavors and set defaults
-- [x] Move `PaxsenixSearchHelper.kt` from `shared` to `main`
-- [x] Delete `app/src/shared` and `app/src/playstore` directories (Removed from build, files remain but are unused)
-- [x] Update `.github/workflows/release.yml`
-- [x] Verify build with `./gradlew assembleRelease`
+- [x] Add `REQUEST_INSTALL_PACKAGES` to `AndroidManifest.xml`
+- [x] Create `UpdateDownloadReceiver.kt`
+- [x] Register `UpdateDownloadReceiver` in `AndroidManifest.xml`
+- [x] Update `provider_paths.xml`
+- [ ] Verify build

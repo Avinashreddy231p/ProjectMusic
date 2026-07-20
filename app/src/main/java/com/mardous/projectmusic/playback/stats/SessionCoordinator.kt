@@ -1,17 +1,14 @@
 package com.mardous.projectmusic.playback.stats
 
 import java.util.UUID
-import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.atomic.AtomicLong
-import java.util.concurrent.atomic.AtomicReference
 
 class SessionCoordinator {
 
-    private val currentGroupId = AtomicReference<String>("")
-    private val songCount = AtomicInteger(0)
-    private val groupStartMs = AtomicReference<Long>(0L)
-    private val lastEndMs = AtomicReference<Long>(0L)
-    private val accumulatedPlaybackMs = AtomicLong(0L)
+    private var currentGroupId: String = ""
+    private var songCount: Int = 0
+    private var groupStartMs: Long = 0L
+    private var lastEndMs: Long = 0L
+    private var accumulatedPlaybackMs: Long = 0L
     private val lock = Any()
 
     data class SessionGroupSummary(
@@ -25,38 +22,38 @@ class SessionCoordinator {
     fun startNewGroup(startMs: Long = System.currentTimeMillis()): String {
         synchronized(lock) {
             val uuid = UUID.randomUUID().toString()
-            currentGroupId.set(uuid)
-            songCount.set(0)
-            accumulatedPlaybackMs.set(0L)
-            groupStartMs.set(startMs)
-            lastEndMs.set(startMs)
+            currentGroupId = uuid
+            songCount = 0
+            accumulatedPlaybackMs = 0L
+            groupStartMs = startMs
+            lastEndMs = startMs
             return uuid
         }
     }
 
     fun onSongPlayed(endMs: Long = System.currentTimeMillis(), playbackDurationMs: Long = 0L) {
         synchronized(lock) {
-            songCount.incrementAndGet()
-            lastEndMs.set(endMs)
-            accumulatedPlaybackMs.addAndGet(playbackDurationMs)
+            songCount++
+            lastEndMs = endMs
+            accumulatedPlaybackMs += playbackDurationMs
         }
     }
 
-    fun getCurrentGroupId(): String = synchronized(lock) { currentGroupId.get() }
+    fun getCurrentGroupId(): String = synchronized(lock) { currentGroupId }
 
     fun onSessionEnd(endMs: Long = System.currentTimeMillis()): SessionGroupSummary? {
         synchronized(lock) {
-            val count = songCount.get()
+            val count = songCount
             if (count == 0) return null
 
-            val groupId = currentGroupId.get().ifEmpty { UUID.randomUUID().toString() }
-            val start = groupStartMs.get()
+            val groupId = currentGroupId.ifEmpty { UUID.randomUUID().toString() }
+            val start = groupStartMs
             val end = endMs.coerceAtLeast(start)
 
             val summary = SessionGroupSummary(
                 groupId = groupId,
                 totalSongs = count,
-                totalPlaybackDurationMs = accumulatedPlaybackMs.get(),
+                totalPlaybackDurationMs = accumulatedPlaybackMs,
                 startTime = start,
                 endTime = end
             )
@@ -66,15 +63,15 @@ class SessionCoordinator {
         }
     }
 
-    fun peekSongCount(): Int = songCount.get()
+    fun peekSongCount(): Int = synchronized(lock) { songCount }
 
     fun reset() {
         synchronized(lock) {
-            currentGroupId.set("")
-            songCount.set(0)
-            accumulatedPlaybackMs.set(0L)
-            groupStartMs.set(0L)
-            lastEndMs.set(0L)
+            currentGroupId = ""
+            songCount = 0
+            accumulatedPlaybackMs = 0L
+            groupStartMs = 0L
+            lastEndMs = 0L
         }
     }
 }

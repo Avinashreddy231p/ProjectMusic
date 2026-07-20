@@ -3,6 +3,7 @@ package com.mardous.projectmusic.data.local.repository
 import com.mardous.projectmusic.data.local.database.dao.ListeningHistoryDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -26,6 +27,7 @@ class StatsCache(
     
     private val artistPlayCounts = ConcurrentHashMap<String, Long>()
     private val artistDurations = ConcurrentHashMap<String, Long>()
+    private var refreshJob: Job? = null
 
     init {
         listeningHistoryDao.getAllSessionsFlow()
@@ -34,7 +36,8 @@ class StatsCache(
     }
 
     private fun refresh() {
-        applicationScope.launch(Dispatchers.IO) {
+        refreshJob?.cancel()
+        refreshJob = applicationScope.launch(Dispatchers.IO) {
             songPlayCounts.clear()
             songDurations.clear()
             val topSongs = listeningHistoryDao.getTopSongs(maxCacheSize)

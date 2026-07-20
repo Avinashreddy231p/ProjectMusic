@@ -126,13 +126,20 @@ class ImprovedShuffleOrder private constructor(
         if (length == 0 || (indexToExclusive - indexFrom) <= 0)
             return this
 
-        // TODO could this logic be improved?
-        val newShuffled = shuffled.toMutableList()
-        newShuffled.remove(indexFrom)
-        newShuffled.replaceAll { if (it > indexFrom) it - 1 else it }
-        newShuffled.replaceAll { if (it >= newIndexFrom) it + 1 else it }
-        newShuffled.add(indexInShuffled[newIndexFrom], newIndexFrom)
-        return ImprovedShuffleOrder(newShuffled.toIntArray(), random)
+        val moveCount = indexToExclusive - indexFrom
+        val oldToNew = IntArray(length)
+
+        for (i in 0 until length) {
+            oldToNew[i] = if (i in indexFrom until indexToExclusive) {
+                newIndexFrom + (i - indexFrom)
+            } else {
+                val postRemoval = if (i >= indexFrom) i - moveCount else i
+                if (postRemoval >= newIndexFrom) postRemoval + moveCount else postRemoval
+            }
+        }
+
+        val newShuffled = shuffled.map { oldToNew[it] }.toIntArray()
+        return ImprovedShuffleOrder(newShuffled, random)
     }
 
     override fun cloneAndClear(): ShuffleOrder {

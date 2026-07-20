@@ -120,7 +120,9 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
                         .filter { !compatibleModes.contains(it.id) }
                         .forEach { it.isVisible = false }
                     binding.modeButtonGroup.isSelectionRequired = true
-                    binding.modeButtonGroup.check(compatibleModes.first())
+                    if (compatibleModes.isNotEmpty()) {
+                        binding.modeButtonGroup.check(compatibleModes.first())
+                    }
 
                     binding.searchView.hint = searchFilter.getName()
                     binding.filterScrollView.isVisible = searchFilter.getCompatibleModes().size > 1

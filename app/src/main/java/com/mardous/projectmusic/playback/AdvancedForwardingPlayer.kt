@@ -13,9 +13,9 @@ class AdvancedForwardingPlayer(
     player: Player
 ) : ForwardingPlayer(player), KoinComponent {
 
-    private val listeners = mutableListOf<Player.Listener>()
-
     private var sequentialTimelineEnabled = false
+    private var cachedLastUpcomingIndex: Int = C.INDEX_UNSET
+    private var cachedMediaItemCount: Int = 0
 
     private val internalListener = object : Player.Listener {
         override fun onPositionDiscontinuity(
@@ -53,16 +53,6 @@ class AdvancedForwardingPlayer(
         super.release()
     }
 
-    override fun addListener(listener: Player.Listener) {
-        listeners.add(listener)
-        super.addListener(listener)
-    }
-
-    override fun removeListener(listener: Player.Listener) {
-        listeners.remove(listener)
-        super.removeListener(listener)
-    }
-
     fun setSequentialTimelineEnabled(sequentialTimelineEnabled: Boolean) {
         if (sequentialTimelineEnabled != this.sequentialTimelineEnabled) {
             if (!sequentialTimelineEnabled) {
@@ -73,6 +63,7 @@ class AdvancedForwardingPlayer(
     }
 
     override fun addMediaItem(index: Int, mediaItem: MediaItem) {
+        invalidateCachedIndex()
         if (!sequentialTimelineEnabled) {
             super.addMediaItem(index, mediaItem)
             return
@@ -112,6 +103,7 @@ class AdvancedForwardingPlayer(
     }
 
     override fun addMediaItems(index: Int, mediaItems: List<MediaItem>) {
+        invalidateCachedIndex()
         if (!sequentialTimelineEnabled) {
             super.addMediaItems(index, mediaItems)
             return
@@ -159,6 +151,7 @@ class AdvancedForwardingPlayer(
     }
 
     override fun moveMediaItem(currentIndex: Int, newIndex: Int) {
+        invalidateCachedIndex()
         if (!sequentialTimelineEnabled) {
             super.moveMediaItem(currentIndex, newIndex)
             return
@@ -220,13 +213,24 @@ class AdvancedForwardingPlayer(
         super.moveMediaItem(currentIndex, newIndex)
     }
 
-    private fun getLastUpcomingItemIndex(): Int {
-        if (mediaItemCount == 0) return C.INDEX_UNSET
+    private fun invalidateCachedIndex() {
+        cachedLastUpcomingIndex = C.INDEX_UNSET
+    }
 
-        return (0 until mediaItemCount)
+    private fun getLastUpcomingItemIndex(): Int {
+        if (mediaItemCount == 0) {
+            cachedLastUpcomingIndex = C.INDEX_UNSET
+            return C.INDEX_UNSET
+        }
+        if (cachedLastUpcomingIndex != C.INDEX_UNSET && cachedMediaItemCount == mediaItemCount) {
+            return cachedLastUpcomingIndex
+        }
+        cachedMediaItemCount = mediaItemCount
+        cachedLastUpcomingIndex = (0 until mediaItemCount)
             .map { index -> getMediaItemAt(index) }
             .indexOfLast { item -> item.isUpcoming() }
             .takeIf { value -> value > -1 } ?: C.INDEX_UNSET
+        return cachedLastUpcomingIndex
     }
 
     private fun isIndexInUpcomingRange(

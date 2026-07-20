@@ -1,0 +1,3 @@
+- [x] Update `gradle-wrapper.properties` with increased network timeout
+- [x] Update `gradle.properties` with TLS and network timeout JVM args
+- [x] Verify the build (check if `Connection reset` is resolved)

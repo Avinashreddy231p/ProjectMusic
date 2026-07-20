@@ -65,7 +65,11 @@ class SleepTimer(private val context: Context) : AlarmManager.OnAlarmListener {
                 fadeDuration = fadeDuration
             )
             this.nextElapsedTimeRealTime = SystemClock.elapsedRealtime() + millisInFuture
-            am.setExact(ELAPSED_REALTIME_WAKEUP, nextElapsedTimeRealTime, TAG, this, null)
+            if (canScheduleExactAlarm()) {
+                am.setExact(ELAPSED_REALTIME_WAKEUP, nextElapsedTimeRealTime, TAG, this, null)
+            } else {
+                am.set(ELAPSED_REALTIME_WAKEUP, nextElapsedTimeRealTime, TAG, this, null)
+            }
             setRunning(true)
         }
     }

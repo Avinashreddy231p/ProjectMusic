@@ -1,35 +1,32 @@
-# Implementation Plan - Change Build to GitHub Flavor
+# Implementation Plan - Handle App Update Installation
 
-The user wants to simplify the build system to only use the "GitHub" flavor configuration. Currently, the project has three flavors: `github`, `fdroid`, and `playstore`. The `github` flavor is the most feature-complete, including network features, a built-in updater, and the Lyrically provider.
+The current implementation enqueues the APK download using `DownloadManager` but does not automatically trigger the installation once the download is complete. The user expects the app to handle the installation process.
 
 ## Proposed Changes
 
-### Build Configuration
-#### [MODIFY] [build.gradle.kts](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/build.gradle.kts)
-- Remove `flavorDimensions` and `productFlavors` blocks.
-- Move `resValue` entries from the `github` flavor to `defaultConfig`.
-- Simplify `sourceSets` by removing flavor-specific named blocks.
-- Update `androidComponents` logic to remove flavor-based property loading and naming.
-- Update APK naming convention to reflect the single build type.
+### 1. Permissions and Manifest
+#### [MODIFY] [AndroidManifest.xml](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/AndroidManifest.xml)
+- Add `android.permission.REQUEST_INSTALL_PACKAGES` to allow the app to trigger the package installer.
+- Register a new `BroadcastReceiver` for `android.intent.action.DOWNLOAD_COMPLETE`.
 
-### Source Code Organization
-#### [MOVE] `app/src/shared/java` content to `app/src/main/java`
-- Move `com.mardous.projectmusic.data.remote.lyrics.api.lyrically.PaxsenixSearchHelper` to the main source set.
-#### [DELETE] `app/src/shared`
-#### [DELETE] `app/src/playstore`
-- Remove the stubbed version of `PaxsenixSearchHelper`.
+### 2. Broadcast Receiver for Download Completion
+#### [NEW] `UpdateDownloadReceiver.kt` in `com.mardous.projectmusic.ui.screen.update`
+- Implement a `BroadcastReceiver` that listens for `ACTION_DOWNLOAD_COMPLETE`.
+- Check if the completed download ID matches the `lastUpdateId` stored in `Preferences`.
+- If it matches, retrieve the file URI from `DownloadManager`.
+- Trigger the installation Intent using `FileProvider` to safely share the APK file with the system installer.
 
-### CI/CD Automation
-#### [MODIFY] [release.yml](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/.github/workflows/release.yml)
-- Update Gradle tasks from `assembleGithubRelease` to `assembleRelease`.
-- Update artifact paths and naming in the workflow.
+### 3. File Provider Configuration
+#### [MODIFY] [provider_paths.xml](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/res/xml/provider_paths.xml)
+- Ensure the `Download` directory is accessible via `FileProvider`. (Current `external-path` might be sufficient, but adding a specific one for `Download` is safer).
 
 ## Verification Plan
 
 ### Automated Tests
-- Run `./gradlew assembleRelease` to ensure the build completes successfully.
-- Run `./gradlew assembleDebug` to verify local development build.
+- None possible for the full installation flow as it involves system dialogs.
 
 ### Manual Verification
-- Verify that `BuildConfig.GITHUB_API_URL` and other properties are correctly populated from `public.properties`.
-- Check that the generated APK name follows the new simplified format.
+1. Trigger an update check and click "Download".
+2. Wait for the download to complete.
+3. Verify that the system installation dialog appears automatically.
+4. (Optional) Test on different Android versions to ensure `FileProvider` and `REQUEST_INSTALL_PACKAGES` are handled correctly.

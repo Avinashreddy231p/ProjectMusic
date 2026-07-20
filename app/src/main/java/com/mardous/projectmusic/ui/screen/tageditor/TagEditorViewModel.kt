@@ -76,7 +76,7 @@ class TagEditorViewModel(
 
     fun loadContent() = viewModelScope.launch(Dispatchers.IO + ioHandler) {
         if (target.hasContent) {
-            val metadataReader = MetadataReader(target.first.uri, target.hasArtwork)
+            val metadataReader = MetadataReader(target.first!!.uri, target.hasArtwork)
             if (metadataReader.hasMetadata) {
                 val newValue = TagEditorResult(
                     title = metadataReader.first(MetadataReader.TITLE),
@@ -104,8 +104,8 @@ class TagEditorViewModel(
     }
 
     fun loadArtwork() = viewModelScope.launch(Dispatchers.IO + ioHandler) {
-        if (target.hasArtwork) {
-            val metadataReader = MetadataReader(target.first.uri, readPictures = true)
+        if (target.hasArtwork && target.hasContent) {
+            val metadataReader = MetadataReader(target.first!!.uri, readPictures = true)
             val picture = metadataReader.frontCover()
             if (picture != null) {
                 _artworkResult.postValue(picture)

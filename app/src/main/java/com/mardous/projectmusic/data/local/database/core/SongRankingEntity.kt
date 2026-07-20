@@ -44,6 +44,6 @@ data class SongRankingEntity(
     @ColumnInfo(name = "duration_rank") val durationRank: Int = 0,
     @ColumnInfo(name = "overall_rank") val overallRank: Int = 0,
     @ColumnInfo(name = "overall_score") val overallScore: Double = 0.0,
-    @ColumnInfo(name = "last_updated") val lastUpdated: Long = System.currentTimeMillis(),
+    @ColumnInfo(name = "last_updated") val lastUpdated: Long = 0,
     @ColumnInfo(name = "ranking_version") val rankingVersion: Int = 1
 )

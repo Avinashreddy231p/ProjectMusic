@@ -31,6 +31,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import kotlin.math.min
@@ -157,6 +158,7 @@ class RealTimeStatsTracker(
                 snapshot = snapshot
             )
         }
+        val sessionRef = synchronized(lock) { currentSession.copy() }
         scope.launch(Dispatchers.IO) {
             try {
                 val metadataReader = MetadataReader(song.uri)
@@ -164,16 +166,19 @@ class RealTimeStatsTracker(
                 val publisher = metadataReader.merge(MetadataReader.COPYRIGHT)
                 val hasLyrics = metadataReader.value(MetadataReader.LYRICS)?.isNotEmpty() == true
                 synchronized(lock) {
-                    currentSession.lyricist = lyricist
-                    currentSession.publisher = publisher
-                    currentSession.hasLyrics = hasLyrics
+                    if (currentSession.sessionStartWallMs == sessionRef.sessionStartWallMs &&
+                        currentSession.song == sessionRef.song) {
+                        currentSession.lyricist = lyricist
+                        currentSession.publisher = publisher
+                        currentSession.hasLyrics = hasLyrics
+                    }
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to read metadata for ${song.title}", e)
             }
         }
         updatePlaybackState()
-        startPeriodicFlush()
+        startPeriodicStateUpdate()
         startTickUpdates()
     }
 
@@ -471,6 +476,11 @@ class RealTimeStatsTracker(
         updatePlaybackState()
     }
 
+    fun stop() {
+        reset()
+        scope.cancel()
+    }
+
     private fun startTickUpdates() {
         tickJob?.cancel()
         tickJob = scope.launch {
@@ -486,7 +496,7 @@ class RealTimeStatsTracker(
         tickJob = null
     }
 
-    private fun startPeriodicFlush() {
+    private fun startPeriodicStateUpdate() {
         flushJob?.cancel()
         flushJob = scope.launch {
             while (isActive) {

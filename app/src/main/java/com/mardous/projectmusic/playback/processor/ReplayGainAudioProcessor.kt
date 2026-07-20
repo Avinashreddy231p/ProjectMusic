@@ -87,7 +87,8 @@ class ReplayGainAudioProcessor(
                 C.ENCODING_PCM_24BIT -> {
                     while (inputBuffer.hasRemaining()) {
                         val sample = inputBuffer.getInt24()
-                        val scaled = (sample * delta).toInt()
+                        val scaled = (sample.toDouble() * delta)
+                            .toInt()
                             .coerceIn(ByteUtils.Int24_MIN_VALUE, ByteUtils.Int24_MAX_VALUE)
                         buffer.putInt24(scaled)
                     }

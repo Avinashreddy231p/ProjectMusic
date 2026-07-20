@@ -21,6 +21,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.media.audiofx.AudioEffect
+import android.os.Build
 import android.util.Log
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
@@ -60,6 +61,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -86,7 +88,7 @@ class EqualizerManager(
     audioOutputObserver: AudioOutputObserver,
 ) {
 
-    private val eqScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private val eqScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private var eqEngine: EQEngine? = null
 
     val eqState =
@@ -312,7 +314,7 @@ class EqualizerManager(
                 val isDisabled = newState.isDisabledByReason
                 if (eqEngine == null && eqSession.id != NO_SESSION_ID && !isDisabled) {
                     eqEngine = createEngine(
-                        mode = eqState.value.engineMode,
+                        mode = newState.engineMode,
                         sessionId = eqSession.id,
                         bandCount = newState.preferredBandCount
                     )
@@ -372,7 +374,11 @@ class EqualizerManager(
         engineMode: EqEngineMode = this.eqState.value.engineMode
     ) = withContext(IO) {
         try {
-            val effects = AudioEffect.queryEffects().orEmpty()
+            val effects = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                AudioEffect.queryEffects().orEmpty()
+            } else {
+                emptyArray()
+            }
             context.eqDataStore.edit { prefs ->
                 val eqInitialized = prefs[Keys.EQ_INITIALIZED]
                 if (eqInitialized != true) {
@@ -395,7 +401,7 @@ class EqualizerManager(
                     it.type == AudioEffect.EFFECT_TYPE_LOUDNESS_ENHANCER
                 }
             }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Log.e(TAG, "The EQ couldn't be initialized. Maybe audio effects aren't available on this device?", e)
         }
     }
@@ -404,6 +410,7 @@ class EqualizerManager(
         setSession(EqSession(SessionType.Internal, NO_SESSION_ID, false))
         eqEngine?.release()
         eqEngine = null
+        eqScope.cancel()
     }
 
     fun isProfileNameAvailable(profileName: String): Boolean {

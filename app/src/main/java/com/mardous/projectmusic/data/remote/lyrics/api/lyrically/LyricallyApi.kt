@@ -17,6 +17,7 @@
 
 package com.mardous.projectmusic.data.remote.lyrics.api.lyrically
 
+import android.util.Log
 import com.mardous.projectmusic.BuildConfig
 import com.mardous.projectmusic.data.model.Song
 import com.mardous.projectmusic.data.model.lyrics.RawLyrics
@@ -57,49 +58,55 @@ class LyricallyApi(private val client: HttpClient) : LyricsApi {
         title: String,
         artist: String
     ): RawLyrics.Remote? {
-        var searchResponse = searchHelper.getAppleMusicSearchResponse(title, artist)
-        
-        // Fallback to Musixmatch if iTunes search fails or returns nothing
-        if (searchResponse == null || searchResponse.size == 0) {
-            searchResponse = searchHelper.getMusixmatchSearchResponse(title, artist)
-        }
+        return try {
+            var searchResponse = searchHelper.getAppleMusicSearchResponse(title, artist)
 
-        if (searchResponse != null && searchResponse.size > 0) {
-            var lyrics: RawLyrics.Remote? = null
-
-            val scoredIds = getScoredAppleMusicIds(title, artist, song.duration, searchResponse)
-            for ((result, score) in scoredIds.take(5)) {
-                if (score <= 0.0) continue
-
-                val lyricsResponse = client.paxsenix(LYRICALLY_API_URL) {
-                    parameter("id", result)
-                }.body<LyricallyLyricsResponse>()
-
-                val newLyrics = parseLyricallyResponse(lyricsResponse)
-
-                lyrics = lyrics?.accept(newLyrics) ?: newLyrics
-                if (lyrics.hasBoth) {
-                    return lyrics
-                }
+            if (searchResponse == null || searchResponse.size == 0) {
+                searchResponse = searchHelper.getMusixmatchSearchResponse(title, artist)
             }
 
-            return lyrics
-        }
+            if (searchResponse != null && searchResponse.size > 0) {
+                var lyrics: RawLyrics.Remote? = null
 
-        return null
+                val scoredIds = getScoredAppleMusicIds(title, artist, song.duration, searchResponse)
+                for ((result, score) in scoredIds.take(5)) {
+                    if (score <= 0.0) continue
+
+                    val lyricsResponse = client.paxsenix(LYRICALLY_API_URL) {
+                        parameter("id", result)
+                    }.body<LyricallyLyricsResponse>()
+
+                    val newLyrics = parseLyricallyResponse(lyricsResponse)
+
+                    lyrics = lyrics?.accept(newLyrics) ?: newLyrics
+                    if (lyrics.hasBoth) {
+                        return lyrics
+                    }
+                }
+
+                lyrics
+            } else null
+        } catch (e: Exception) {
+            Log.e(TAG, "Lyrically request failed", e)
+            null
+        }
     }
 
     private fun parseLyricallyResponse(response: LyricallyLyricsResponse): RawLyrics.Remote {
-        var lyrics = if (!response.ttml.isNullOrEmpty()) {
-            RawLyrics.Remote(synced = RawLyrics.Remote.Content(name, response.ttml))
+        val syncedContent = if (!response.ttml.isNullOrEmpty()) {
+            response.ttml
         } else if (!response.elrcMultiPerson.isNullOrEmpty()) {
-            RawLyrics.Remote(synced = RawLyrics.Remote.Content(name, response.elrcMultiPerson))
+            response.elrcMultiPerson
         } else if (!response.elrc.isNullOrEmpty()) {
-            RawLyrics.Remote(synced = RawLyrics.Remote.Content(name, response.elrc))
+            response.elrc
         } else if (!response.lrc.isNullOrEmpty()) {
-            RawLyrics.Remote(synced = RawLyrics.Remote.Content(name, response.lrc))
+            response.lrc
         } else {
-            RawLyrics.Remote(synced = RawLyrics.Remote.Content(name, parseLyricallyContent(response)))
+            parseLyricallyContent(response)
+        }
+        var lyrics = RawLyrics.Remote()
+        if (!syncedContent.isNullOrEmpty()) {
+            lyrics = RawLyrics.Remote(synced = RawLyrics.Remote.Content(name, syncedContent))
         }
         if (!response.plain.isNullOrEmpty()) {
             lyrics = lyrics.copy(plain = RawLyrics.Remote.Content(name, response.plain))
@@ -221,6 +228,7 @@ class LyricallyApi(private val client: HttpClient) : LyricsApi {
     }
 
     companion object {
+        private const val TAG = "LyricallyApi"
         private const val LYRICALLY_API_URL = BuildConfig.LYRICALLY_API_URL
         private val JW_SIMILARITY = JaroWinklerSimilarity()
     }

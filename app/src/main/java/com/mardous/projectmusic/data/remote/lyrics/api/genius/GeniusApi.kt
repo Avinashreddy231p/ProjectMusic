@@ -11,6 +11,7 @@ import com.mardous.projectmusic.util.Constants.USER_AGENT
 import com.mardous.projectmusic.util.Preferences
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.timeout
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
@@ -34,6 +35,11 @@ class GeniusApi(private val client: HttpClient) : LyricsApi {
             client.get("https://api.genius.com/search") {
                 header("Authorization", "Bearer $apiKey")
                 parameter("q", "$title $artist")
+                timeout {
+                    connectTimeoutMillis = 5000
+                    socketTimeoutMillis = 10000
+                    requestTimeoutMillis = 15000
+                }
             }.body<GeniusSearchResponse>()
         } catch (e: Exception) {
             Log.e(TAG, "Genius search failed", e)
@@ -61,6 +67,11 @@ class GeniusApi(private val client: HttpClient) : LyricsApi {
         return try {
             val responseBody = client.get(url) {
                 header(HttpHeaders.UserAgent, USER_AGENT)
+                timeout {
+                    connectTimeoutMillis = 5000
+                    socketTimeoutMillis = 10000
+                    requestTimeoutMillis = 15000
+                }
             }.bodyAsText()
 
             // Genius lyrics are inside divs with class starting with "Lyrics__Container"

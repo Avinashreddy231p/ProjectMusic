@@ -124,6 +124,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.guava.future
@@ -141,7 +142,7 @@ class PlaybackService :
     Player.Listener,
     SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private val serviceScope = CoroutineScope(Job() + Main)
+    private val serviceScope = CoroutineScope(SupervisorJob() + Main)
     private val uiHandler = Handler(Looper.getMainLooper())
 
     private val glanceManager by lazy { GlanceAppWidgetManager(applicationContext) }
@@ -193,6 +194,7 @@ class PlaybackService :
     private var errorRecoveryRetryCount = 0
     private var pausedByZeroVolume = false
     private var hasSetUnshuffledOrder = false
+    @Volatile
     private var isCurrentSongFavorite = false
     private var stopIndex = -1
 
@@ -214,27 +216,29 @@ class PlaybackService :
     private var fadeOutAnimator: ValueAnimator? = null
 
     val isInTransientFocusLoss: Boolean
-        get() = player.playbackSuppressionReason == Player.PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS
+        get() = if (::player.isInitialized) player.playbackSuppressionReason == Player.PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS else false
 
     val isPlaying: Boolean
-        get() = player.isPlaying
+        get() = if (::player.isInitialized) player.isPlaying else false
 
     private val shuffleCommand: CommandButton
-        get() = if (player.shuffleModeEnabled) {
-            customCommands[1]
-        } else {
-            customCommands[0]
-        }
+        get() = if (::customCommands.isInitialized) {
+            if (player.shuffleModeEnabled) customCommands[1] else customCommands[0]
+        } else CommandButton.Builder(CommandButton.ICON_UNDEFINED).build()
 
     private val repeatCommand: CommandButton
-        get() = when (player.repeatMode) {
-            Player.REPEAT_MODE_ALL -> customCommands[3]
-            Player.REPEAT_MODE_ONE -> customCommands[4]
-            else -> customCommands[2]
-        }
+        get() = if (::customCommands.isInitialized) {
+            when (player.repeatMode) {
+                Player.REPEAT_MODE_ALL -> customCommands[3]
+                Player.REPEAT_MODE_ONE -> customCommands[4]
+                else -> customCommands[2]
+            }
+        } else CommandButton.Builder(CommandButton.ICON_UNDEFINED).build()
 
     private val favoriteCommand: CommandButton
-        get() = if (isCurrentSongFavorite) customCommands[5] else customCommands[6]
+        get() = if (::customCommands.isInitialized) {
+            if (isCurrentSongFavorite) customCommands[5] else customCommands[6]
+        } else CommandButton.Builder(CommandButton.ICON_UNDEFINED).build()
 
     private val lyricsCommand: CommandButton
         get() = if (isLyricsMetadataEnabled) {
@@ -924,16 +928,25 @@ class PlaybackService :
 
             if (newSong != Song.emptySong) {
                 statsFlusher.onSongStarted(newSong, 0L)
-                launch { rankingEngine.registerSong(newSong) }
+                launch {
+                    runCatching { rankingEngine.registerSong(newSong) }
+                        .onFailure { Log.e(TAG, "Failed to register song in ranking engine", it) }
+                }
                 replayGainProcessor.currentGain = ReplayGainTagExtractor.getReplayGain(newSong)
                 if (preferences.getBoolean(ENABLE_HISTORY, true)) {
                     repository.upsertSongInHistory(newSong)
                 }
                 if (NetworkFeature.Lastfm.NowPlaying.isAvailable) {
-                    launch { repository.updateNowPlaying(ScrobblingService.Lastfm, newSong) }
+                    launch {
+                        runCatching { repository.updateNowPlaying(ScrobblingService.Lastfm, newSong) }
+                            .onFailure { Log.e(TAG, "Failed to update Last.fm now playing", it) }
+                    }
                 }
                 if (NetworkFeature.ListenBrainz.NowPlaying.isAvailable) {
-                    launch { repository.updateNowPlaying(ScrobblingService.ListenBrainz, newSong) }
+                    launch {
+                        runCatching { repository.updateNowPlaying(ScrobblingService.ListenBrainz, newSong) }
+                            .onFailure { Log.e(TAG, "Failed to update ListenBrainz now playing", it) }
+                    }
                 }
             }
             withContext(Main) {
@@ -948,10 +961,16 @@ class PlaybackService :
                         timePlayed = timestampMillis
                     )
                     if (NetworkFeature.Lastfm.Scrobbling.isAvailable) {
-                        launch { repository.scrobble(ScrobblingService.Lastfm, previousSong, timestampSeconds) }
+                        launch {
+                            runCatching { repository.scrobble(ScrobblingService.Lastfm, previousSong, timestampSeconds) }
+                                .onFailure { Log.e(TAG, "Failed to scrobble to Last.fm", it) }
+                        }
                     }
                     if (NetworkFeature.ListenBrainz.Scrobbling.isAvailable) {
-                        launch { repository.scrobble(ScrobblingService.ListenBrainz, previousSong, timestampSeconds) }
+                        launch {
+                            runCatching { repository.scrobble(ScrobblingService.ListenBrainz, previousSong, timestampSeconds) }
+                                .onFailure { Log.e(TAG, "Failed to scrobble to ListenBrainz", it) }
+                        }
                     }
                 } else if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_SEEK) {
                     repository.insertOrIncrementSkipCount(previousSong)
@@ -1353,15 +1372,18 @@ class PlaybackService :
     }
 
     private fun registerReceivers() {
+        val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        } else {
+            ContextCompat.RECEIVER_EXPORTED
+        }
         if (!bluetoothConnectedRegistered) {
-            ContextCompat.registerReceiver(this, bluetoothReceiver, bluetoothConnectedIntentFilter,
-                ContextCompat.RECEIVER_EXPORTED)
+            ContextCompat.registerReceiver(this, bluetoothReceiver, bluetoothConnectedIntentFilter, flags)
             bluetoothConnectedRegistered = true
         }
 
         if (!headsetReceiverRegistered) {
-            ContextCompat.registerReceiver(this, headsetReceiver, headsetReceiverIntentFilter,
-                ContextCompat.RECEIVER_EXPORTED)
+            ContextCompat.registerReceiver(this, headsetReceiver, headsetReceiverIntentFilter, flags)
             headsetReceiverRegistered = true
         }
     }
@@ -1424,15 +1446,13 @@ class PlaybackService :
                 val updatedMetadata = currentItem.mediaMetadata.buildUpon()
                     .setTitle(currentLine)
                     .setArtist(nextLine)
-                    .setSubtitle(nextLine) // Some cars use subtitle instead of artist
+                    .setSubtitle(nextLine)
                     .build()
                 val updatedItem = currentItem.buildUpon()
                     .setMediaMetadata(updatedMetadata)
                     .build()
-                
-                // Use a more direct way to update if possible, but replaceMediaItem is standard
                 if (player.currentMediaItemIndex != C.INDEX_UNSET) {
-                    player.exoPlayer.replaceMediaItem(player.currentMediaItemIndex, updatedItem)
+                    player.replaceMediaItem(player.currentMediaItemIndex, updatedItem)
                 }
             }
         }
@@ -1451,7 +1471,9 @@ class PlaybackService :
                     .setMediaMetadata(updatedMetadata)
                     .build()
                 withContext(Main) {
-                    player.exoPlayer.replaceMediaItem(player.currentMediaItemIndex, updatedItem)
+                    if (player.currentMediaItemIndex != C.INDEX_UNSET) {
+                        player.replaceMediaItem(player.currentMediaItemIndex, updatedItem)
+                    }
                 }
             }
         }
@@ -1528,6 +1550,7 @@ class PlaybackService :
     }
 
     companion object {
+        private const val TAG = "PlaybackService"
         private const val PACKAGE_NAME = "com.mardous.projectmusic"
 
         const val ACTION_TOGGLE_SHUFFLE = "$PACKAGE_NAME.action.ACTION_TOGGLE_SHUFFLE"

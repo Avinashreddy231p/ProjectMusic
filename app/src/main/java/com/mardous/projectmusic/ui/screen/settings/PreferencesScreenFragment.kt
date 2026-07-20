@@ -143,9 +143,7 @@ import com.mardous.projectmusic.util.WIDGET_THIRD_LINE_CONTENT
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
@@ -445,17 +443,15 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
             }
         }
 
-    @OptIn(DelicateCoroutinesApi::class)
     private val createBackupLauncher: ActivityResultLauncher<String> =
         registerForActivityResult(ActivityResultContracts.CreateDocument("application/*")) { uri ->
             if (uri != null) {
-                GlobalScope.launch {
+                lifecycleScope.launch {
                     BackupHelper.createBackup(requireContext(), uri)
                 }
             }
         }
 
-    @OptIn(DelicateCoroutinesApi::class)
     private val selectBackupLauncher: ActivityResultLauncher<Array<String>> =
         registerForActivityResult(ActivityResultContracts.OpenDocument()) { selection ->
             if (selection != null) {
@@ -469,7 +465,7 @@ open class PreferenceScreenFragment : PreferenceFragmentCompat(),
                         val content = BackupContent.entries.filterIndexed { i, _ ->
                             whichPos.contains(i)
                         }
-                        GlobalScope.launch {
+                        lifecycleScope.launch {
                             BackupHelper.restoreBackup(requireContext(), selection, content)
                         }
                         true

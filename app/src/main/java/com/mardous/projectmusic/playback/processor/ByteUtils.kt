@@ -6,8 +6,9 @@ object ByteUtils {
     fun ByteBuffer.getInt24(): Int {
         val b0 = get().toInt() and 0xFF
         val b1 = get().toInt() and 0xFF
-        val b2 = get().toInt()
-        return (b2 shl 16) or (b1 shl 8) or b0
+        val b2 = get().toInt() and 0xFF
+        val result = (b2 shl 16) or (b1 shl 8) or b0
+        return if ((result and 0x800000) != 0) result or 0xFF000000.toInt() else result
     }
 
     fun ByteBuffer.putInt24(sample: Int): ByteBuffer {

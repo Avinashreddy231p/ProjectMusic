@@ -30,7 +30,6 @@ import com.mardous.projectmusic.ui.screen.update.UpdateViewModel
 import com.mardous.projectmusic.ui.screen.update.UpdateSearchResult
 import com.mardous.projectmusic.util.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -141,9 +140,10 @@ fun AdvancedSettingsComposeScreen(
         )
     }
 
+    val scope = rememberCoroutineScope()
     val createBackupLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/*")) { uri ->
         if (uri != null) {
-            GlobalScope.launch(Dispatchers.IO) {
+            scope.launch(Dispatchers.IO) {
                 BackupHelper.createBackup(context, uri)
             }
         }
@@ -158,7 +158,7 @@ fun AdvancedSettingsComposeScreen(
                 .items(items)
                 .createDialog { _, whichPos, _ ->
                     val content = contentEntries.filterIndexed { i, _ -> whichPos.contains(i) }
-                    GlobalScope.launch(Dispatchers.IO) {
+                    scope.launch(Dispatchers.IO) {
                         BackupHelper.restoreBackup(context, selection, content)
                     }
                     true

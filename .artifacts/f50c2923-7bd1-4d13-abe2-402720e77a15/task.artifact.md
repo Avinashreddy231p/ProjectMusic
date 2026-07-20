@@ -1,0 +1,5 @@
+- `[x]` Clean up `public.properties`
+- `[x]` Remove flavor methods from `App.kt`
+- `[x]` Update `AboutScreen.kt`
+- `[x]` Delete flavor source directories
+- `[/]` Verify build

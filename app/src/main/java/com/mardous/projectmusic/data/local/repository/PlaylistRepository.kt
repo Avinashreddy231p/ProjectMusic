@@ -168,7 +168,7 @@ class RealPlaylistRepository(
             playlist
         } else {
             createPlaylist(PlaylistEntity(playlistName = favorite))
-            playlistDao.playlist(favorite).first()
+            playlistDao.playlist(favorite).firstOrNull()!!
         }
     }
 

@@ -51,5 +51,5 @@ data class SongStatsEntity(
     @ColumnInfo(name = "monthly_play_count") val monthlyPlayCount: Int = 0,
     @ColumnInfo(name = "weekly_play_count") val weeklyPlayCount: Int = 0,
     @ColumnInfo(name = "daily_play_count") val dailyPlayCount: Int = 0,
-    @ColumnInfo(name = "last_synced") val lastSynced: Long = System.currentTimeMillis()
+    @ColumnInfo(name = "last_synced") val lastSynced: Long = 0
 )

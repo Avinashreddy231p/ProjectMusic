@@ -49,7 +49,7 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Groups
-import androidx.compose.material.icons.filled.Help
+import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.PrivacyTip
@@ -570,7 +570,7 @@ private fun AboutHeroHeader(
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceContainerHigh)
             ) {
-                Icon(Icons.Default.Help, contentDescription = "FAQ")
+                Icon(Icons.AutoMirrored.Filled.Help, contentDescription = "FAQ")
             }
         }
     }
@@ -638,10 +638,8 @@ private fun AuthorSectionExpressive(
             IconButton(onClick = onEmailClick) {
                 Icon(Icons.Default.Email, contentDescription = "Email")
             }
-            if (!App.isPlayStoreBuild()) {
-                IconButton(onClick = onDonateClick) {
-                    Icon(Icons.Default.VolunteerActivism, contentDescription = "Donate", tint = MaterialTheme.colorScheme.primary)
-                }
+            IconButton(onClick = onDonateClick) {
+                Icon(Icons.Default.VolunteerActivism, contentDescription = "Donate", tint = MaterialTheme.colorScheme.primary)
             }
         }
     }

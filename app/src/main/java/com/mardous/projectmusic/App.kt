@@ -66,14 +66,12 @@ import java.util.concurrent.TimeUnit
 class App : Application(), SingletonImageLoader.Factory {
 
     override fun onCreate() {
-        // Test Telegram Automation
         super.onCreate()
+        if (BuildConfig.DEBUG) enableStrictMode()
         startKoin {
             androidContext(this@App)
             modules(appModules)
         }
-
-        if (BuildConfig.DEBUG) enableStrictMode()
 
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         // we cannot call setDefaultValues for multiple fragment based XML preference
@@ -116,7 +114,7 @@ class App : Application(), SingletonImageLoader.Factory {
     override fun newImageLoader(context: PlatformContext): ImageLoader {
         return ImageLoader.Builder(context)
             .crossfade(true)
-            .allowHardware(false)
+            .allowHardware(true)
             .components {
                 // Song/album
                 add(SongMapper(preferences = get()))
@@ -167,9 +165,9 @@ class App : Application(), SingletonImageLoader.Factory {
                             throwable: Throwable?
                         ) {
                             if (level < minLevel) return
-                            message?.let { msg -> Log.println(level.ordinal + 2, tag, msg) }
+                            message?.let { msg -> Log.println(level.ordinal, tag, msg) }
                             throwable?.let { thr ->
-                                Log.println(level.ordinal + 2, tag, Log.getStackTraceString(thr))
+                                Log.println(level.ordinal, tag, Log.getStackTraceString(thr))
                             }
                         }
                     })
@@ -204,10 +202,6 @@ class App : Application(), SingletonImageLoader.Factory {
     }
 
     companion object {
-        fun isFDroidBuild() = false
-
-        fun isPlayStoreBuild() = false
-
         fun isExperimentalBuild(): Boolean =
             BuildConfig.VERSION_NAME.contains("(alpha|beta|rc)".toRegex(RegexOption.IGNORE_CASE))
     }

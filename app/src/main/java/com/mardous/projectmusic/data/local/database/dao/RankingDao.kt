@@ -137,25 +137,27 @@ interface RankingDao {
     suspend fun insertMoodRankingsFromSessions(moodId: Long)
 
     @Query("""
-        UPDATE mood_song_ranking 
-        SET combined_rank = (
-            SELECT COUNT(*) FROM mood_song_ranking m2 
-            WHERE m2.mood_id = mood_song_ranking.mood_id AND (m2.combined_score > mood_song_ranking.combined_score OR (m2.combined_score = mood_song_ranking.combined_score AND m2.song_id < mood_song_ranking.song_id))
-        ) + 1
+        WITH ranked AS (
+            SELECT song_id, ROW_NUMBER() OVER (PARTITION BY mood_id ORDER BY combined_score DESC, song_id ASC) AS rn
+            FROM mood_song_ranking WHERE mood_id = :moodId
+        )
+        UPDATE mood_song_ranking SET combined_rank = (SELECT rn FROM ranked WHERE ranked.song_id = mood_song_ranking.song_id)
         WHERE mood_id = :moodId
     """)
     suspend fun updateMoodRanks(moodId: Long)
 
     @Query("""
+        WITH play AS (
+            SELECT song_id, ROW_NUMBER() OVER (PARTITION BY mood_id ORDER BY play_count DESC, song_id ASC) AS rn
+            FROM mood_song_ranking WHERE mood_id = :moodId
+        ),
+        dur AS (
+            SELECT song_id, ROW_NUMBER() OVER (PARTITION BY mood_id ORDER BY listened_duration_ms DESC, song_id ASC) AS rn
+            FROM mood_song_ranking WHERE mood_id = :moodId
+        )
         UPDATE mood_song_ranking 
-        SET play_rank = (
-            SELECT COUNT(*) FROM mood_song_ranking m2 
-            WHERE m2.mood_id = mood_song_ranking.mood_id AND (m2.play_count > mood_song_ranking.play_count OR (m2.play_count = mood_song_ranking.play_count AND m2.song_id < mood_song_ranking.song_id))
-        ) + 1,
-        duration_rank = (
-            SELECT COUNT(*) FROM mood_song_ranking m2 
-            WHERE m2.mood_id = mood_song_ranking.mood_id AND (m2.listened_duration_ms > mood_song_ranking.listened_duration_ms OR (m2.listened_duration_ms = mood_song_ranking.listened_duration_ms AND m2.song_id < mood_song_ranking.song_id))
-        ) + 1
+        SET play_rank = (SELECT rn FROM play WHERE play.song_id = mood_song_ranking.song_id),
+            duration_rank = (SELECT rn FROM dur WHERE dur.song_id = mood_song_ranking.song_id)
         WHERE mood_id = :moodId
     """)
     suspend fun updateMoodPlayDurationRanks(moodId: Long)
@@ -196,25 +198,27 @@ interface RankingDao {
     suspend fun insertGenreRankingsFromSessions(genreId: Long)
 
     @Query("""
-        UPDATE genre_song_ranking 
-        SET combined_rank = (
-            SELECT COUNT(*) FROM genre_song_ranking g2 
-            WHERE g2.genre_id = genre_song_ranking.genre_id AND (g2.combined_score > genre_song_ranking.combined_score OR (g2.combined_score = genre_song_ranking.combined_score AND g2.song_id < genre_song_ranking.song_id))
-        ) + 1
+        WITH ranked AS (
+            SELECT song_id, ROW_NUMBER() OVER (PARTITION BY genre_id ORDER BY combined_score DESC, song_id ASC) AS rn
+            FROM genre_song_ranking WHERE genre_id = :genreId
+        )
+        UPDATE genre_song_ranking SET combined_rank = (SELECT rn FROM ranked WHERE ranked.song_id = genre_song_ranking.song_id)
         WHERE genre_id = :genreId
     """)
     suspend fun updateGenreRanks(genreId: Long)
 
     @Query("""
+        WITH play AS (
+            SELECT song_id, ROW_NUMBER() OVER (PARTITION BY genre_id ORDER BY play_count DESC, song_id ASC) AS rn
+            FROM genre_song_ranking WHERE genre_id = :genreId
+        ),
+        dur AS (
+            SELECT song_id, ROW_NUMBER() OVER (PARTITION BY genre_id ORDER BY listened_duration_ms DESC, song_id ASC) AS rn
+            FROM genre_song_ranking WHERE genre_id = :genreId
+        )
         UPDATE genre_song_ranking 
-        SET play_rank = (
-            SELECT COUNT(*) FROM genre_song_ranking g2 
-            WHERE g2.genre_id = genre_song_ranking.genre_id AND (g2.play_count > genre_song_ranking.play_count OR (g2.play_count = genre_song_ranking.play_count AND g2.song_id < genre_song_ranking.song_id))
-        ) + 1,
-        duration_rank = (
-            SELECT COUNT(*) FROM genre_song_ranking g2 
-            WHERE g2.genre_id = genre_song_ranking.genre_id AND (g2.listened_duration_ms > genre_song_ranking.listened_duration_ms OR (g2.listened_duration_ms = genre_song_ranking.listened_duration_ms AND g2.song_id < genre_song_ranking.song_id))
-        ) + 1
+        SET play_rank = (SELECT rn FROM play WHERE play.song_id = genre_song_ranking.song_id),
+            duration_rank = (SELECT rn FROM dur WHERE dur.song_id = genre_song_ranking.song_id)
         WHERE genre_id = :genreId
     """)
     suspend fun updateGenrePlayDurationRanks(genreId: Long)
@@ -250,25 +254,27 @@ interface RankingDao {
     suspend fun insertTagRankingsFromSessions(tagId: Long)
 
     @Query("""
-        UPDATE tag_song_ranking 
-        SET combined_rank = (
-            SELECT COUNT(*) FROM tag_song_ranking t2 
-            WHERE t2.tag_id = tag_song_ranking.tag_id AND (t2.combined_score > tag_song_ranking.combined_score OR (t2.combined_score = tag_song_ranking.combined_score AND t2.song_id < tag_song_ranking.song_id))
-        ) + 1
+        WITH ranked AS (
+            SELECT song_id, ROW_NUMBER() OVER (PARTITION BY tag_id ORDER BY combined_score DESC, song_id ASC) AS rn
+            FROM tag_song_ranking WHERE tag_id = :tagId
+        )
+        UPDATE tag_song_ranking SET combined_rank = (SELECT rn FROM ranked WHERE ranked.song_id = tag_song_ranking.song_id)
         WHERE tag_id = :tagId
     """)
     suspend fun updateTagRanks(tagId: Long)
 
     @Query("""
+        WITH play AS (
+            SELECT song_id, ROW_NUMBER() OVER (PARTITION BY tag_id ORDER BY play_count DESC, song_id ASC) AS rn
+            FROM tag_song_ranking WHERE tag_id = :tagId
+        ),
+        dur AS (
+            SELECT song_id, ROW_NUMBER() OVER (PARTITION BY tag_id ORDER BY listened_duration_ms DESC, song_id ASC) AS rn
+            FROM tag_song_ranking WHERE tag_id = :tagId
+        )
         UPDATE tag_song_ranking 
-        SET play_rank = (
-            SELECT COUNT(*) FROM tag_song_ranking t2 
-            WHERE t2.tag_id = tag_song_ranking.tag_id AND (t2.play_count > tag_song_ranking.play_count OR (t2.play_count = tag_song_ranking.play_count AND t2.song_id < tag_song_ranking.song_id))
-        ) + 1,
-        duration_rank = (
-            SELECT COUNT(*) FROM tag_song_ranking t2 
-            WHERE t2.tag_id = tag_song_ranking.tag_id AND (t2.listened_duration_ms > tag_song_ranking.listened_duration_ms OR (t2.listened_duration_ms = tag_song_ranking.listened_duration_ms AND t2.song_id < tag_song_ranking.song_id))
-        ) + 1
+        SET play_rank = (SELECT rn FROM play WHERE play.song_id = tag_song_ranking.song_id),
+            duration_rank = (SELECT rn FROM dur WHERE dur.song_id = tag_song_ranking.song_id)
         WHERE tag_id = :tagId
     """)
     suspend fun updateTagPlayDurationRanks(tagId: Long)
@@ -288,24 +294,23 @@ interface RankingDao {
     suspend fun updateTagStats(timestamp: Long = System.currentTimeMillis())
 
     @Query("""
-        UPDATE tags 
-        SET overall_rank = (
-            SELECT COUNT(*) FROM tags t2 
-            WHERE (t2.overall_score > tags.overall_score OR (t2.overall_score = tags.overall_score AND t2.id < tags.id))
-        ) + 1
+        WITH ranked AS (
+            SELECT id, ROW_NUMBER() OVER (ORDER BY overall_score DESC, id ASC) AS rn FROM tags
+        )
+        UPDATE tags SET overall_rank = (SELECT rn FROM ranked WHERE ranked.id = tags.id)
     """)
     suspend fun updateTagGlobalRanks()
 
     @Query("""
+        WITH play AS (
+            SELECT id, ROW_NUMBER() OVER (ORDER BY play_count DESC, id ASC) AS rn FROM tags
+        ),
+        dur AS (
+            SELECT id, ROW_NUMBER() OVER (ORDER BY listening_duration DESC, id ASC) AS rn FROM tags
+        )
         UPDATE tags 
-        SET play_rank = (
-            SELECT COUNT(*) FROM tags t2 
-            WHERE (t2.play_count > tags.play_count OR (t2.play_count = tags.play_count AND t2.id < tags.id))
-        ) + 1,
-        duration_rank = (
-            SELECT COUNT(*) FROM tags t2 
-            WHERE (t2.listening_duration > tags.listening_duration OR (t2.listening_duration = tags.listening_duration AND t2.id < tags.id))
-        ) + 1
+        SET play_rank = (SELECT rn FROM play WHERE play.id = tags.id),
+            duration_rank = (SELECT rn FROM dur WHERE dur.id = tags.id)
     """)
     suspend fun updateTagPlayDurationRanks()
 
@@ -337,25 +342,27 @@ interface RankingDao {
     suspend fun insertInstrumentRankingsFromSessions(instrumentId: Long)
 
     @Query("""
-        UPDATE instrument_song_ranking 
-        SET combined_rank = (
-            SELECT COUNT(*) FROM instrument_song_ranking i2 
-            WHERE i2.instrument_id = instrument_song_ranking.instrument_id AND (i2.combined_score > instrument_song_ranking.combined_score OR (i2.combined_score = instrument_song_ranking.combined_score AND i2.song_id < instrument_song_ranking.song_id))
-        ) + 1
+        WITH ranked AS (
+            SELECT song_id, ROW_NUMBER() OVER (PARTITION BY instrument_id ORDER BY combined_score DESC, song_id ASC) AS rn
+            FROM instrument_song_ranking WHERE instrument_id = :instrumentId
+        )
+        UPDATE instrument_song_ranking SET combined_rank = (SELECT rn FROM ranked WHERE ranked.song_id = instrument_song_ranking.song_id)
         WHERE instrument_id = :instrumentId
     """)
     suspend fun updateInstrumentRanks(instrumentId: Long)
 
     @Query("""
+        WITH play AS (
+            SELECT song_id, ROW_NUMBER() OVER (PARTITION BY instrument_id ORDER BY play_count DESC, song_id ASC) AS rn
+            FROM instrument_song_ranking WHERE instrument_id = :instrumentId
+        ),
+        dur AS (
+            SELECT song_id, ROW_NUMBER() OVER (PARTITION BY instrument_id ORDER BY listened_duration_ms DESC, song_id ASC) AS rn
+            FROM instrument_song_ranking WHERE instrument_id = :instrumentId
+        )
         UPDATE instrument_song_ranking 
-        SET play_rank = (
-            SELECT COUNT(*) FROM instrument_song_ranking i2 
-            WHERE i2.instrument_id = instrument_song_ranking.instrument_id AND (i2.play_count > instrument_song_ranking.play_count OR (i2.play_count = instrument_song_ranking.play_count AND i2.song_id < instrument_song_ranking.song_id))
-        ) + 1,
-        duration_rank = (
-            SELECT COUNT(*) FROM instrument_song_ranking i2 
-            WHERE i2.instrument_id = instrument_song_ranking.instrument_id AND (i2.listened_duration_ms > instrument_song_ranking.listened_duration_ms OR (i2.listened_duration_ms = instrument_song_ranking.listened_duration_ms AND i2.song_id < instrument_song_ranking.song_id))
-        ) + 1
+        SET play_rank = (SELECT rn FROM play WHERE play.song_id = instrument_song_ranking.song_id),
+            duration_rank = (SELECT rn FROM dur WHERE dur.song_id = instrument_song_ranking.song_id)
         WHERE instrument_id = :instrumentId
     """)
     suspend fun updateInstrumentPlayDurationRanks(instrumentId: Long)
@@ -375,24 +382,23 @@ interface RankingDao {
     suspend fun updateInstrumentStats(timestamp: Long = System.currentTimeMillis())
 
     @Query("""
-        UPDATE instruments 
-        SET overall_rank = (
-            SELECT COUNT(*) FROM instruments i2 
-            WHERE (i2.overall_score > instruments.overall_score OR (i2.overall_score = instruments.overall_score AND i2.id < instruments.id))
-        ) + 1
+        WITH ranked AS (
+            SELECT id, ROW_NUMBER() OVER (ORDER BY overall_score DESC, id ASC) AS rn FROM instruments
+        )
+        UPDATE instruments SET overall_rank = (SELECT rn FROM ranked WHERE ranked.id = instruments.id)
     """)
     suspend fun updateInstrumentGlobalRanks()
 
     @Query("""
+        WITH play AS (
+            SELECT id, ROW_NUMBER() OVER (ORDER BY play_count DESC, id ASC) AS rn FROM instruments
+        ),
+        dur AS (
+            SELECT id, ROW_NUMBER() OVER (ORDER BY listening_duration DESC, id ASC) AS rn FROM instruments
+        )
         UPDATE instruments 
-        SET play_rank = (
-            SELECT COUNT(*) FROM instruments i2 
-            WHERE (i2.play_count > instruments.play_count OR (i2.play_count = instruments.play_count AND i2.id < instruments.id))
-        ) + 1,
-        duration_rank = (
-            SELECT COUNT(*) FROM instruments i2 
-            WHERE (i2.listening_duration > instruments.listening_duration OR (i2.listening_duration = instruments.listening_duration AND i2.id < instruments.id))
-        ) + 1
+        SET play_rank = (SELECT rn FROM play WHERE play.id = instruments.id),
+            duration_rank = (SELECT rn FROM dur WHERE dur.id = instruments.id)
     """)
     suspend fun updateInstrumentPlayDurationRanks()
 
@@ -457,32 +463,29 @@ interface RankingDao {
     suspend fun rebuildGlobalSongRankings(timestamp: Long = System.currentTimeMillis())
 
     @Query("""
-        UPDATE song_rankings 
-        SET play_rank = (
-            SELECT COUNT(*) + 1 
-            FROM song_stats s2 
-            WHERE s2.total_play_count > (
-                SELECT ss.total_play_count FROM song_stats ss WHERE ss.song_key = song_rankings.song_key
-            )
-            OR (s2.total_play_count = (
-                SELECT ss.total_play_count FROM song_stats ss WHERE ss.song_key = song_rankings.song_key
-            ) AND s2.song_key < song_rankings.song_key)
+        WITH play AS (
+            SELECT ss.song_key, ROW_NUMBER() OVER (ORDER BY ss.total_play_count DESC, ss.song_key ASC) AS rn
+            FROM song_stats ss
         ),
-        duration_rank = (
-            SELECT COUNT(*) + 1 
-            FROM song_stats s2 
-            WHERE s2.total_listening_duration > (
-                SELECT ss.total_listening_duration FROM song_stats ss WHERE ss.song_key = song_rankings.song_key
-            )
-            OR (s2.total_listening_duration = (
-                SELECT ss.total_listening_duration FROM song_stats ss WHERE ss.song_key = song_rankings.song_key
-            ) AND s2.song_key < song_rankings.song_key)
+        dur AS (
+            SELECT ss.song_key, ROW_NUMBER() OVER (ORDER BY ss.total_listening_duration DESC, ss.song_key ASC) AS rn
+            FROM song_stats ss
         )
+        UPDATE song_rankings 
+        SET play_rank = (SELECT rn FROM play WHERE play.song_key = song_rankings.song_key),
+            duration_rank = (SELECT rn FROM dur WHERE dur.song_key = song_rankings.song_key)
         WHERE ranking_type = 'overall'
     """)
     suspend fun updateGlobalPlayDurationRanks()
 
-    @Query("UPDATE song_rankings SET overall_rank = (SELECT COUNT(*) FROM song_rankings r2 WHERE r2.ranking_type = 'overall' AND (r2.overall_score > song_rankings.overall_score OR (r2.overall_score = song_rankings.overall_score AND r2.song_key < song_rankings.song_key))) + 1, last_updated = :timestamp WHERE ranking_type = 'overall'")
+    @Query("""
+        WITH ranked AS (
+            SELECT song_key, ROW_NUMBER() OVER (ORDER BY overall_score DESC, song_key ASC) AS rn
+            FROM song_rankings WHERE ranking_type = 'overall'
+        )
+        UPDATE song_rankings SET overall_rank = (SELECT rn FROM ranked WHERE ranked.song_key = song_rankings.song_key), last_updated = :timestamp
+        WHERE ranking_type = 'overall'
+    """)
     suspend fun updateGlobalSongRanks(timestamp: Long = System.currentTimeMillis())
 
     @Query("""
@@ -511,24 +514,23 @@ interface RankingDao {
     suspend fun updateMoodStats(timestamp: Long = System.currentTimeMillis())
 
     @Query("""
-        UPDATE moods 
-        SET overall_rank = (
-            SELECT COUNT(*) FROM moods m2 
-            WHERE (m2.overall_score > moods.overall_score OR (m2.overall_score = moods.overall_score AND m2.id < moods.id))
-        ) + 1
+        WITH ranked AS (
+            SELECT id, ROW_NUMBER() OVER (ORDER BY overall_score DESC, id ASC) AS rn FROM moods
+        )
+        UPDATE moods SET overall_rank = (SELECT rn FROM ranked WHERE ranked.id = moods.id)
     """)
     suspend fun updateMoodGlobalRanks()
 
     @Query("""
+        WITH play AS (
+            SELECT id, ROW_NUMBER() OVER (ORDER BY play_count DESC, id ASC) AS rn FROM moods
+        ),
+        dur AS (
+            SELECT id, ROW_NUMBER() OVER (ORDER BY listening_duration DESC, id ASC) AS rn FROM moods
+        )
         UPDATE moods 
-        SET play_rank = (
-            SELECT COUNT(*) FROM moods m2 
-            WHERE (m2.play_count > moods.play_count OR (m2.play_count = moods.play_count AND m2.id < moods.id))
-        ) + 1,
-        duration_rank = (
-            SELECT COUNT(*) FROM moods m2 
-            WHERE (m2.listening_duration > moods.listening_duration OR (m2.listening_duration = moods.listening_duration AND m2.id < moods.id))
-        ) + 1
+        SET play_rank = (SELECT rn FROM play WHERE play.id = moods.id),
+            duration_rank = (SELECT rn FROM dur WHERE dur.id = moods.id)
     """)
     suspend fun updateMoodPlayDurationRanks()
 
@@ -545,24 +547,23 @@ interface RankingDao {
     suspend fun updateArtistStats(timestamp: Long = System.currentTimeMillis())
 
     @Query("""
-        UPDATE artists 
-        SET overall_rank = (
-            SELECT COUNT(*) FROM artists a2 
-            WHERE (a2.overall_score > artists.overall_score OR (a2.overall_score = artists.overall_score AND a2.id < artists.id))
-        ) + 1
+        WITH ranked AS (
+            SELECT id, ROW_NUMBER() OVER (ORDER BY overall_score DESC, id ASC) AS rn FROM artists
+        )
+        UPDATE artists SET overall_rank = (SELECT rn FROM ranked WHERE ranked.id = artists.id)
     """)
     suspend fun updateArtistGlobalRanks()
 
     @Query("""
+        WITH play AS (
+            SELECT id, ROW_NUMBER() OVER (ORDER BY play_count DESC, id ASC) AS rn FROM artists
+        ),
+        dur AS (
+            SELECT id, ROW_NUMBER() OVER (ORDER BY listening_duration DESC, id ASC) AS rn FROM artists
+        )
         UPDATE artists 
-        SET play_rank = (
-            SELECT COUNT(*) FROM artists a2 
-            WHERE (a2.play_count > artists.play_count OR (a2.play_count = artists.play_count AND a2.id < artists.id))
-        ) + 1,
-        duration_rank = (
-            SELECT COUNT(*) FROM artists a2 
-            WHERE (a2.listening_duration > artists.listening_duration OR (a2.listening_duration = artists.listening_duration AND a2.id < artists.id))
-        ) + 1
+        SET play_rank = (SELECT rn FROM play WHERE play.id = artists.id),
+            duration_rank = (SELECT rn FROM dur WHERE dur.id = artists.id)
     """)
     suspend fun updateArtistPlayDurationRanks()
 
@@ -579,24 +580,23 @@ interface RankingDao {
     suspend fun updateAlbumStats(timestamp: Long = System.currentTimeMillis())
 
     @Query("""
-        UPDATE albums 
-        SET overall_rank = (
-            SELECT COUNT(*) FROM albums a2 
-            WHERE (a2.overall_score > albums.overall_score OR (a2.overall_score = albums.overall_score AND a2.id < albums.id))
-        ) + 1
+        WITH ranked AS (
+            SELECT id, ROW_NUMBER() OVER (ORDER BY overall_score DESC, id ASC) AS rn FROM albums
+        )
+        UPDATE albums SET overall_rank = (SELECT rn FROM ranked WHERE ranked.id = albums.id)
     """)
     suspend fun updateAlbumGlobalRanks()
 
     @Query("""
+        WITH play AS (
+            SELECT id, ROW_NUMBER() OVER (ORDER BY play_count DESC, id ASC) AS rn FROM albums
+        ),
+        dur AS (
+            SELECT id, ROW_NUMBER() OVER (ORDER BY listening_duration DESC, id ASC) AS rn FROM albums
+        )
         UPDATE albums 
-        SET play_rank = (
-            SELECT COUNT(*) FROM albums a2 
-            WHERE (a2.play_count > albums.play_count OR (a2.play_count = albums.play_count AND a2.id < albums.id))
-        ) + 1,
-        duration_rank = (
-            SELECT COUNT(*) FROM albums a2 
-            WHERE (a2.listening_duration > albums.listening_duration OR (a2.listening_duration = albums.listening_duration AND a2.id < albums.id))
-        ) + 1
+        SET play_rank = (SELECT rn FROM play WHERE play.id = albums.id),
+            duration_rank = (SELECT rn FROM dur WHERE dur.id = albums.id)
     """)
     suspend fun updateAlbumPlayDurationRanks()
 
@@ -621,24 +621,23 @@ interface RankingDao {
     suspend fun updateGenreStats(timestamp: Long = System.currentTimeMillis())
 
     @Query("""
-        UPDATE genres 
-        SET overall_rank = (
-            SELECT COUNT(*) FROM genres g2 
-            WHERE (g2.overall_score > genres.overall_score OR (g2.overall_score = genres.overall_score AND g2.id < genres.id))
-        ) + 1
+        WITH ranked AS (
+            SELECT id, ROW_NUMBER() OVER (ORDER BY overall_score DESC, id ASC) AS rn FROM genres
+        )
+        UPDATE genres SET overall_rank = (SELECT rn FROM ranked WHERE ranked.id = genres.id)
     """)
     suspend fun updateGenreGlobalRanks()
 
     @Query("""
+        WITH play AS (
+            SELECT id, ROW_NUMBER() OVER (ORDER BY play_count DESC, id ASC) AS rn FROM genres
+        ),
+        dur AS (
+            SELECT id, ROW_NUMBER() OVER (ORDER BY listening_duration DESC, id ASC) AS rn FROM genres
+        )
         UPDATE genres 
-        SET play_rank = (
-            SELECT COUNT(*) FROM genres g2 
-            WHERE (g2.play_count > genres.play_count OR (g2.play_count = genres.play_count AND g2.id < genres.id))
-        ) + 1,
-        duration_rank = (
-            SELECT COUNT(*) FROM genres g2 
-            WHERE (g2.listening_duration > genres.listening_duration OR (g2.listening_duration = genres.listening_duration AND g2.id < genres.id))
-        ) + 1
+        SET play_rank = (SELECT rn FROM play WHERE play.id = genres.id),
+            duration_rank = (SELECT rn FROM dur WHERE dur.id = genres.id)
     """)
     suspend fun updateGenrePlayDurationRanks()
 
@@ -655,24 +654,23 @@ interface RankingDao {
     suspend fun updateAlbumArtistStats(timestamp: Long = System.currentTimeMillis())
 
     @Query("""
-        UPDATE album_artists 
-        SET overall_rank = (
-            SELECT COUNT(*) FROM album_artists a2 
-            WHERE (a2.overall_score > album_artists.overall_score OR (a2.overall_score = album_artists.overall_score AND a2.id < album_artists.id))
-        ) + 1
+        WITH ranked AS (
+            SELECT id, ROW_NUMBER() OVER (ORDER BY overall_score DESC, id ASC) AS rn FROM album_artists
+        )
+        UPDATE album_artists SET overall_rank = (SELECT rn FROM ranked WHERE ranked.id = album_artists.id)
     """)
     suspend fun updateAlbumArtistGlobalRanks()
 
     @Query("""
+        WITH play AS (
+            SELECT id, ROW_NUMBER() OVER (ORDER BY play_count DESC, id ASC) AS rn FROM album_artists
+        ),
+        dur AS (
+            SELECT id, ROW_NUMBER() OVER (ORDER BY listening_duration DESC, id ASC) AS rn FROM album_artists
+        )
         UPDATE album_artists 
-        SET play_rank = (
-            SELECT COUNT(*) FROM album_artists a2 
-            WHERE (a2.play_count > album_artists.play_count OR (a2.play_count = album_artists.play_count AND a2.id < album_artists.id))
-        ) + 1,
-        duration_rank = (
-            SELECT COUNT(*) FROM album_artists a2 
-            WHERE (a2.listening_duration > album_artists.listening_duration OR (a2.listening_duration = album_artists.listening_duration AND a2.id < album_artists.id))
-        ) + 1
+        SET play_rank = (SELECT rn FROM play WHERE play.id = album_artists.id),
+            duration_rank = (SELECT rn FROM dur WHERE dur.id = album_artists.id)
     """)
     suspend fun updateAlbumArtistPlayDurationRanks()
 
@@ -691,24 +689,23 @@ interface RankingDao {
     suspend fun updatePlaylistStats(timestamp: Long = System.currentTimeMillis())
 
     @Query("""
-        UPDATE playlists 
-        SET overall_rank = (
-            SELECT COUNT(*) FROM playlists p2 
-            WHERE (p2.overall_score > playlists.overall_score OR (p2.overall_score = playlists.overall_score AND p2.playlist_id < playlists.playlist_id))
-        ) + 1
+        WITH ranked AS (
+            SELECT playlist_id, ROW_NUMBER() OVER (ORDER BY overall_score DESC, playlist_id ASC) AS rn FROM playlists
+        )
+        UPDATE playlists SET overall_rank = (SELECT rn FROM ranked WHERE ranked.playlist_id = playlists.playlist_id)
     """)
     suspend fun updatePlaylistGlobalRanks()
 
     @Query("""
+        WITH play AS (
+            SELECT playlist_id, ROW_NUMBER() OVER (ORDER BY play_count DESC, playlist_id ASC) AS rn FROM playlists
+        ),
+        dur AS (
+            SELECT playlist_id, ROW_NUMBER() OVER (ORDER BY listening_duration DESC, playlist_id ASC) AS rn FROM playlists
+        )
         UPDATE playlists 
-        SET play_rank = (
-            SELECT COUNT(*) FROM playlists p2 
-            WHERE (p2.play_count > playlists.play_count OR (p2.play_count = playlists.play_count AND p2.playlist_id < playlists.playlist_id))
-        ) + 1,
-        duration_rank = (
-            SELECT COUNT(*) FROM playlists p2 
-            WHERE (p2.listening_duration > playlists.listening_duration OR (p2.listening_duration = playlists.listening_duration AND p2.playlist_id < playlists.playlist_id))
-        ) + 1
+        SET play_rank = (SELECT rn FROM play WHERE play.playlist_id = playlists.playlist_id),
+            duration_rank = (SELECT rn FROM dur WHERE dur.playlist_id = playlists.playlist_id)
     """)
     suspend fun updatePlaylistPlayDurationRanks()
 

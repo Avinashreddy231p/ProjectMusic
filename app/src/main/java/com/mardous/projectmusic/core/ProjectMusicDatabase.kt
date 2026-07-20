@@ -512,7 +512,7 @@ abstract class ProjectMusicDatabase : RoomDatabase() {
 
         val MIGRATION_10_11 = object : Migration(10, 11) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                // Skip logic, same as original
+                // No schema changes between version 10 and 11 (version bump only)
             }
         }
 
@@ -636,12 +636,6 @@ abstract class ProjectMusicDatabase : RoomDatabase() {
             }
         }
 
-        val MIGRATION_14_15 = object : Migration(14, 15) {
-            override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("ALTER TABLE song_stats ADD COLUMN completed_play_count INTEGER NOT NULL DEFAULT 0")
-            }
-        }
-
         val MIGRATION_13_14 = object : Migration(13, 14) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 // song_metadata additions
@@ -673,6 +667,12 @@ abstract class ProjectMusicDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE album_artists ADD COLUMN disambiguation TEXT")
                 db.execSQL("ALTER TABLE album_artists ADD COLUMN begin_date TEXT")
                 db.execSQL("ALTER TABLE album_artists ADD COLUMN end_date TEXT")
+            }
+        }
+
+        val MIGRATION_14_15 = object : Migration(14, 15) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE song_stats ADD COLUMN completed_play_count INTEGER NOT NULL DEFAULT 0")
             }
         }
 

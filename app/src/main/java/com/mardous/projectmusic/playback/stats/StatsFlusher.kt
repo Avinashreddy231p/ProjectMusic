@@ -28,6 +28,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -45,8 +46,6 @@ class StatsFlusher(
 
     fun startPeriodicFlush(intervalMs: Long = 30_000L) {
         stopPeriodicFlush()
-        // Trigger an immediate recalculation to catch up on any previous run's data
-        scope.launch { rankingEngine?.batchRecalculate() }
         flushJob = scope.launch {
             while (true) {
                 kotlinx.coroutines.delay(intervalMs)
@@ -135,7 +134,7 @@ class StatsFlusher(
         allGroups.addAll(remainingGroups)
 
         if (allSessions.isNotEmpty() || allGroups.isNotEmpty()) {
-            scope.launch {
+            kotlinx.coroutines.runBlocking {
                 try {
                     if (allGroups.isNotEmpty()) {
                         statsRepository.insertGroups(allGroups)
@@ -143,7 +142,6 @@ class StatsFlusher(
                     if (allSessions.isNotEmpty()) {
                         statsRepository.insertSessions(allSessions)
                     }
-                    // Ensure stats are up to date before shutdown
                     rankingEngine?.markDirty()
                     rankingEngine?.batchRecalculate()
                 } catch (e: Exception) {
@@ -169,10 +167,8 @@ class StatsFlusher(
                 if (sessions.isNotEmpty()) {
                     statsRepository.insertSessions(sessions)
                     rankingEngine?.markDirty()
+                    rankingEngine?.batchRecalculate()
                 }
-                // Always check if we need to recalculate, even if no new sessions were drained
-                // (e.g. if the engine was marked dirty by a transition or app start)
-                rankingEngine?.batchRecalculate()
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to flush pending sessions", e)
             }
@@ -182,6 +178,11 @@ class StatsFlusher(
     fun reset() {
         stopPeriodicFlush()
         tracker.reset()
+    }
+
+    fun stop() {
+        stopPeriodicFlush()
+        scope.cancel()
     }
 
     companion object {

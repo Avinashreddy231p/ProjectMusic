@@ -14,8 +14,10 @@ import com.mardous.projectmusic.data.model.Artist
 import com.mardous.projectmusic.extensions.resources.toJPG
 import com.mardous.projectmusic.extensions.utilities.sanitize
 import com.mardous.projectmusic.util.FileUtil
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -25,9 +27,9 @@ import java.util.Locale
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-class CustomArtistImageManager(private val context: Context) {
+class CustomArtistImageManager(private val context: Context) : AutoCloseable {
 
-    private val coroutineScope = MainScope()
+    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val contentResolver get() = context.contentResolver
     private val imagesPreferences by lazy {
         context.getSharedPreferences("custom_artist_images", Context.MODE_PRIVATE)
@@ -139,5 +141,9 @@ class CustomArtistImageManager(private val context: Context) {
     } catch (e: IOException) {
         Log.e("CustomArtistImageManager", "Unable to delete file $this", e)
         false
+    }
+
+    override fun close() {
+        coroutineScope.cancel()
     }
 }

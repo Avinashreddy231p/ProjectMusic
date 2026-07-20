@@ -61,7 +61,12 @@ import com.mardous.projectmusic.data.remote.provideOkHttp
 import com.mardous.projectmusic.playback.SleepTimer
 import com.mardous.projectmusic.playback.equalizer.EqualizerManager
 import com.mardous.projectmusic.playback.processor.BalanceAudioProcessor
+import com.mardous.projectmusic.playback.processor.BeatAudioProcessor
 import com.mardous.projectmusic.playback.processor.ReplayGainAudioProcessor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import org.koin.core.qualifier.named
 import com.mardous.projectmusic.ui.screen.equalizer.EqualizerViewModel
 import com.mardous.projectmusic.ui.screen.info.InfoViewModel
 import com.mardous.projectmusic.ui.screen.library.LibraryViewModel
@@ -163,6 +168,9 @@ private val mainModule = module {
     factory {
         com.mardous.projectmusic.playback.shuffle.ShuffleManager()
     }
+    single(named("applicationScope")) {
+        CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    }
 }
 
 private val roomModule = module {
@@ -182,64 +190,65 @@ private val roomModule = module {
                 ProjectMusicDatabase.MIGRATION_11_12,
                 ProjectMusicDatabase.MIGRATION_12_13,
                 ProjectMusicDatabase.MIGRATION_13_14,
-                ProjectMusicDatabase.MIGRATION_14_15
+                ProjectMusicDatabase.MIGRATION_14_15,
+                ProjectMusicDatabase.MIGRATION_15_16
             )
             .build()
     }
 
-    factory {
+    single {
         get<ProjectMusicDatabase>().playlistDao()
     }
 
-    factory {
+    single {
         get<ProjectMusicDatabase>().playCountDao()
     }
 
-    factory {
+    single {
         get<ProjectMusicDatabase>().historyDao()
     }
 
-    factory {
+    single {
         get<ProjectMusicDatabase>().queueDao()
     }
 
-    factory {
+    single {
         get<ProjectMusicDatabase>().inclExclDao()
     }
 
-    factory {
+    single {
         get<ProjectMusicDatabase>().lyricsDao()
     }
 
-    factory {
+    single {
         get<ProjectMusicDatabase>().listeningHistoryDao()
     }
 
-    factory {
+    single {
         get<ProjectMusicDatabase>().listeningSessionGroupDao()
     }
 
-    factory {
+    single {
         get<ProjectMusicDatabase>().pendingScrobbleDao()
     }
 
-    factory {
+    single {
         get<ProjectMusicDatabase>().metadataDao()
     }
 
-    factory {
+    single {
         get<ProjectMusicDatabase>().rankingDao()
     }
 
-    factory {
+    single {
         get<ProjectMusicDatabase>().workDao()
     }
 
-    factory {
+    single {
         get<ProjectMusicDatabase>().analyticsDao()
     }
 
-    factory {
+    single {
         get<ProjectMusicDatabase>().healthDao()
     }
 
@@ -248,7 +257,7 @@ private val roomModule = module {
     } bind StatsRepository::class
 
     single {
-        com.mardous.projectmusic.data.local.repository.StatsCache(listeningHistoryDao = get(), applicationScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO))
+        com.mardous.projectmusic.data.local.repository.StatsCache(listeningHistoryDao = get(), applicationScope = get(named("applicationScope")))
     }
 }
 
