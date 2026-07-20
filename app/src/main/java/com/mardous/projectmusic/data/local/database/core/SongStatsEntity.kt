@@ -38,6 +38,7 @@ data class SongStatsEntity(
     @ColumnInfo(name = "song_key")
     val songKey: Long,
     @ColumnInfo(name = "total_play_count") val totalPlayCount: Long = 0,
+    @ColumnInfo(name = "completed_play_count") val completedPlayCount: Long = 0,
     @ColumnInfo(name = "total_skip_count") val totalSkipCount: Long = 0,
     @ColumnInfo(name = "total_listening_duration") val totalListeningDuration: Long = 0,
     @ColumnInfo(name = "effective_listening_duration") val effectiveListeningDuration: Long = 0,

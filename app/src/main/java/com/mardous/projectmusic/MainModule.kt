@@ -181,7 +181,8 @@ private val roomModule = module {
                 ProjectMusicDatabase.MIGRATION_10_11,
                 ProjectMusicDatabase.MIGRATION_11_12,
                 ProjectMusicDatabase.MIGRATION_12_13,
-                ProjectMusicDatabase.MIGRATION_13_14
+                ProjectMusicDatabase.MIGRATION_13_14,
+                ProjectMusicDatabase.MIGRATION_14_15
             )
             .build()
     }
@@ -324,7 +325,8 @@ private val dataModule = module {
             context = androidContext(),
             preferences = get(),
             lyricsDownloadService = get(),
-            lyricsDao = get()
+            lyricsDao = get(),
+            songRepository = get()
         )
     } bind LyricsRepository::class
 
@@ -368,7 +370,8 @@ private val dataModule = module {
     single {
         com.mardous.projectmusic.data.local.repository.FileTagScanner(
             rankingDao = get(),
-            metadataDao = get()
+            metadataDao = get(),
+            lyricsDao = get()
         )
     }
 }

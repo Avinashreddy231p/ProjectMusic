@@ -1231,4 +1231,15 @@
     <string name="weekly_plays">Weekly Plays</string>
     <string name="daily_plays">Daily Plays</string>
     <string name="listening_duration">Listening Duration</string>
+    <string name="action_musicbrainz_lookup">MusicBrainz Lookup</string>
+    <string name="musicbrainz_selection_title">Select Items for Lookup</string>
+    <string name="musicbrainz_lookup_progress">MusicBrainz Lookup Progress</string>
+    <string name="select_all">Select All</string>
+    <string name="deselect_all">Deselect All</string>
+    <string name="start_lookup">Start Lookup</string>
+    <string name="action_lyrics_lookup">Lyrics Lookup</string>
+    <string name="lyrics_selection_title">Select Songs for Lyrics Lookup</string>
+    <string name="lyrics_lookup_progress_title">Lyrics Lookup Progress</string>
+    <string name="lyrics_lookup_finished_title">Lyrics Lookup Finished</string>
+    <string name="ic_lyrics_24dp" translatable="false">ic_lyrics_24dp</string>
 </resources>

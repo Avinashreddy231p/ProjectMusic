@@ -20,9 +20,11 @@ package com.mardous.projectmusic.data.remote.lyrics.api
 import com.mardous.projectmusic.data.model.Song
 import com.mardous.projectmusic.data.model.lyrics.RawLyrics
 import com.mardous.projectmusic.data.model.network.NetworkFeature
+import com.mardous.projectmusic.data.remote.lyrics.model.LyricsSearchResult
 
 interface LyricsApi {
     val name: String
     val networkFeature: NetworkFeature.Lyrics
     suspend fun downloadLyrics(song: Song, title: String, artist: String): RawLyrics.Remote?
+    suspend fun searchLyrics(song: Song, title: String, artist: String): List<LyricsSearchResult> = emptyList()
 }

@@ -82,7 +82,7 @@ class GitHubRelease(
 
     fun isNewer(context: Context): Boolean {
         if (tag == "latest-ci") {
-            return publishedAt.toEpochMilliseconds() > com.mardous.projectmusic.BuildConfig.BUILD_TIME
+            return publishedAt.toEpochMilliseconds() > BuildConfig.BUILD_TIME
         }
         try {
             val packageInfo = context.packageManager.packageInfo(context)

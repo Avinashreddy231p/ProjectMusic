@@ -42,6 +42,8 @@ import com.mardous.projectmusic.ui.component.base.AbsTagEditorActivity
 import com.mardous.projectmusic.ui.dialogs.playlists.AddToPlaylistDialog
 import com.mardous.projectmusic.ui.dialogs.playlists.DeletePlaylistDialog
 import com.mardous.projectmusic.ui.dialogs.playlists.EditPlaylistDialog
+import com.mardous.projectmusic.ui.dialogs.metadata.MusicBrainzSelectionDialog
+import com.mardous.projectmusic.ui.dialogs.lyrics.LyricsSelectionDialog
 import com.mardous.projectmusic.ui.dialogs.metadata.AssignToMetadataDialog
 import com.mardous.projectmusic.ui.dialogs.metadata.AssignMode
 import com.mardous.projectmusic.ui.dialogs.songs.DeleteSongsDialog
@@ -99,6 +101,18 @@ fun Song.onSongMenu(
         R.id.action_add_to_instrument -> {
             AssignToMetadataDialog.create(this, AssignMode.INSTRUMENT)
                 .show(fragment.childFragmentManager, "ASSIGN_METADATA")
+            true
+        }
+
+        R.id.action_musicbrainz_lookup -> {
+            MusicBrainzSelectionDialog.create(listOf(this))
+                .show(fragment.childFragmentManager, "MB_SELECTION")
+            true
+        }
+
+        R.id.action_lyrics_lookup -> {
+            LyricsSelectionDialog.create(listOf(this))
+                .show(fragment.childFragmentManager, "LYRICS_SELECTION")
             true
         }
 
@@ -218,6 +232,18 @@ fun List<Song>.onSongsMenu(fragment: Fragment, menuItem: MenuItem): Boolean {
             true
         }
 
+        R.id.action_musicbrainz_lookup -> {
+            MusicBrainzSelectionDialog.create(this)
+                .show(fragment.childFragmentManager, "MB_SELECTION")
+            true
+        }
+
+        R.id.action_lyrics_lookup -> {
+            LyricsSelectionDialog.create(this)
+                .show(fragment.childFragmentManager, "LYRICS_SELECTION")
+            true
+        }
+
         R.id.action_share -> {
             fragment.startActivity(
                 fragment.requireContext()
@@ -252,11 +278,33 @@ fun Album.onAlbumMenu(fragment: Fragment, menuItem: MenuItem): Boolean {
             true
         }
 
+        R.id.action_musicbrainz_lookup -> {
+            MusicBrainzSelectionDialog.create(songs)
+                .show(fragment.childFragmentManager, "MB_SELECTION")
+            true
+        }
+
+        R.id.action_lyrics_lookup -> {
+            LyricsSelectionDialog.create(songs)
+                .show(fragment.childFragmentManager, "LYRICS_SELECTION")
+            true
+        }
+
         else -> songs.onSongsMenu(fragment, menuItem)
     }
 }
 
 fun List<Album>.onAlbumsMenu(fragment: Fragment, menuItem: MenuItem): Boolean {
+    if (menuItem.itemId == R.id.action_musicbrainz_lookup) {
+        MusicBrainzSelectionDialog.create(flatMap { it.songs })
+            .show(fragment.childFragmentManager, "MB_SELECTION")
+        return true
+    }
+    if (menuItem.itemId == R.id.action_lyrics_lookup) {
+        LyricsSelectionDialog.create(flatMap { it.songs })
+            .show(fragment.childFragmentManager, "LYRICS_SELECTION")
+        return true
+    }
     fragment.lifecycleScope.launch(Dispatchers.IO) {
         val songs = flatMap { it.songs }
         withContext(Dispatchers.Main) {
@@ -275,11 +323,33 @@ fun Artist.onArtistMenu(fragment: Fragment, menuItem: MenuItem): Boolean {
             true
         }
 
+        R.id.action_musicbrainz_lookup -> {
+            MusicBrainzSelectionDialog.createArtists(listOf(this))
+                .show(fragment.childFragmentManager, "MB_SELECTION")
+            true
+        }
+
+        R.id.action_lyrics_lookup -> {
+            LyricsSelectionDialog.create(songs)
+                .show(fragment.childFragmentManager, "LYRICS_SELECTION")
+            true
+        }
+
         else -> songs.onSongsMenu(fragment, menuItem)
     }
 }
 
 fun List<Artist>.onArtistsMenu(fragment: Fragment, menuItem: MenuItem): Boolean {
+    if (menuItem.itemId == R.id.action_musicbrainz_lookup) {
+        MusicBrainzSelectionDialog.createArtists(this)
+            .show(fragment.childFragmentManager, "MB_SELECTION")
+        return true
+    }
+    if (menuItem.itemId == R.id.action_lyrics_lookup) {
+        LyricsSelectionDialog.create(flatMap { it.songs })
+            .show(fragment.childFragmentManager, "LYRICS_SELECTION")
+        return true
+    }
     fragment.lifecycleScope.launch(Dispatchers.IO) {
         val songs = flatMap { it.songs }
         withContext(Dispatchers.Main) {

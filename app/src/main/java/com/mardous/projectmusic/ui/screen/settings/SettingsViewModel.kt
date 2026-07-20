@@ -1081,10 +1081,12 @@ class SettingsViewModel(
 
     fun runMusicbrainzScan() {
         viewModelScope.launch {
-            _uiState.update { it.copy(musicbrainzScanning = true, musicbrainzScanResult = null) }
+            _uiState.update { it.copy(musicbrainzScanning = true, musicbrainzScanResult = null, musicbrainzScanProgress = 0, musicbrainzScanTotal = 0, musicbrainzScanLabel = null) }
             try {
                 val repo = org.koin.java.KoinJavaComponent.get<com.mardous.projectmusic.data.local.repository.MusicBrainzRepository>(com.mardous.projectmusic.data.local.repository.MusicBrainzRepository::class.java)
-                val result = repo.scanAndWriteAll()
+                val result = repo.scanAndWriteAll { current, total, label ->
+                    _uiState.update { it.copy(musicbrainzScanProgress = current, musicbrainzScanTotal = total, musicbrainzScanLabel = label) }
+                }
                 _uiState.update {
                     it.copy(
                         musicbrainzScanning = false,
@@ -1108,14 +1110,16 @@ class SettingsViewModel(
 
     fun runFileTagScan() {
         viewModelScope.launch {
-            _uiState.update { it.copy(fileTagScanning = true, fileTagScanResult = null) }
+            _uiState.update { it.copy(fileTagScanning = true, fileTagScanResult = null, fileTagScanProgress = 0, fileTagScanTotal = 0, fileTagScanLabel = null) }
             try {
                 val scanner = org.koin.java.KoinJavaComponent.get<com.mardous.projectmusic.data.local.repository.FileTagScanner>(com.mardous.projectmusic.data.local.repository.FileTagScanner::class.java)
-                val result = scanner.scanAll()
+                val result = scanner.scanAll { current, total, label ->
+                    _uiState.update { it.copy(fileTagScanProgress = current, fileTagScanTotal = total, fileTagScanLabel = label) }
+                }
                 _uiState.update {
                     it.copy(
                         fileTagScanning = false,
-                        fileTagScanResult = "Scanned ${result.songsScanned}, updated ${result.songsUpdated}, ${result.errors} errors"
+                        fileTagScanResult = "Scanned ${result.songsScanned}, updated ${result.songsUpdated}, lyrics ${result.lyricsUpdated}, ${result.errors} errors"
                     )
                 }
             } catch (e: Exception) {
@@ -1135,10 +1139,12 @@ class SettingsViewModel(
 
     fun runArtistScan() {
         viewModelScope.launch {
-            _uiState.update { it.copy(artistScanning = true, artistScanResult = null) }
+            _uiState.update { it.copy(artistScanning = true, artistScanResult = null, artistScanProgress = 0, artistScanTotal = 0, artistScanLabel = null) }
             try {
                 val repo = org.koin.java.KoinJavaComponent.get<com.mardous.projectmusic.data.local.repository.MusicBrainzRepository>(com.mardous.projectmusic.data.local.repository.MusicBrainzRepository::class.java)
-                val result = repo.scanArtists()
+                val result = repo.scanArtists { current, total, label ->
+                    _uiState.update { it.copy(artistScanProgress = current, artistScanTotal = total, artistScanLabel = label) }
+                }
                 _uiState.update {
                     it.copy(
                         artistScanning = false,
@@ -1351,10 +1357,19 @@ data class SettingsUiState(
     val musicbrainzEnabled: Boolean = false,
     val musicbrainzScanning: Boolean = false,
     val musicbrainzScanResult: String? = null,
+    val musicbrainzScanProgress: Int = 0,
+    val musicbrainzScanTotal: Int = 0,
+    val musicbrainzScanLabel: String? = null,
     val fileTagScanning: Boolean = false,
     val fileTagScanResult: String? = null,
+    val fileTagScanProgress: Int = 0,
+    val fileTagScanTotal: Int = 0,
+    val fileTagScanLabel: String? = null,
     val artistScanning: Boolean = false,
     val artistScanResult: String? = null,
+    val artistScanProgress: Int = 0,
+    val artistScanTotal: Int = 0,
+    val artistScanLabel: String? = null,
     val audioOffload: Boolean = false,
     val audioFloatOutput: Boolean = false,
     val skipSilence: Boolean = false

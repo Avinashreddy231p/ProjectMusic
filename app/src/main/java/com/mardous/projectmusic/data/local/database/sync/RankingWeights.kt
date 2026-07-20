@@ -20,11 +20,13 @@
 package com.mardous.projectmusic.data.local.database.sync
 
 object RankingWeights {
-    const val DEFAULT_PLAY_COUNT_WEIGHT = 2.0
-    const val DEFAULT_DURATION_WEIGHT = 0.0001 // Weight per ms
-    const val DEFAULT_FAVORITE_BONUS = 5.0
+    const val DEFAULT_FAVORITE_BONUS = 25.0
+    const val DEFAULT_COMPLETED_PLAY_WEIGHT = 10.0
+    const val DEFAULT_PLAY_COUNT_WEIGHT = 5.0
+    const val DEFAULT_DURATION_WEIGHT = 5.0 // Weight per minute
 
+    var favoriteBonus: Double = DEFAULT_FAVORITE_BONUS
+    var completedPlayWeight: Double = DEFAULT_COMPLETED_PLAY_WEIGHT
     var playCountWeight: Double = DEFAULT_PLAY_COUNT_WEIGHT
     var durationWeight: Double = DEFAULT_DURATION_WEIGHT
-    var favoriteBonus: Double = DEFAULT_FAVORITE_BONUS
 }

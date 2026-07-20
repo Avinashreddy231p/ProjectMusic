@@ -153,6 +153,11 @@ data class MusicBrainzWorkAttribute(
     val value: String? = null
 )
 
+@Serializable
+data class MusicBrainzRecordingSearch(
+    val recordings: List<MusicBrainzRecording> = emptyList()
+)
+
 class MusicBrainzService(private val client: HttpClient) {
 
     private val json = Json { ignoreUnknownKeys = true }
@@ -172,6 +177,20 @@ class MusicBrainzService(private val client: HttpClient) {
             if (artistQuery != null) append(" AND artist:\"$artistQuery\"")
         }
         return client.get("$BASE_URL/release") {
+            userAgent(USER_AGENT)
+            header(HttpHeaders.Accept, "application/json")
+            url { parameters.append("query", query) }
+            url { parameters.append("fmt", "json") }
+            url { parameters.append("limit", "5") }
+        }.body()
+    }
+
+    suspend fun searchRecording(titleQuery: String, artistQuery: String? = null): MusicBrainzRecordingSearch {
+        val query = buildString {
+            append("recording:\"$titleQuery\"")
+            if (artistQuery != null) append(" AND artist:\"$artistQuery\"")
+        }
+        return client.get("$BASE_URL/recording") {
             userAgent(USER_AGENT)
             header(HttpHeaders.Accept, "application/json")
             url { parameters.append("query", query) }

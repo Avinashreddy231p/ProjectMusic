@@ -112,6 +112,7 @@ import com.mardous.projectmusic.ui.component.compose.ObserveAsEvent
 import com.mardous.projectmusic.ui.component.compose.menu.MenuItem
 import com.mardous.projectmusic.ui.component.compose.menu.OverflowMenu
 import com.mardous.projectmusic.ui.component.compose.menu.TopAppBarMenu
+import com.mardous.projectmusic.ui.dialogs.lyrics.LyricsLookupDialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinActivityViewModel
@@ -209,8 +210,18 @@ fun LyricsEditorScreen(
     var showNoConnectionDialog by remember { mutableStateOf(false) }
     var showManualSearchDialog by remember { mutableStateOf(false) }
     var showLyricsDownloadDialog by remember { mutableStateOf(false) }
+    var showLyricsManualLookupDialog by remember { mutableStateOf(false) }
     var showLyricsSearchDialog by remember { mutableStateOf(false) }
+    var showLyricsLookupDialog by remember { mutableStateOf(false) }
     var downloadedLyricsForSelector by rememberSaveable { mutableStateOf<RawLyrics.Remote?>(null) }
+
+    val lyricsSearchResults by viewModel.lyricsSearchResults.collectAsStateWithLifecycle()
+
+    LaunchedEffect(lyricsSearchResults) {
+        if (lyricsSearchResults.isNotEmpty()) {
+            showLyricsLookupDialog = true
+        }
+    }
 
     ObserveAsEvent(viewModel.saveEvent) { saveResult ->
         val toastMessage = when (saveResult) {
@@ -331,6 +342,18 @@ fun LyricsEditorScreen(
         )
     }
 
+    if (showLyricsManualLookupDialog) {
+        LyricsSearchDialog(
+            song = song,
+            title = stringResource(R.string.action_lyrics_lookup),
+            onSearchClick = { title, artist ->
+                viewModel.searchLyrics(song, title, artist)
+                showLyricsManualLookupDialog = false
+            },
+            onDismissRequest = { showLyricsManualLookupDialog = false }
+        )
+    }
+
     if (showLyricsSearchDialog) {
         LyricsSearchDialog(
             song = song,
@@ -345,6 +368,27 @@ fun LyricsEditorScreen(
                 showLyricsSearchDialog = false
             },
             onDismissRequest = { showLyricsSearchDialog = false }
+        )
+    }
+
+    if (showLyricsLookupDialog) {
+        LyricsLookupDialog(
+            results = lyricsSearchResults,
+            onDismissRequest = {
+                showLyricsLookupDialog = false
+                viewModel.finishLyricsSearch()
+            },
+            onResultSelected = { result ->
+                if (result.lyrics.hasBoth) {
+                    downloadedLyricsForSelector = result.lyrics
+                } else if (result.lyrics.hasPlain) {
+                    textFieldState.setContent(result.lyrics.plain?.lyrics)
+                } else if (result.lyrics.hasSynced) {
+                    textFieldState.setContent(result.lyrics.synced?.lyrics)
+                }
+                showLyricsLookupDialog = false
+                viewModel.finishLyricsSearch()
+            }
         )
     }
 
@@ -423,8 +467,15 @@ fun LyricsEditorScreen(
                                     onClick = { downloadLyrics() }
                                 ),
                                 MenuItem.Button.DropDown(
-                                    text = stringResource(R.string.search_lyrics),
+                                    text = stringResource(R.string.action_lyrics_lookup),
                                     icon = painterResource(R.drawable.ic_search_24dp),
+                                    enabled = !uiState.isLoading && !isFileSource,
+                                    visible = isLyricsDownloadEnabled,
+                                    onClick = { showLyricsManualLookupDialog = true }
+                                ),
+                                MenuItem.Button.DropDown(
+                                    text = stringResource(R.string.search_lyrics),
+                                    icon = painterResource(R.drawable.ic_open_in_new_24dp),
                                     onClick = { showLyricsSearchDialog = true }
                                 ),
                                 MenuItem.Button.DropDown(
@@ -455,6 +506,7 @@ fun LyricsEditorScreen(
                     enabled = !uiState.isLoading && !isFileSource,
                     downloadEnabled = isLyricsDownloadEnabled,
                     onSearchClick = { showLyricsSearchDialog = true },
+                    onLookupClick = { showLyricsManualLookupDialog = true },
                     onDownloadClick = { downloadLyrics() },
                     onSelectAllClick = { selectAllText() },
                     onPasteClick = { pasteFromClipboard() },
@@ -780,6 +832,7 @@ private fun LyricsEditorBottomBar(
     enabled: Boolean,
     downloadEnabled: Boolean,
     onSearchClick: () -> Unit,
+    onLookupClick: () -> Unit,
     onDownloadClick: () -> Unit,
     onPasteClick: () -> Unit,
     onSaveClick: () -> Unit,
@@ -792,8 +845,17 @@ private fun LyricsEditorBottomBar(
             enabled = enabled
         ) {
             Icon(
-                painter = painterResource(R.drawable.ic_search_24dp),
+                painter = painterResource(R.drawable.ic_open_in_new_24dp),
                 contentDescription = stringResource(R.string.search_lyrics)
+            )
+        }
+        IconButton(
+            onClick = onLookupClick,
+            enabled = enabled && downloadEnabled
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_search_24dp),
+                contentDescription = stringResource(R.string.action_lyrics_lookup)
             )
         }
         IconButton(

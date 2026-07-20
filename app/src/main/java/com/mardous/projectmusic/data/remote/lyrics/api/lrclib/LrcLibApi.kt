@@ -5,6 +5,7 @@ import com.mardous.projectmusic.data.model.lyrics.RawLyrics
 import com.mardous.projectmusic.data.model.network.NetworkFeature
 import com.mardous.projectmusic.data.remote.lyrics.api.LyricsApi
 import com.mardous.projectmusic.data.remote.lyrics.model.LRCLibResponse
+import com.mardous.projectmusic.data.remote.lyrics.model.LyricsSearchResult
 import com.mardous.projectmusic.util.Constants.USER_AGENT
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -45,6 +46,38 @@ class LrcLibApi(private val client: HttpClient) : LyricsApi {
                 plain = RawLyrics.Remote.Content(name, matchingLyrics.plainLyrics),
                 synced = RawLyrics.Remote.Content(name, matchingLyrics.syncedLyrics),
                 instrumental = matchingLyrics.instrumental
+            )
+        }
+    }
+
+    override suspend fun searchLyrics(
+        song: Song,
+        title: String,
+        artist: String
+    ): List<LyricsSearchResult> {
+        val results = client.get(LRCLIB_API_URL) {
+            userAgent(USER_AGENT)
+            timeout {
+                connectTimeoutMillis = 5000
+                socketTimeoutMillis = 10000
+                requestTimeoutMillis = 15000
+            }
+            url.encodedParameters.append("q", "$artist $title".encodeURLParameter())
+        }.body<List<LRCLibResponse>>()
+
+        return results.map {
+            LyricsSearchResult(
+                title = it.title,
+                artist = it.artist,
+                album = it.album,
+                duration = (it.durationInSeconds * 1000).toLong(),
+                instrumental = it.instrumental,
+                provider = name,
+                lyrics = RawLyrics.Remote(
+                    plain = RawLyrics.Remote.Content(name, it.plainLyrics),
+                    synced = RawLyrics.Remote.Content(name, it.syncedLyrics),
+                    instrumental = it.instrumental
+                )
             )
         }
     }

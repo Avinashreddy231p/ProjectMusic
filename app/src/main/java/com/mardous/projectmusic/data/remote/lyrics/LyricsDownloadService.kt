@@ -21,11 +21,13 @@ import android.util.Log
 import com.mardous.projectmusic.data.model.Song
 import com.mardous.projectmusic.data.model.lyrics.RawLyrics
 import com.mardous.projectmusic.data.model.network.NetworkFeature
+import com.mardous.projectmusic.data.remote.lyrics.api.LyricsApi
 import com.mardous.projectmusic.data.remote.lyrics.api.betterlyrics.BetterLyricsApi
 import com.mardous.projectmusic.data.remote.lyrics.api.genius.GeniusApi
 import com.mardous.projectmusic.data.remote.lyrics.api.lrclib.LrcLibApi
 import com.mardous.projectmusic.data.remote.lyrics.api.lyrically.LyricallyApi
 import com.mardous.projectmusic.data.remote.lyrics.api.lyricsplus.LyricsPlusApi
+import com.mardous.projectmusic.data.remote.lyrics.model.LyricsSearchResult
 import com.mardous.projectmusic.extensions.media.albumArtistName
 import com.mardous.projectmusic.extensions.media.extractMainArtistName
 import io.ktor.client.HttpClient
@@ -75,6 +77,31 @@ class LyricsDownloadService(client: HttpClient) {
         }
 
         return result
+    }
+
+    suspend fun searchRemoteLyrics(
+        song: Song,
+        title: String,
+        artist: String
+    ): List<LyricsSearchResult> {
+        if (song == Song.emptySong || !NetworkFeature.isOnline(ignoreWifiSetting = true))
+            return emptyList()
+
+        val results = mutableListOf<LyricsSearchResult>()
+        val cleanedTitle = cleanTitle(title)
+        val cleanedArtist = artist.extractMainArtistName()
+
+        for (api in lyricsApi) {
+            if (!api.networkFeature.isEnabled) continue
+            runCatching {
+                api.searchLyrics(song, cleanedTitle, cleanedArtist)
+            }.onSuccess {
+                results.addAll(it)
+            }.onFailure {
+                Log.e(TAG, "Search failed for ${api.name}", it)
+            }
+        }
+        return results.sortedByDescending { it.isSynced }
     }
 
     /**

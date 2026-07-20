@@ -45,6 +45,12 @@
         android:title="@string/action_delete_from_device"
         app:showAsAction="never"/>
     <item
+        android:id="@+id/action_musicbrainz_lookup"
+        android:title="@string/action_musicbrainz_lookup"/>
+    <item
+        android:id="@+id/action_lyrics_lookup"
+        android:title="@string/action_lyrics_lookup"/>
+    <item
         android:id="@+id/action_details"
         android:title="@string/action_details"
         app:showAsAction="never"/>

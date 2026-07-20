@@ -78,7 +78,7 @@ import com.mardous.projectmusic.data.local.database.sync.*
         // Sync
         PendingWorkEntity::class
     ],
-    version = 14,
+    version = 16,
     exportSchema = false
 )
 abstract class ProjectMusicDatabase : RoomDatabase() {
@@ -636,6 +636,12 @@ abstract class ProjectMusicDatabase : RoomDatabase() {
             }
         }
 
+        val MIGRATION_14_15 = object : Migration(14, 15) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE song_stats ADD COLUMN completed_play_count INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         val MIGRATION_13_14 = object : Migration(13, 14) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 // song_metadata additions
@@ -667,6 +673,14 @@ abstract class ProjectMusicDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE album_artists ADD COLUMN disambiguation TEXT")
                 db.execSQL("ALTER TABLE album_artists ADD COLUMN begin_date TEXT")
                 db.execSQL("ALTER TABLE album_artists ADD COLUMN end_date TEXT")
+            }
+        }
+
+        val MIGRATION_15_16 = object : Migration(15, 16) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE song_metadata ADD COLUMN track_total INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE song_metadata ADD COLUMN disc_total INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE song_metadata ADD COLUMN comment TEXT")
             }
         }
     }

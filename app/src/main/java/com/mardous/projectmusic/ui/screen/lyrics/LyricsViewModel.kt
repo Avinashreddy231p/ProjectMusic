@@ -24,6 +24,7 @@ import com.mardous.projectmusic.data.local.repository.LyricsRepository
 import com.mardous.projectmusic.data.model.Song
 import com.mardous.projectmusic.data.model.lyrics.LyricsSource
 import com.mardous.projectmusic.data.model.lyrics.RawLyrics
+import com.mardous.projectmusic.data.remote.lyrics.model.LyricsSearchResult
 import com.mardous.projectmusic.data.model.network.NetworkFeature
 import com.mardous.projectmusic.data.model.network.NetworkFeature.Lyrics.BetterLyrics
 import com.mardous.projectmusic.data.model.network.NetworkFeature.Lyrics.LRCLib
@@ -67,6 +68,9 @@ class LyricsViewModel(
 
     private val _downloadEvent = Channel<RawLyrics.Remote>(Channel.BUFFERED)
     val downloadEvent = _downloadEvent.receiveAsFlow()
+
+    private val _lyricsSearchResults = MutableStateFlow<List<LyricsSearchResult>>(emptyList())
+    val lyricsSearchResults = _lyricsSearchResults.asStateFlow()
 
     private val _permissionRequestEvent = Channel<List<Uri>>(Channel.BUFFERED)
     val permissionRequestEvent = _permissionRequestEvent.receiveAsFlow()
@@ -159,6 +163,24 @@ class LyricsViewModel(
                 _lyricsEditorUiState.value = uiState.copy(isLoading = false)
             }
         }
+
+    fun searchLyrics(song: Song, title: String, artist: String) =
+        viewModelScope.launch(IO) {
+            val uiState = _lyricsEditorUiState.updateAndGet {
+                if (it is LyricsEditorUiState.Visible) {
+                    it.copy(isLoading = true)
+                } else it
+            }
+            if (uiState is LyricsEditorUiState.Visible) {
+                val results = repository.searchLyrics(song, title, artist)
+                _lyricsSearchResults.value = results
+                _lyricsEditorUiState.value = uiState.copy(isLoading = false)
+            }
+        }
+
+    fun finishLyricsSearch() {
+        _lyricsSearchResults.value = emptyList()
+    }
 
     fun preparePermissionRequest(song: Song) = viewModelScope.launch(IO) {
         _permissionRequestEvent.send(repository.writableUris(song))

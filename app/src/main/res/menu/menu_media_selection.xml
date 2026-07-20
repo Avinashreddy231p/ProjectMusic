@@ -21,6 +21,18 @@
         app:showAsAction="ifRoom" />
 
     <item
+        android:id="@+id/action_musicbrainz_lookup"
+        android:icon="@drawable/ic_cloud_24dp"
+        android:title="@string/action_musicbrainz_lookup"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_lyrics_lookup"
+        android:icon="@drawable/ic_lyrics_24dp"
+        android:title="@string/action_lyrics_lookup"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/action_share"
         android:icon="@drawable/ic_share_24dp"
         android:title="@string/action_share"

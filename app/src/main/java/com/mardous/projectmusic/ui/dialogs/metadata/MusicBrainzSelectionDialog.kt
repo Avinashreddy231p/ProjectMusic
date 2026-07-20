@@ -57,18 +57,23 @@ import com.mardous.projectmusic.ui.component.compose.BottomSheetDialogSurface
 import com.mardous.projectmusic.ui.component.compose.MediaImage
 import com.mardous.projectmusic.ui.screen.library.LibraryViewModel
 import com.mardous.projectmusic.ui.theme.ProjectMusicTheme
+import kotlinx.parcelize.Parcelize
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
+
+@Parcelize
+data class SelectionItemData(
+    val id: Long,
+    val title: String,
+    val subtitle: String?,
+    val isArtist: Boolean
+) : android.os.Parcelable
 
 class MusicBrainzSelectionDialog : BottomSheetDialogFragment() {
 
     private val libraryViewModel: LibraryViewModel by activityViewModel()
     
-    private val songs by lazy {
-        arguments?.getParcelableArrayList<Song>(EXTRA_SONGS) ?: emptyList<Song>()
-    }
-    
-    private val artists by lazy {
-        arguments?.getParcelableArrayList<com.mardous.projectmusic.data.local.database.metadata.ArtistEntity>(EXTRA_ARTISTS) ?: emptyList()
+    private val items by lazy {
+        arguments?.getParcelableArrayList<SelectionItemData>(EXTRA_ITEMS) ?: emptyList()
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -103,23 +108,14 @@ class MusicBrainzSelectionDialog : BottomSheetDialogFragment() {
     private fun MusicBrainzSelectionScreen(
         onDismiss: () -> Unit
     ) {
-        val context = LocalContext.current
         var searchQuery by rememberSaveable { mutableStateOf("") }
         
-        val isArtistMode = artists.isNotEmpty()
-        
-        val allIds = if (isArtistMode) artists.map { it.id } else songs.map { it.id }
+        val allIds = items.map { it.id }
         val checkedIds = rememberSaveable { mutableStateListOf<Long>().apply { addAll(allIds) } }
         
-        val filteredSongs = remember(searchQuery) {
-            if (searchQuery.isBlank()) songs else songs.filter {
-                it.title.contains(searchQuery, ignoreCase = true) || it.artistName.contains(searchQuery, ignoreCase = true)
-            }
-        }
-        
-        val filteredArtists = remember(searchQuery) {
-            if (searchQuery.isBlank()) artists else artists.filter {
-                it.name.contains(searchQuery, ignoreCase = true)
+        val filteredItems = remember(searchQuery) {
+            if (searchQuery.isBlank()) items else items.filter {
+                it.title.contains(searchQuery, ignoreCase = true) || it.subtitle?.contains(searchQuery, ignoreCase = true) == true
             }
         }
 
@@ -171,7 +167,7 @@ class MusicBrainzSelectionDialog : BottomSheetDialogFragment() {
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
                     modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth(),
-                    placeholder = { Text(if (isArtistMode) "Search artists..." else "Search songs...") },
+                    placeholder = { Text("Search...") },
                     leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                     shape = CircleShape,
                     colors = TextFieldDefaults.colors(
@@ -187,31 +183,17 @@ class MusicBrainzSelectionDialog : BottomSheetDialogFragment() {
                         modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(bottom = 80.dp)
                     ) {
-                        if (isArtistMode) {
-                            itemsIndexed(filteredArtists, key = { _, it -> it.id }) { index, artist ->
-                                SelectionItem(
-                                    title = artist.name,
-                                    subtitle = artist.country,
-                                    isSelected = checkedIds.contains(artist.id),
-                                    onToggle = {
-                                        if (checkedIds.contains(artist.id)) checkedIds.remove(artist.id)
-                                        else checkedIds.add(artist.id)
-                                    }
-                                )
-                            }
-                        } else {
-                            itemsIndexed(filteredSongs, key = { _, it -> it.id }) { index, song ->
-                                SelectionItem(
-                                    title = song.title,
-                                    subtitle = song.artistName,
-                                    model = song,
-                                    isSelected = checkedIds.contains(song.id),
-                                    onToggle = {
-                                        if (checkedIds.contains(song.id)) checkedIds.remove(song.id)
-                                        else checkedIds.add(song.id)
-                                    }
-                                )
-                            }
+                        itemsIndexed(filteredItems, key = { _, it -> it.id }) { _, item ->
+                            SelectionItem(
+                                title = item.title,
+                                subtitle = item.subtitle,
+                                isArtist = item.isArtist,
+                                isSelected = checkedIds.contains(item.id),
+                                onToggle = {
+                                    if (checkedIds.contains(item.id)) checkedIds.remove(item.id)
+                                    else checkedIds.add(item.id)
+                                }
+                            )
                         }
                     }
 
@@ -223,12 +205,15 @@ class MusicBrainzSelectionDialog : BottomSheetDialogFragment() {
                     ) {
                         Button(
                             onClick = {
+                                val isArtistMode = items.firstOrNull()?.isArtist == true
                                 if (isArtistMode) {
                                     libraryViewModel.lookupArtistsMusicBrainz(checkedIds.toList())
                                 } else {
                                     libraryViewModel.lookupMusicBrainz(checkedIds.toList())
                                 }
-                                MusicBrainzProgressDialog().show(childFragmentManager, "MB_PROGRESS")
+                                val progressDialog = MusicBrainzProgressDialog()
+                                progressDialog.show(parentFragmentManager, "MB_PROGRESS")
+                                onDismiss()
                             },
                             modifier = Modifier.fillMaxWidth(),
                             shape = CircleShape,
@@ -248,21 +233,26 @@ class MusicBrainzSelectionDialog : BottomSheetDialogFragment() {
     private fun SelectionItem(
         title: String,
         subtitle: String?,
+        isArtist: Boolean,
         isSelected: Boolean,
-        onToggle: () -> Unit,
-        model: Any? = null
+        onToggle: () -> Unit
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().clickable { onToggle() }.padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (model != null) {
-                MediaImage(
-                    model = model,
-                    modifier = Modifier.size(56.dp).padding(4.dp)
+            Box(
+                modifier = Modifier.size(56.dp).padding(4.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(if (isArtist) R.drawable.ic_artist_24dp else R.drawable.ic_album_24dp),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(32.dp)
                 )
-                Spacer(modifier = Modifier.width(16.dp))
             }
+            Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold, maxLines = 1)
                 if (subtitle != null) {
@@ -274,17 +264,19 @@ class MusicBrainzSelectionDialog : BottomSheetDialogFragment() {
     }
 
     companion object {
-        private const val EXTRA_ARTISTS = "extra_artists"
+        private const val EXTRA_ITEMS = "extra_items"
 
         fun create(songs: List<Song>): MusicBrainzSelectionDialog {
+            val list = songs.map { SelectionItemData(it.id, it.title, it.artistName, false) }
             return MusicBrainzSelectionDialog().withArgs {
-                putParcelableArrayList(EXTRA_SONGS, ArrayList(songs))
+                putParcelableArrayList(EXTRA_ITEMS, ArrayList(list))
             }
         }
         
-        fun createArtists(artists: List<com.mardous.projectmusic.data.local.database.metadata.ArtistEntity>): MusicBrainzSelectionDialog {
+        fun createArtists(artists: List<Artist>): MusicBrainzSelectionDialog {
+            val list = artists.map { SelectionItemData(it.id, it.name, null, true) }
             return MusicBrainzSelectionDialog().withArgs {
-                putParcelableArrayList(EXTRA_ARTISTS, ArrayList(artists))
+                putParcelableArrayList(EXTRA_ITEMS, ArrayList(list))
             }
         }
     }

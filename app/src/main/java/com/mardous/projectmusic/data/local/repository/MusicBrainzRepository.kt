@@ -17,6 +17,8 @@ class MusicBrainzRepository(
     private val metadataDao: MetadataDao,
     private val rankingDao: RankingDao
 ) {
+    private suspend fun throttle() = delay(1100)
+
     data class ScanResult(
         val songsScanned: Int = 0,
         val songsUpdated: Int = 0,
@@ -31,13 +33,30 @@ class MusicBrainzRepository(
         val errors: Int = 0
     )
 
-    suspend fun scanArtists(): ArtistScanResult = withContext(Dispatchers.IO) {
-        var result = ArtistScanResult()
+    suspend fun scanArtists(onProgress: ((current: Int, total: Int, label: String) -> Unit)? = null): ArtistScanResult = withContext(Dispatchers.IO) {
         val allArtists = metadataDao.getAllArtistsList()
         val allAlbumArtists = metadataDao.getAllAlbumArtistsList()
+        lookupArtistsInternal(allArtists, allAlbumArtists, onProgress)
+    }
 
-        for ((index, artist) in allArtists.withIndex()) {
+    suspend fun lookupArtistsByIds(artistIds: List<Long>, onProgress: ((current: Int, total: Int, label: String) -> Unit)? = null): ArtistScanResult = withContext(Dispatchers.IO) {
+        val allArtists = metadataDao.getAllArtistsList().filter { artistIds.contains(it.id) }
+        val allAlbumArtists = metadataDao.getAllAlbumArtistsList().filter { artistIds.contains(it.id) }
+        lookupArtistsInternal(allArtists, allAlbumArtists, onProgress)
+    }
+
+    private suspend fun lookupArtistsInternal(
+        allArtists: List<com.mardous.projectmusic.data.local.database.metadata.ArtistEntity>,
+        allAlbumArtists: List<com.mardous.projectmusic.data.local.database.metadata.AlbumArtistEntity>,
+        onProgress: ((current: Int, total: Int, label: String) -> Unit)?
+    ): ArtistScanResult {
+        var result = ArtistScanResult()
+        val total = allArtists.size + allAlbumArtists.size
+        var processed = 0
+
+        for (artist in allArtists) {
             try {
+                throttle()
                 val updated = lookupArtist(artist)
                 if (updated != null) {
                     metadataDao.upsertArtist(updated)
@@ -46,7 +65,7 @@ class MusicBrainzRepository(
                     val songs = rankingDao.getAllSongs().filter { it.artistName.equals(artist.name, ignoreCase = true) }
                     for (song in songs) {
                         val meta = rankingDao.getSongMetadata(song.songKey)
-                        if (meta != null && meta.musicbrainzArtistId.isNullOrEmpty()) {
+                        if (meta != null && (meta.musicbrainzArtistId.isNullOrEmpty())) {
                             metadataDao.upsertSongMetadata(meta.copy(musicbrainzArtistId = updated.musicbrainzId))
                         }
                         if (updated.musicbrainzId != null) {
@@ -59,18 +78,19 @@ class MusicBrainzRepository(
             } catch (e: Exception) {
                 result = result.copy(errors = result.errors + 1)
             }
-            if (index % 50 == 0 && index > 0) {
-                delay(1000)
-            }
+            processed++
+            onProgress?.invoke(processed, total, "Artist: ${artist.name}")
         }
 
         for (aa in allAlbumArtists) {
             try {
                 if (allArtists.any { it.name.equals(aa.name, ignoreCase = true) }) continue
+                throttle()
                 val aaSearch = try {
                     musicBrainzService.searchArtist(aa.name).artists.firstOrNull()
                 } catch (e: Exception) { null }
                 if (aaSearch != null) {
+                    throttle()
                     val fullDetail = try { musicBrainzService.getArtist(aaSearch.id) } catch (e: Exception) { aaSearch }
                     metadataDao.upsertAlbumArtist(aa.copy(
                         musicbrainzId = aa.musicbrainzId ?: fullDetail.id,
@@ -87,8 +107,11 @@ class MusicBrainzRepository(
             } catch (e: Exception) {
                 result = result.copy(errors = result.errors + 1)
             }
+            processed++
+            onProgress?.invoke(processed, total, "Album Artist: ${aa.name}")
         }
-        result
+        onProgress?.invoke(total, total, "Done")
+        return result
     }
 
     private suspend fun lookupArtist(artistEntity: com.mardous.projectmusic.data.local.database.metadata.ArtistEntity): com.mardous.projectmusic.data.local.database.metadata.ArtistEntity? {
@@ -111,10 +134,23 @@ class MusicBrainzRepository(
         return null
     }
 
-    suspend fun scanAndWriteAll(): ScanResult = withContext(Dispatchers.IO) {
-        var result = ScanResult()
+    suspend fun scanAndWriteAll(onProgress: ((current: Int, total: Int, label: String) -> Unit)? = null): ScanResult = withContext(Dispatchers.IO) {
         val songs = rankingDao.getAllSongs()
+        lookupSongsInternal(songs, onProgress)
+    }
+
+    suspend fun lookupSongsByIds(songIds: List<Long>, onProgress: ((current: Int, total: Int, label: String) -> Unit)? = null): ScanResult = withContext(Dispatchers.IO) {
+        val songs = rankingDao.getAllSongs().filter { songIds.contains(it.mediaStoreId) }
+        lookupSongsInternal(songs, onProgress)
+    }
+
+    private suspend fun lookupSongsInternal(
+        songs: List<com.mardous.projectmusic.data.local.database.core.SongEntity>,
+        onProgress: ((current: Int, total: Int, label: String) -> Unit)?
+    ): ScanResult {
+        var result = ScanResult()
         val metadataMap = rankingDao.getAllSongMetadata().associateBy { it.songKey }
+        val total = songs.size
 
         for ((index, song) in songs.withIndex()) {
             try {
@@ -135,18 +171,19 @@ class MusicBrainzRepository(
             if (index % 50 == 0 && index > 0) {
                 delay(1000)
             }
+            onProgress?.invoke(index + 1, total, song.title)
         }
-        result
+        onProgress?.invoke(total, total, "Done")
+        return result
     }
 
     private suspend fun lookupSong(song: SongEntity, existing: SongMetadataEntity): SongMetadataEntity? {
         var changed = false
+        var currentMeta = existing
+        
         val artistMbid: String?
-        val albumMbid: String?
-        val trackMbid: String?
-
-        val metadataWithArtistMbid: SongMetadataEntity
-        if (existing.musicbrainzArtistId.isNullOrEmpty()) {
+        if (currentMeta.musicbrainzArtistId.isNullOrEmpty()) {
+            throttle()
             val result = try {
                 val search = musicBrainzService.searchArtist(song.artistName)
                 val artist = search.artists.firstOrNull()
@@ -164,33 +201,17 @@ class MusicBrainzRepository(
                             endDate = artistEntity.endDate ?: artist.lifeSpan?.end
                         ))
                     }
-                    val aaName = song.albumArtist
-                    if (aaName != null && aaName != song.artistName) {
-                        val aaEntity = metadataDao.getAlbumArtistByName(aaName)
-                        if (aaEntity != null) {
-                            metadataDao.upsertAlbumArtist(aaEntity.copy(
-                                musicbrainzId = aaEntity.musicbrainzId ?: artist.id,
-                                type = aaEntity.type ?: artist.type,
-                                gender = aaEntity.gender ?: artist.gender,
-                                country = aaEntity.country ?: artist.country,
-                                disambiguation = aaEntity.disambiguation ?: artist.disambiguation,
-                                beginDate = aaEntity.beginDate ?: artist.lifeSpan?.begin,
-                                endDate = aaEntity.endDate ?: artist.lifeSpan?.end
-                            ))
-                        }
-                    }
                     artist.id
                 } else null
             } catch (e: Exception) { null }
             artistMbid = result
-            metadataWithArtistMbid = existing.copy(musicbrainzArtistId = artistMbid)
+            if (changed) currentMeta = currentMeta.copy(musicbrainzArtistId = artistMbid)
         } else {
-            artistMbid = existing.musicbrainzArtistId
-            metadataWithArtistMbid = existing
+            artistMbid = currentMeta.musicbrainzArtistId
         }
 
-        val metadataWithAlbumMbid: SongMetadataEntity
-        if (metadataWithArtistMbid.musicbrainzAlbumId.isNullOrEmpty()) {
+        if (currentMeta.musicbrainzAlbumId.isNullOrEmpty()) {
+            throttle()
             val result = try {
                 val search = musicBrainzService.searchRelease(song.albumName, song.artistName)
                 val release = search.releases.firstOrNull()
@@ -209,69 +230,61 @@ class MusicBrainzRepository(
                     release.id
                 } else null
             } catch (e: Exception) { null }
-            albumMbid = result
-            metadataWithAlbumMbid = metadataWithArtistMbid.copy(musicbrainzAlbumId = albumMbid)
-        } else {
-            albumMbid = metadataWithArtistMbid.musicbrainzAlbumId
-            metadataWithAlbumMbid = metadataWithArtistMbid
+            if (result != null) {
+                changed = true
+                currentMeta = currentMeta.copy(musicbrainzAlbumId = result)
+            }
         }
 
-        val metadataWithTrackMbid: SongMetadataEntity
-        if (metadataWithAlbumMbid.musicbrainzTrackId.isNullOrEmpty() && artistMbid != null) {
-            val recordingId = try {
-                val search = musicBrainzService.searchRelease(song.title, song.artistName)
-                val release = search.releases.firstOrNull()
-                if (release != null) {
+        if (currentMeta.musicbrainzTrackId.isNullOrEmpty()) {
+            throttle()
+            try {
+                val search = musicBrainzService.searchRecording(song.title, song.artistName)
+                val recording = search.recordings.firstOrNull()
+                if (recording != null) {
                     changed = true
-                    val rid = release.id
-                    try {
-                        val recording = musicBrainzService.getRecording(rid)
-                        val recordingIsrc = recording.isrcs?.firstOrNull()
-                        val recordingRelations = recording.relations ?: emptyList()
+                    throttle()
+                    val detail = try { musicBrainzService.getRecording(recording.id) } catch (e: Exception) { null }
+                    
+                    val recordingIsrc = detail?.isrcs?.firstOrNull()
+                    val recordingRelations = detail?.relations ?: emptyList()
 
-                        var m = metadataWithAlbumMbid.copy(musicbrainzTrackId = rid)
+                    var m = currentMeta.copy(musicbrainzTrackId = recording.id)
 
-                        if (recordingIsrc != null && m.isrc.isNullOrEmpty()) {
-                            changed = true; m = m.copy(isrc = recordingIsrc)
-                        }
-                        for (relation in recordingRelations) {
-                            val artistName = relation.artist?.name
-                            if (artistName != null) {
-                                when (relation.type) {
-                                    "lyricist" -> if (m.lyricist.isNullOrEmpty()) { changed = true; m = m.copy(lyricist = artistName) }
-                                    "conductor" -> if (m.conductor.isNullOrEmpty()) { changed = true; m = m.copy(conductor = artistName) }
-                                    "arranger" -> if (m.arranger.isNullOrEmpty()) { changed = true; m = m.copy(arranger = artistName) }
-                                    "producer" -> if (m.producer.isNullOrEmpty()) { changed = true; m = m.copy(producer = artistName) }
-                                    "engineer" -> if (m.engineer.isNullOrEmpty()) { changed = true; m = m.copy(engineer = artistName) }
-                                    "publisher" -> if (m.publisher.isNullOrEmpty()) { changed = true; m = m.copy(publisher = artistName) }
-                                }
-                            }
-                            val work = relation.work
-                            if (work != null && m.musicbrainzWorkId.isNullOrEmpty()) {
-                                changed = true
-                                m = m.copy(
-                                    musicbrainzWorkId = work.id,
-                                    iswc = if (m.iswc.isNullOrEmpty()) work.iswc else m.iswc,
-                                    language = if (m.language.isNullOrEmpty()) work.language else m.language
-                                )
-                                val copyrightAttr = work.attributes?.firstOrNull { it.type == "copyright" }?.value
-                                if (copyrightAttr != null && m.copyright.isNullOrEmpty()) {
-                                    m = m.copy(copyright = copyrightAttr)
-                                }
+                    if (recordingIsrc != null && m.isrc.isNullOrEmpty()) {
+                        m = m.copy(isrc = recordingIsrc)
+                    }
+                    for (relation in recordingRelations) {
+                        val artistName = relation.artist?.name
+                        if (artistName != null) {
+                            when (relation.type) {
+                                "lyricist" -> if (m.lyricist.isNullOrEmpty()) { m = m.copy(lyricist = artistName) }
+                                "conductor" -> if (m.conductor.isNullOrEmpty()) { m = m.copy(conductor = artistName) }
+                                "arranger" -> if (m.arranger.isNullOrEmpty()) { m = m.copy(arranger = artistName) }
+                                "producer" -> if (m.producer.isNullOrEmpty()) { m = m.copy(producer = artistName) }
+                                "engineer" -> if (m.engineer.isNullOrEmpty()) { m = m.copy(engineer = artistName) }
+                                "publisher" -> if (m.publisher.isNullOrEmpty()) { m = m.copy(publisher = artistName) }
                             }
                         }
-                    } catch (e: Exception) { }
-                    rid
-                } else null
-            } catch (e: Exception) { null }
-            trackMbid = recordingId
-            metadataWithTrackMbid = metadataWithAlbumMbid.copy(musicbrainzTrackId = trackMbid)
-        } else {
-            trackMbid = metadataWithAlbumMbid.musicbrainzTrackId
-            metadataWithTrackMbid = metadataWithAlbumMbid
+                        val work = relation.work
+                        if (work != null && m.musicbrainzWorkId.isNullOrEmpty()) {
+                            m = m.copy(
+                                musicbrainzWorkId = work.id,
+                                iswc = if (m.iswc.isNullOrEmpty()) work.iswc else m.iswc,
+                                language = if (m.language.isNullOrEmpty()) work.language else m.language
+                            )
+                            val copyrightAttr = work.attributes?.firstOrNull { it.type == "copyright" }?.value
+                            if (copyrightAttr != null && m.copyright.isNullOrEmpty()) {
+                                m = m.copy(copyright = copyrightAttr)
+                            }
+                        }
+                    }
+                    currentMeta = m
+                }
+            } catch (e: Exception) { }
         }
 
-        return if (changed) metadataWithTrackMbid else null
+        return if (changed) currentMeta else null
     }
 
     private fun writeTags(filePath: String, artistMbid: String?, artistType: String?) {

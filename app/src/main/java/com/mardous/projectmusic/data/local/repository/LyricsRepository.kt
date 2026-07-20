@@ -35,6 +35,7 @@ import com.mardous.projectmusic.data.model.lyrics.LyricsSource
 import com.mardous.projectmusic.data.model.lyrics.RawLyrics
 import com.mardous.projectmusic.data.model.lyrics.SyncedLyrics
 import com.mardous.projectmusic.data.remote.lyrics.LyricsDownloadService
+import com.mardous.projectmusic.data.remote.lyrics.model.LyricsSearchResult
 import com.mardous.projectmusic.extensions.hasR
 import com.mardous.projectmusic.extensions.media.isArtistNameUnknown
 import com.mardous.projectmusic.util.requireString
@@ -45,6 +46,13 @@ import java.io.IOException
 import java.nio.charset.Charset
 import java.util.regex.Pattern
 
+data class LyricsScanResult(
+    val songsScanned: Int = 0,
+    val songsUpdated: Int = 0,
+    val tagsWritten: Int = 0,
+    val errors: Int = 0
+)
+
 interface LyricsRepository {
     suspend fun parseRawLyrics(song: Song, rawLyrics: RawLyrics): SyncedLyrics?
 
@@ -52,12 +60,18 @@ interface LyricsRepository {
     suspend fun embeddedLyrics(song: Song): RawLyrics.Embedded?
     suspend fun storedLyrics(song: Song, allowDownload: Boolean): RawLyrics.Stored?
     suspend fun downloadLyrics(song: Song, searchTitle: String, searchArtist: String): RawLyrics.Remote?
+    suspend fun searchLyrics(song: Song, searchTitle: String, searchArtist: String): List<LyricsSearchResult>
 
     suspend fun saveLyrics(
         song: Song,
         originalLyricsBySource: Map<LyricsSource, RawLyrics?>,
         newContentBySource: Map<LyricsSource, String>
     ): Boolean?
+
+    suspend fun lookupLyricsByIds(
+        songIds: List<Long>,
+        onProgress: (current: Int, total: Int, label: String) -> Unit
+    ): LyricsScanResult
 
     suspend fun writableUris(song: Song): List<Uri>
     suspend fun deleteAllLyrics()
@@ -67,7 +81,8 @@ class RealLyricsRepository(
     private val context: Context,
     private val preferences: SharedPreferences,
     private val lyricsDownloadService: LyricsDownloadService,
-    private val lyricsDao: LyricsDao
+    private val lyricsDao: LyricsDao,
+    private val songRepository: SongRepository
 ) : LyricsRepository {
 
     private val memoryCache = LruCache<Long, Map<LyricsSource, RawLyrics>>(20)
@@ -248,6 +263,14 @@ class RealLyricsRepository(
         }
     }
 
+    override suspend fun searchLyrics(
+        song: Song,
+        searchTitle: String,
+        searchArtist: String
+    ): List<LyricsSearchResult> {
+        return lyricsDownloadService.searchRemoteLyrics(song, searchTitle, searchArtist)
+    }
+
     override suspend fun saveLyrics(
         song: Song,
         originalLyricsBySource: Map<LyricsSource, RawLyrics?>,
@@ -308,6 +331,77 @@ class RealLyricsRepository(
             Log.e(TAG, "Error while saving lyrics for song ${song.data}", e)
         }
         return false
+    }
+
+    override suspend fun lookupLyricsByIds(
+        songIds: List<Long>,
+        onProgress: (current: Int, total: Int, label: String) -> Unit
+    ): LyricsScanResult {
+        var result = LyricsScanResult()
+        val songs = songRepository.songs(songIds)
+        val total = songs.size
+
+        for ((index, song) in songs.withIndex()) {
+            try {
+                onProgress(index, total, song.title)
+                val remoteLyrics = searchAndPickBestLyrics(song)
+                if (remoteLyrics != null) {
+                    val storable = remoteLyrics.prepareToStore()
+                    if (storable != null) {
+                        lyricsDao.insertLyrics(
+                            LyricsEntity(
+                                id = song.id,
+                                lyrics = storable.lyrics,
+                                provider = storable.provider,
+                                instrumental = storable.instrumental
+                            )
+                        )
+                        result = result.copy(songsUpdated = result.songsUpdated + 1)
+
+                        // Embed to file
+                        if (!storable.lyrics.isNullOrEmpty()) {
+                            val metadataWriter = MetadataWriter()
+                            metadataWriter.propertyMap(hashMapOf(MetadataReader.LYRICS to storable.lyrics))
+                            if (metadataWriter.write(context, EditTarget.song(song)).isSuccess) {
+                                result = result.copy(tagsWritten = result.tagsWritten + 1)
+                            }
+                        }
+                    }
+                }
+                result = result.copy(songsScanned = result.songsScanned + 1)
+            } catch (e: Exception) {
+                result = result.copy(errors = result.errors + 1)
+            }
+        }
+        onProgress(total, total, "Done")
+        return result
+    }
+
+    private suspend fun searchAndPickBestLyrics(song: Song): RawLyrics.Remote? {
+        val results = lyricsDownloadService.searchRemoteLyrics(song, song.title, song.artistName)
+        if (results.isEmpty()) return null
+
+        // Priority 1: Word-by-word (syllable level)
+        for (res in results) {
+            if (res.lyrics.hasSynced) {
+                val parsed = parseRawLyrics(song, RawLyrics.Stored(res.lyrics.synced?.lyrics))
+                if (parsed?.lines?.any { it.isWordSynced } == true) {
+                    return res.lyrics
+                }
+            }
+        }
+
+        // Priority 2: Synced (line level)
+        for (res in results) {
+            if (res.lyrics.hasSynced) return res.lyrics
+        }
+
+        // Priority 3: Unsynced (plain)
+        for (res in results) {
+            if (res.lyrics.hasPlain) return res.lyrics
+        }
+
+        return null
     }
 
     override suspend fun writableUris(song: Song): List<Uri> {

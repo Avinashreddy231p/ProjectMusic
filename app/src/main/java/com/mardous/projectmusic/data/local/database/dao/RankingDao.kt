@@ -124,7 +124,10 @@ interface RankingDao {
             :moodId, 
             COUNT(ls.session_id) as play_count,
             COALESCE(SUM(ls.playback_duration_ms), 0) as listened_duration_ms,
-            (COUNT(ls.session_id) * 2.0 + COALESCE(SUM(ls.playback_duration_ms), 0) * 0.0001) as score,
+            COALESCE((SELECT CAST(CASE WHEN sm.is_favorite THEN 1 ELSE 0 END AS INTEGER) * 25 FROM songs s INNER JOIN song_metadata sm ON s.song_key = sm.song_key WHERE s.media_store_id = smr.song_id), 0)
+            + COALESCE(SUM(CASE WHEN ls.completion_percent >= 90.0 THEN 1 ELSE 0 END), 0) * 10
+            + COUNT(ls.session_id) * 5
+            + COALESCE(SUM(ls.playback_duration_ms), 0) / 60000.0 * 5 as score,
             0, 0, 0
         FROM song_mood_relationship smr
         LEFT JOIN listening_sessions ls ON smr.song_id = ls.song_id
@@ -180,7 +183,10 @@ interface RankingDao {
             :genreId, 
             COUNT(ls.session_id),
             COALESCE(SUM(ls.playback_duration_ms), 0),
-            (COUNT(ls.session_id) * 2.0 + COALESCE(SUM(ls.playback_duration_ms), 0) * 0.0001),
+            COALESCE((SELECT CAST(CASE WHEN sm.is_favorite THEN 1 ELSE 0 END AS INTEGER) * 25 FROM songs s INNER JOIN song_metadata sm ON s.song_key = sm.song_key WHERE s.media_store_id = sgr.song_id), 0)
+            + COALESCE(SUM(CASE WHEN ls.completion_percent >= 90.0 THEN 1 ELSE 0 END), 0) * 10
+            + COUNT(ls.session_id) * 5
+            + COALESCE(SUM(ls.playback_duration_ms), 0) / 60000.0 * 5,
             0, 0, 0
         FROM song_genre_relationship sgr
         LEFT JOIN listening_sessions ls ON sgr.song_id = ls.song_id
@@ -231,7 +237,10 @@ interface RankingDao {
             :tagId, 
             COUNT(ls.session_id),
             COALESCE(SUM(ls.playback_duration_ms), 0),
-            (COUNT(ls.session_id) * 2.0 + COALESCE(SUM(ls.playback_duration_ms), 0) * 0.0001),
+            COALESCE((SELECT CAST(CASE WHEN sm.is_favorite THEN 1 ELSE 0 END AS INTEGER) * 25 FROM songs s INNER JOIN song_metadata sm ON s.song_key = sm.song_key WHERE s.media_store_id = str.song_id), 0)
+            + COALESCE(SUM(CASE WHEN ls.completion_percent >= 90.0 THEN 1 ELSE 0 END), 0) * 10
+            + COUNT(ls.session_id) * 5
+            + COALESCE(SUM(ls.playback_duration_ms), 0) / 60000.0 * 5,
             0, 0, 0
         FROM song_tag_relationship str
         LEFT JOIN listening_sessions ls ON str.song_id = ls.song_id
@@ -315,7 +324,10 @@ interface RankingDao {
             :instrumentId, 
             COUNT(ls.session_id),
             COALESCE(SUM(ls.playback_duration_ms), 0),
-            (COUNT(ls.session_id) * 2.0 + COALESCE(SUM(ls.playback_duration_ms), 0) * 0.0001),
+            COALESCE((SELECT CAST(CASE WHEN sm.is_favorite THEN 1 ELSE 0 END AS INTEGER) * 25 FROM songs s INNER JOIN song_metadata sm ON s.song_key = sm.song_key WHERE s.media_store_id = sir.song_id), 0)
+            + COALESCE(SUM(CASE WHEN ls.completion_percent >= 90.0 THEN 1 ELSE 0 END), 0) * 10
+            + COUNT(ls.session_id) * 5
+            + COALESCE(SUM(ls.playback_duration_ms), 0) / 60000.0 * 5,
             0, 0, 0
         FROM song_instrument_relationship sir
         LEFT JOIN listening_sessions ls ON sir.song_id = ls.song_id
@@ -391,6 +403,7 @@ interface RankingDao {
         INSERT OR REPLACE INTO song_stats (
             song_key, 
             total_play_count, 
+            completed_play_count,
             total_skip_count, 
             total_listening_duration, 
             effective_listening_duration, 
@@ -408,6 +421,7 @@ interface RankingDao {
         SELECT 
             s.song_key, 
             COALESCE(COUNT(ls.session_id), 0),
+            COALESCE(SUM(CASE WHEN ls.completion_percent >= 90.0 THEN 1 ELSE 0 END), 0),
             COALESCE(SUM(CASE WHEN ls.completion_percent < 90.0 AND ls.end_reason NOT IN ('track_finished', 'repeat') THEN 1 ELSE 0 END), 0),
             COALESCE(SUM(ls.playback_duration_ms), 0), 
             COALESCE(SUM(ls.effective_listened_ms), 0),
@@ -433,7 +447,10 @@ interface RankingDao {
             song_key, 
             'overall',
             0, 0, 0,
-            (total_play_count * 2.0 + total_listening_duration * 0.0001),
+            COALESCE((SELECT CAST(CASE WHEN sm.is_favorite THEN 1 ELSE 0 END AS INTEGER) * 25 FROM song_metadata sm WHERE sm.song_key = song_stats.song_key), 0)
+            + COALESCE(completed_play_count, 0) * 10
+            + COALESCE(total_play_count, 0) * 5
+            + COALESCE(CAST(total_listening_duration AS REAL) / 60000.0, 0.0) * 5,
             :timestamp, 1
         FROM song_stats
     """)
@@ -522,7 +539,7 @@ interface RankingDao {
             total_duration = COALESCE((SELECT COALESCE(SUM(s.duration), 0) FROM songs s WHERE UPPER(s.artist_name) = UPPER(artists.name)), 0),
             play_count = COALESCE((SELECT SUM(total_play_count) FROM song_stats ss INNER JOIN songs s ON ss.song_key = s.song_key WHERE UPPER(s.artist_name) = UPPER(artists.name)), 0),
             listening_duration = COALESCE((SELECT SUM(total_listening_duration) FROM song_stats ss INNER JOIN songs s ON ss.song_key = s.song_key WHERE UPPER(s.artist_name) = UPPER(artists.name)), 0),
-            overall_score = COALESCE((SELECT SUM(total_play_count * 2.0 + total_listening_duration * 0.0001) FROM song_stats ss INNER JOIN songs s ON ss.song_key = s.song_key WHERE UPPER(s.artist_name) = UPPER(artists.name)), 0.0),
+            overall_score = COALESCE((SELECT SUM(COALESCE((SELECT CAST(CASE WHEN sm.is_favorite THEN 1 ELSE 0 END AS INTEGER) * 25 FROM song_metadata sm WHERE sm.song_key = ss.song_key), 0) + COALESCE(ss.completed_play_count, 0) * 10 + COALESCE(ss.total_play_count, 0) * 5 + COALESCE(CAST(ss.total_listening_duration AS REAL) / 60000.0, 0.0) * 5) FROM song_stats ss INNER JOIN songs s ON ss.song_key = s.song_key WHERE UPPER(s.artist_name) = UPPER(artists.name)), 0.0),
             last_updated = :timestamp
     """)
     suspend fun updateArtistStats(timestamp: Long = System.currentTimeMillis())
@@ -556,7 +573,7 @@ interface RankingDao {
             total_duration = COALESCE((SELECT COALESCE(SUM(s.duration), 0) FROM songs s WHERE UPPER(s.album_name) = UPPER(albums.name) AND UPPER(IFNULL(s.album_artist, '')) = UPPER(IFNULL(albums.album_artist, ''))), 0),
             play_count = COALESCE((SELECT SUM(total_play_count) FROM song_stats ss INNER JOIN songs s ON ss.song_key = s.song_key WHERE UPPER(s.album_name) = UPPER(albums.name) AND UPPER(IFNULL(s.album_artist, '')) = UPPER(IFNULL(albums.album_artist, ''))), 0),
             listening_duration = COALESCE((SELECT SUM(total_listening_duration) FROM song_stats ss INNER JOIN songs s ON ss.song_key = s.song_key WHERE UPPER(s.album_name) = UPPER(albums.name) AND UPPER(IFNULL(s.album_artist, '')) = UPPER(IFNULL(albums.album_artist, ''))), 0),
-            overall_score = COALESCE((SELECT SUM(total_play_count * 2.0 + total_listening_duration * 0.0001) FROM song_stats ss INNER JOIN songs s ON ss.song_key = s.song_key WHERE UPPER(s.album_name) = UPPER(albums.name) AND UPPER(IFNULL(s.album_artist, '')) = UPPER(IFNULL(albums.album_artist, ''))), 0.0),
+            overall_score = COALESCE((SELECT SUM(COALESCE((SELECT CAST(CASE WHEN sm.is_favorite THEN 1 ELSE 0 END AS INTEGER) * 25 FROM song_metadata sm WHERE sm.song_key = ss.song_key), 0) + COALESCE(ss.completed_play_count, 0) * 10 + COALESCE(ss.total_play_count, 0) * 5 + COALESCE(CAST(ss.total_listening_duration AS REAL) / 60000.0, 0.0) * 5) FROM song_stats ss INNER JOIN songs s ON ss.song_key = s.song_key WHERE UPPER(s.album_name) = UPPER(albums.name) AND UPPER(IFNULL(s.album_artist, '')) = UPPER(IFNULL(albums.album_artist, ''))), 0.0),
             last_updated = :timestamp
     """)
     suspend fun updateAlbumStats(timestamp: Long = System.currentTimeMillis())
@@ -632,7 +649,7 @@ interface RankingDao {
         SET 
             play_count = COALESCE((SELECT SUM(ss.total_play_count) FROM song_stats ss INNER JOIN songs s ON ss.song_key = s.song_key WHERE UPPER(s.album_artist) = UPPER(album_artists.name)), 0),
             listening_duration = COALESCE((SELECT SUM(ss.total_listening_duration) FROM song_stats ss INNER JOIN songs s ON ss.song_key = s.song_key WHERE UPPER(s.album_artist) = UPPER(album_artists.name)), 0),
-            overall_score = COALESCE((SELECT SUM(ss.total_play_count * 2.0 + ss.total_listening_duration * 0.0001) FROM song_stats ss INNER JOIN songs s ON ss.song_key = s.song_key WHERE UPPER(s.album_artist) = UPPER(album_artists.name)), 0.0),
+            overall_score = COALESCE((SELECT SUM(COALESCE((SELECT CAST(CASE WHEN sm.is_favorite THEN 1 ELSE 0 END AS INTEGER) * 25 FROM song_metadata sm WHERE sm.song_key = ss.song_key), 0) + COALESCE(ss.completed_play_count, 0) * 10 + COALESCE(ss.total_play_count, 0) * 5 + COALESCE(CAST(ss.total_listening_duration AS REAL) / 60000.0, 0.0) * 5) FROM song_stats ss INNER JOIN songs s ON ss.song_key = s.song_key WHERE UPPER(s.album_artist) = UPPER(album_artists.name)), 0.0),
             last_updated = :timestamp
     """)
     suspend fun updateAlbumArtistStats(timestamp: Long = System.currentTimeMillis())
@@ -668,7 +685,7 @@ interface RankingDao {
             total_duration = COALESCE((SELECT SUM(s.duration) FROM songs s INNER JOIN song_playlist_relationship spr ON s.media_store_id = spr.song_id WHERE spr.playlist_id = playlists.playlist_id), 0),
             play_count = COALESCE((SELECT SUM(ss.total_play_count) FROM song_stats ss INNER JOIN songs s ON ss.song_key = s.song_key INNER JOIN song_playlist_relationship spr ON s.media_store_id = spr.song_id WHERE spr.playlist_id = playlists.playlist_id), 0),
             listening_duration = COALESCE((SELECT SUM(ss.total_listening_duration) FROM song_stats ss INNER JOIN songs s ON ss.song_key = s.song_key INNER JOIN song_playlist_relationship spr ON s.media_store_id = spr.song_id WHERE spr.playlist_id = playlists.playlist_id), 0),
-            overall_score = COALESCE((SELECT SUM(ss.total_play_count * 2.0 + ss.total_listening_duration * 0.0001) FROM song_stats ss INNER JOIN songs s ON ss.song_key = s.song_key INNER JOIN song_playlist_relationship spr ON s.media_store_id = spr.song_id WHERE spr.playlist_id = playlists.playlist_id), 0.0),
+            overall_score = COALESCE((SELECT SUM(COALESCE((SELECT CAST(CASE WHEN sm.is_favorite THEN 1 ELSE 0 END AS INTEGER) * 25 FROM song_metadata sm WHERE sm.song_key = ss.song_key), 0) + COALESCE(ss.completed_play_count, 0) * 10 + COALESCE(ss.total_play_count, 0) * 5 + COALESCE(CAST(ss.total_listening_duration AS REAL) / 60000.0, 0.0) * 5) FROM song_stats ss INNER JOIN songs s ON ss.song_key = s.song_key INNER JOIN song_playlist_relationship spr ON s.media_store_id = spr.song_id WHERE spr.playlist_id = playlists.playlist_id), 0.0),
             last_updated = :timestamp
     """)
     suspend fun updatePlaylistStats(timestamp: Long = System.currentTimeMillis())

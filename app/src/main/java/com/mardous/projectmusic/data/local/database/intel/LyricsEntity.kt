@@ -22,7 +22,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "lyrics")
-class LyricsEntity(
+data class LyricsEntity(
     @PrimaryKey
     val id: Long,
     val lyrics: String? = null,

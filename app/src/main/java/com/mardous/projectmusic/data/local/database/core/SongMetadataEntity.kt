@@ -97,5 +97,10 @@ data class SongMetadataEntity(
     val checksum: String? = null,
     val language: String? = null,
     @ColumnInfo(name = "last_scanned_timestamp")
-    val lastScannedTimestamp: Long = 0
+    val lastScannedTimestamp: Long = 0,
+    @ColumnInfo(name = "track_total")
+    val trackTotal: Int = 0,
+    @ColumnInfo(name = "disc_total")
+    val discTotal: Int = 0,
+    val comment: String? = null
 )

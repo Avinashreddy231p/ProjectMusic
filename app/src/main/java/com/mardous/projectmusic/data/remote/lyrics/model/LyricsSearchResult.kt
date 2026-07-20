@@ -31,5 +31,6 @@ data class LyricsSearchResult(
     val provider: String,
     val lyrics: RawLyrics.Remote
 ) : Parcelable {
+    @kotlinx.parcelize.IgnoredOnParcel
     val isSynced = lyrics.hasSynced
 }

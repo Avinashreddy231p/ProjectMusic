@@ -32,8 +32,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.mardous.projectmusic.R
 import com.mardous.projectmusic.data.remote.lyrics.model.LyricsSearchResult
-import com.mardous.projectmusic.extensions.media.indexOfSong
-import com.mardous.projectmusic.util.Utilities
+import com.mardous.projectmusic.extensions.media.asReadableDuration
 
 @Composable
 fun LyricsLookupDialog(
@@ -127,7 +126,7 @@ private fun LyricsResultItem(
             )
             result.duration?.let {
                 Text(
-                    text = Utilities.formatDuration(it),
+                    text = it.asReadableDuration(),
                     style = MaterialTheme.typography.labelMedium
                 )
             }

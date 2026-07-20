@@ -56,6 +56,7 @@ import com.mardous.projectmusic.ui.screen.library.home.SuggestedResult
 import com.mardous.projectmusic.util.Preferences
 import com.mardous.projectmusic.util.StorageUtil
 import kotlinx.coroutines.Dispatchers.IO
+import com.mardous.projectmusic.data.local.repository.MusicBrainzRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -64,11 +65,15 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
+import com.mardous.projectmusic.data.local.repository.LyricsRepository
+import com.mardous.projectmusic.data.local.repository.LyricsScanResult
 import kotlin.coroutines.resume
 
 class LibraryViewModel(
     private val repository: Repository,
     private val metadataRepository: MetadataRepository,
+    private val musicBrainzRepository: MusicBrainzRepository,
+    private val lyricsRepository: LyricsRepository,
     private val inclExclDao: InclExclDao,
     private val customPlaylistImageManager: CustomPlaylistImageManager
 ) : ViewModel() {
@@ -334,6 +339,65 @@ class LibraryViewModel(
 
     fun notRecentlyPlayedSongs(): LiveData<List<Song>> = liveData(IO) {
         emit(repository.notRecentlyPlayedSongs())
+    }
+
+    private val _musicBrainzScanState = MutableStateFlow<MusicBrainzScanState?>(null)
+    val musicBrainzScanState = _musicBrainzScanState.asStateFlow()
+
+    fun lookupMusicBrainz(songIds: List<Long>) = viewModelScope.launch(IO) {
+        _musicBrainzScanState.value = MusicBrainzScanState(isScanning = true, total = songIds.size)
+        try {
+            val result = musicBrainzRepository.lookupSongsByIds(songIds) { current, total, label ->
+                _musicBrainzScanState.update { it?.copy(progress = current, total = total, label = label) }
+            }
+            _musicBrainzScanState.value = MusicBrainzScanState(
+                isScanning = false,
+                result = "Scanned ${result.songsScanned}, Updated ${result.songsUpdated}, Errors ${result.errors}"
+            )
+        } catch (e: Exception) {
+            _musicBrainzScanState.value = MusicBrainzScanState(isScanning = false, result = "Error: ${e.message}")
+        }
+    }
+
+    fun lookupArtistsMusicBrainz(artistIds: List<Long>) = viewModelScope.launch(IO) {
+        _musicBrainzScanState.value = MusicBrainzScanState(isScanning = true, total = artistIds.size)
+        try {
+            val result = musicBrainzRepository.lookupArtistsByIds(artistIds) { current, total, label ->
+                _musicBrainzScanState.update { it?.copy(progress = current, total = total, label = label) }
+            }
+            _musicBrainzScanState.value = MusicBrainzScanState(
+                isScanning = false,
+                result = "Scanned ${result.artistsScanned}, Updated ${result.artistsUpdated}, Errors ${result.errors}"
+            )
+        } catch (e: Exception) {
+            _musicBrainzScanState.value = MusicBrainzScanState(isScanning = false, result = "Error: ${e.message}")
+        }
+    }
+
+    fun finishMusicBrainzScan() {
+        _musicBrainzScanState.value = null
+    }
+
+    private val _lyricsScanState = MutableStateFlow<LyricsScanState?>(null)
+    val lyricsScanState = _lyricsScanState.asStateFlow()
+
+    fun lookupLyrics(songIds: List<Long>) = viewModelScope.launch(IO) {
+        _lyricsScanState.value = LyricsScanState(isScanning = true, total = songIds.size)
+        try {
+            val result = lyricsRepository.lookupLyricsByIds(songIds) { current, total, label ->
+                _lyricsScanState.update { it?.copy(progress = current, total = total, label = label) }
+            }
+            _lyricsScanState.value = LyricsScanState(
+                isScanning = false,
+                result = "Scanned ${result.songsScanned}, Updated ${result.songsUpdated}, Embedded ${result.tagsWritten}, Errors ${result.errors}"
+            )
+        } catch (e: Exception) {
+            _lyricsScanState.value = LyricsScanState(isScanning = false, result = "Error: ${e.message}")
+        }
+    }
+
+    fun finishLyricsScan() {
+        _lyricsScanState.value = null
     }
 
     private val _addToPlaylistUiState = MutableStateFlow<AddToPlaylistUiState?>(null)
@@ -674,3 +738,19 @@ sealed class AssignToMetadataUiState(open val isLoading: Boolean) {
 
     data class Completed(val isSuccess: Boolean) : AssignToMetadataUiState(false)
 }
+
+data class MusicBrainzScanState(
+    val isScanning: Boolean = false,
+    val progress: Int = 0,
+    val total: Int = 0,
+    val label: String? = null,
+    val result: String? = null
+)
+
+data class LyricsScanState(
+    val isScanning: Boolean = false,
+    val progress: Int = 0,
+    val total: Int = 0,
+    val label: String? = null,
+    val result: String? = null
+)

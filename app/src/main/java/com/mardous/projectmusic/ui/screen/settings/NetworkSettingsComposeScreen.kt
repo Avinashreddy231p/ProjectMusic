@@ -1,9 +1,11 @@
 package com.mardous.projectmusic.ui.screen.settings
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
@@ -232,36 +234,32 @@ fun NetworkSettingsComposeScreen(
                         icon = R.drawable.ic_cloud_24dp
                     )
                     if (uiState.musicbrainzEnabled) {
-                        ExpressivePreferenceItem(
-                            title = if (uiState.musicbrainzScanning) "Scanning..." else "Look Up Song Tags",
+                        ScanButtonWithProgress(
+                            title = if (uiState.musicbrainzScanning) "Looking Up Song Tags..." else "Look Up Song Tags",
                             summary = uiState.musicbrainzScanResult ?: "Search MusicBrainz by artist->album->recording and write metadata + file tags",
                             icon = R.drawable.ic_update_24dp,
                             enabled = !uiState.musicbrainzScanning && !uiState.artistScanning,
-                            onClick = { viewModel.runMusicbrainzScan() }
+                            isScanning = uiState.musicbrainzScanning,
+                            progress = uiState.musicbrainzScanProgress,
+                            total = uiState.musicbrainzScanTotal,
+                            label = uiState.musicbrainzScanLabel,
+                            result = uiState.musicbrainzScanResult,
+                            onScanClick = { viewModel.runMusicbrainzScan() },
+                            onDismissClick = { viewModel.clearMusicbrainzResult() }
                         )
-                        if (uiState.musicbrainzScanResult != null && !uiState.musicbrainzScanning) {
-                            ExpressivePreferenceItem(
-                                title = "Dismiss Song Result",
-                                summary = uiState.musicbrainzScanResult,
-                                onClick = { viewModel.clearMusicbrainzResult() }
-                            )
-                        }
-                    }
-                    if (uiState.musicbrainzEnabled) {
-                        ExpressivePreferenceItem(
+                        ScanButtonWithProgress(
                             title = if (uiState.artistScanning) "Looking Up Artists..." else "Look Up Artists",
-                            summary = uiState.artistScanResult ?: "Search MusicBrainz for all artist details (type, gender, country) and write MBID to file tags",
+                            summary = uiState.artistScanResult ?: "Search MusicBrainz for artist details (type, gender, country) and write MBID to file tags",
                             icon = R.drawable.ic_artist_24dp,
                             enabled = !uiState.musicbrainzScanning && !uiState.artistScanning,
-                            onClick = { viewModel.runArtistScan() }
+                            isScanning = uiState.artistScanning,
+                            progress = uiState.artistScanProgress,
+                            total = uiState.artistScanTotal,
+                            label = uiState.artistScanLabel,
+                            result = uiState.artistScanResult,
+                            onScanClick = { viewModel.runArtistScan() },
+                            onDismissClick = { viewModel.clearArtistResult() }
                         )
-                        if (uiState.artistScanResult != null && !uiState.artistScanning) {
-                            ExpressivePreferenceItem(
-                                title = "Dismiss Artist Result",
-                                summary = uiState.artistScanResult,
-                                onClick = { viewModel.clearArtistResult() }
-                            )
-                        }
                     }
                 }
             }
@@ -270,20 +268,19 @@ fun NetworkSettingsComposeScreen(
             item { DashboardCategoryHeader("File Tag Scanner") }
             item {
                 SegmentedPreferenceGroup {
-                    ExpressivePreferenceItem(
-                        title = if (uiState.fileTagScanning) "Scanning..." else "Scan File Tags",
+                    ScanButtonWithProgress(
+                        title = if (uiState.fileTagScanning) "Scanning File Tags..." else "Scan File Tags",
                         summary = uiState.fileTagScanResult ?: "Read lyricist, arranger, producer, bpm, key, genre from audio file tags into database",
                         icon = R.drawable.ic_search_24dp,
                         enabled = !uiState.fileTagScanning,
-                        onClick = { viewModel.runFileTagScan() }
+                        isScanning = uiState.fileTagScanning,
+                        progress = uiState.fileTagScanProgress,
+                        total = uiState.fileTagScanTotal,
+                        label = uiState.fileTagScanLabel,
+                        result = uiState.fileTagScanResult,
+                        onScanClick = { viewModel.runFileTagScan() },
+                        onDismissClick = { viewModel.clearFileTagResult() }
                     )
-                    if (uiState.fileTagScanResult != null && !uiState.fileTagScanning) {
-                        ExpressivePreferenceItem(
-                            title = "Dismiss Result",
-                            summary = uiState.fileTagScanResult,
-                            onClick = { viewModel.clearFileTagResult() }
-                        )
-                    }
                 }
             }
 
@@ -367,5 +364,67 @@ fun NetworkSettingsComposeScreen(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun ScanButtonWithProgress(
+    title: String,
+    summary: String,
+    icon: Int,
+    enabled: Boolean,
+    isScanning: Boolean,
+    progress: Int,
+    total: Int,
+    label: String?,
+    result: String?,
+    onScanClick: () -> Unit,
+    onDismissClick: () -> Unit
+) {
+    ExpressivePreferenceItem(
+        title = title,
+        summary = if (isScanning) {
+            if (total > 0) "$progress / $total" else "Starting..."
+        } else result ?: summary,
+        icon = icon,
+        enabled = enabled,
+        onClick = onScanClick,
+        trailingContent = {
+            if (isScanning) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    strokeWidth = 3.dp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+    )
+    if (isScanning && total > 0 && progress <= total) {
+        val animatedProgress by animateFloatAsState(
+            targetValue = if (total > 0) progress.toFloat() / total.toFloat() else 0f,
+            label = "scanProgress"
+        )
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+            LinearProgressIndicator(
+                progress = { animatedProgress },
+                modifier = Modifier.fillMaxWidth().height(6.dp),
+            )
+            if (label != null) {
+                Text(
+                    text = label.take(60),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
+        }
+    }
+    if (result != null && !isScanning) {
+        ExpressivePreferenceItem(
+            title = "Dismiss",
+            summary = result,
+            onClick = onDismissClick
+        )
     }
 }
