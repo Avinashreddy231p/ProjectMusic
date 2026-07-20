@@ -41,7 +41,7 @@ import kotlinx.datetime.Instant
 @Parcelize
 @Serializable
 class GitHubRelease(
-    val name: String,
+    val name: String? = null,
     @SerialName("tag_name")
     val tag: String,
     @SerialName("html_url")
@@ -50,7 +50,7 @@ class GitHubRelease(
     val date: String,
     @SerialName("updated_at")
     val updatedAt: String? = null,
-    val body: String,
+    val body: String? = null,
     @SerialName("prerelease")
     val isPrerelease: Boolean,
     @SerialName("assets")

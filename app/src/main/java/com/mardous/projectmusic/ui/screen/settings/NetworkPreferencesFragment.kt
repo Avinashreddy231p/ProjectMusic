@@ -15,6 +15,7 @@ import org.koin.androidx.viewmodel.ext.android.activityViewModel
 
 class NetworkPreferencesFragment : AbsMainActivityFragment() {
     private val settingsViewModel: SettingsViewModel by activityViewModel()
+    private val updateViewModel: com.mardous.projectmusic.ui.screen.update.UpdateViewModel by activityViewModel()
     private val lyricsViewModel: com.mardous.projectmusic.ui.screen.lyrics.LyricsViewModel by activityViewModel()
 
     override fun onCreateView(
@@ -29,6 +30,7 @@ class NetworkPreferencesFragment : AbsMainActivityFragment() {
                     NetworkSettingsComposeScreen(
                         viewModel = settingsViewModel,
                         onBackClick = { findNavController().navigateUp() },
+                        onCheckForUpdates = { updateViewModel.searchForUpdate(true) },
                         onScrobblingLogin = { service ->
                             ScrobblingServiceLoginFragment.create(service)
                                 .show(childFragmentManager, "LOGIN_DIALOG")

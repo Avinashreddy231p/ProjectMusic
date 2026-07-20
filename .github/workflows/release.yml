@@ -77,9 +77,6 @@ jobs:
   build:
     needs: lint
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        variant: [ github, fdroid, playstore ]
 
     steps:
       - uses: actions/checkout@v4
@@ -128,20 +125,14 @@ jobs:
 
       - name: Build app
         env:
-          VARIANT: ${{ matrix.variant }}
           RELEASE_TYPE: "CI"
-        run: |
-          CAP_VARIANT="$(echo ${VARIANT:0:1} | tr '[:lower:]' '[:upper:]')${VARIANT:1}"
-          if [ "$VARIANT" == "playstore" ]; then
-            ./gradlew bundle${CAP_VARIANT}Release
-          else
-            ./gradlew assemble${CAP_VARIANT}Release
-          fi
+        run: ./gradlew assembleGithubRelease
+
       - name: Notify Failure
         if: failure()
         continue-on-error: true
         run: |
-          MESSAGE="❌ **Build Failed (${{ matrix.variant }})**%0A%0A**Ref:** ${{ github.ref_name }}%0A[View Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+          MESSAGE="❌ **Build Failed (github)**%0A%0A**Ref:** ${{ github.ref_name }}%0A[View Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TG_BOT_TOKEN }}/sendMessage" \
             -d "chat_id=${{ secrets.TG_CHAT_ID }}" \
             -d "message_thread_id=3" \
@@ -151,10 +142,8 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: artifacts-${{ matrix.variant }}-release
-          path: |
-            app/build/outputs/apk/*/release/ProjectMusic-*.apk
-            app/build/outputs/bundle/*/*.aab
+          name: artifacts-github-release
+          path: app/build/outputs/apk/github/release/ProjectMusic-*-github-*.apk
 
   publish:
     needs: build
@@ -169,9 +158,8 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
+          name: artifacts-github-release
           path: release-artifacts
-          pattern: artifacts-*-release
-          merge-multiple: true
 
       - name: Create Changelog
         id: changelog
@@ -227,9 +215,7 @@ jobs:
           body: |
             ## Changelog
             ${{ steps.changelog.outputs.result }}
-          files: |
-            release-artifacts/**/ProjectMusic-*.apk
-            release-artifacts/**/ProjectMusic-*.aab
+          files: release-artifacts/ProjectMusic-*.apk
 
       - name: Notify Failure (Publish)
         if: failure()
@@ -245,7 +231,7 @@ jobs:
       - name: Find Telegram APK
         run: |
           echo "Listing files in release-artifacts..."
-          find release-artifacts -maxdepth 5 -name "*.apk"
+          ls -R release-artifacts
           
           APK_PATH=$(find release-artifacts -name '*github-universal.apk' | head -n 1)
           if [ -z "$APK_PATH" ]; then

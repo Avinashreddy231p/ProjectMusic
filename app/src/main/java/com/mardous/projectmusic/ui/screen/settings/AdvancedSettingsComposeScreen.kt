@@ -183,26 +183,28 @@ fun AdvancedSettingsComposeScreen(
             }
 
             // --- UPDATES ---
-            item { DashboardCategoryHeader("System Updates") }
-            item {
-                SegmentedPreferenceGroup {
-                    ExpressivePreferenceItem(
-                        title = "Search for Updates",
-                        summary = "Stay on the latest version",
-                        icon = R.drawable.ic_update_24dp,
-                        onClick = onCheckForUpdates
-                    )
-                    SegmentedPreferenceItem(
-                        title = stringResource(R.string.auto_update_title),
-                        summary = uiState.updateSearchMode.replaceFirstChar { it.uppercase() },
-                        onClick = { showUpdateModeDialog = true }
-                    )
-                    ExpressiveSwitchItem(
-                        title = "Experimental Updates",
-                        summary = "Receive beta and alpha builds",
-                        checked = uiState.experimentalUpdates,
-                        onCheckedChange = { viewModel.setExperimentalUpdates(it) }
-                    )
+            if (uiState.isUpdaterEnabled) {
+                item { DashboardCategoryHeader("System Updates") }
+                item {
+                    SegmentedPreferenceGroup {
+                        ExpressivePreferenceItem(
+                            title = "Search for Updates",
+                            summary = "Stay on the latest version",
+                            icon = R.drawable.ic_update_24dp,
+                            onClick = onCheckForUpdates
+                        )
+                        SegmentedPreferenceItem(
+                            title = stringResource(R.string.auto_update_title),
+                            summary = uiState.updateSearchMode.replaceFirstChar { it.uppercase() },
+                            onClick = { showUpdateModeDialog = true }
+                        )
+                        ExpressiveSwitchItem(
+                            title = "Experimental Updates",
+                            summary = "Receive beta and alpha builds",
+                            checked = uiState.experimentalUpdates,
+                            onCheckedChange = { viewModel.setExperimentalUpdates(it) }
+                        )
+                    }
                 }
             }
 

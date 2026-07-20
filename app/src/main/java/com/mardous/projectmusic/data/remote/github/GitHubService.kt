@@ -36,18 +36,22 @@ class GitHubService(private val context: Context, private val client: HttpClient
         }
     }
 
-    private suspend fun fetchStableRelease(user: String, repo: String): GitHubRelease =
-        get("${GITHUB_API_URL}repos/$user/$repo/releases/latest").body()
-
     private suspend fun fetchAllReleases(user: String, repo: String, page: Int = 1, limit: Int = 20): List<GitHubRelease> =
         get("${GITHUB_API_URL}repos/$user/$repo/releases?page=$page&per_page=$limit").body()
 
     @OptIn(ExperimentalTime::class)
     suspend fun latestRelease(user: String = DEFAULT_USER, repo: String = DEFAULT_REPO, allowExperimental: Boolean = true): GitHubRelease {
-        val stableRelease = fetchStableRelease(user, repo)
-        
+        if (GITHUB_API_URL.isBlank()) {
+            throw IllegalStateException("GitHub API URL is not configured for this flavor")
+        }
+
+        val allReleases = runCatching { fetchAllReleases(user, repo) }.getOrNull() 
+            ?: throw IllegalStateException("Failed to fetch releases from GitHub")
+
+        val stableRelease = allReleases.firstOrNull { !it.isPrerelease && it.hasApk }
+            ?: allReleases.firstOrNull { it.hasApk } // Fallback to any release with an APK if no stable ones exist
+
         if (allowExperimental) {
-            val allReleases = fetchAllReleases(user, repo)
             val mostRecent = allReleases.filter { it.hasApk }.maxByOrNull { it.lastUpdatedAt }
             
             if (mostRecent != null && mostRecent.isNewer(context)) {
@@ -55,7 +59,7 @@ class GitHubService(private val context: Context, private val client: HttpClient
             }
         }
 
-        return stableRelease
+        return stableRelease ?: throw IllegalStateException("No suitable releases found on GitHub")
     }
 
     companion object {

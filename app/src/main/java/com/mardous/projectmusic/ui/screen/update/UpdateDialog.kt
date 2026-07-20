@@ -31,9 +31,10 @@ class UpdateDialog : BottomSheetDialogFragment(), View.OnClickListener {
             _binding = DialogUpdateInfoBinding.inflate(layoutInflater)
             binding.infoAction.setOnClickListener(this)
             binding.downloadAction.setOnClickListener(this)
-            binding.versionName.text = release!!.name
-            if (release!!.body.isNotEmpty()) {
-                binding.versionInfo.setMarkdownText(release!!.body)
+            binding.versionName.text = release?.name ?: release?.tag
+            val body = release?.body
+            if (!body.isNullOrEmpty()) {
+                binding.versionInfo.setMarkdownText(body)
             } else {
                 binding.versionInfo.isVisible = false
             }

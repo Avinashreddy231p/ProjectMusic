@@ -24,6 +24,7 @@ import com.mardous.projectmusic.util.*
 fun NetworkSettingsComposeScreen(
     viewModel: SettingsViewModel,
     onBackClick: () -> Unit,
+    onCheckForUpdates: () -> Unit,
     onScrobblingLogin: (ScrobblingService) -> Unit,
     onPendingScrobblesClick: () -> Unit,
     onClearLyricsClick: () -> Unit
@@ -285,19 +286,21 @@ fun NetworkSettingsComposeScreen(
             }
 
             // --- UPDATES ---
-            item { DashboardCategoryHeader("Application Updates") }
-            item {
-                SegmentedPreferenceGroup {
-                    ExpressivePreferenceItem(
-                        title = "Search for Updates",
-                        icon = R.drawable.ic_update_24dp,
-                        onClick = { /* ViewModel logic */ }
-                    )
-                    ExpressiveSwitchItem(
-                        title = "Experimental Updates",
-                        checked = uiState.experimentalUpdates,
-                        onCheckedChange = { viewModel.setExperimentalUpdates(it) }
-                    )
+            if (uiState.isUpdaterEnabled) {
+                item { DashboardCategoryHeader("Application Updates") }
+                item {
+                    SegmentedPreferenceGroup {
+                        ExpressivePreferenceItem(
+                            title = "Search for Updates",
+                            icon = R.drawable.ic_update_24dp,
+                            onClick = onCheckForUpdates
+                        )
+                        ExpressiveSwitchItem(
+                            title = "Experimental Updates",
+                            checked = uiState.experimentalUpdates,
+                            onCheckedChange = { viewModel.setExperimentalUpdates(it) }
+                        )
+                    }
                 }
             }
 
