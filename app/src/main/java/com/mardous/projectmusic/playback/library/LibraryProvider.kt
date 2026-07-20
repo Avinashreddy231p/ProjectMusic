@@ -30,7 +30,8 @@ class LibraryProvider(
     private val lyricsRepository: com.mardous.projectmusic.data.local.repository.LyricsRepository
 ) {
 
-    private val _searchResult = mutableListOf<MediaItem>()
+    @Volatile
+    private var _searchResult: List<MediaItem> = emptyList()
     val searchResult: List<MediaItem> get() = _searchResult
 
     suspend fun getMediaItemsForPlayback(
@@ -320,9 +321,9 @@ class LibraryProvider(
     }
 
     suspend fun search(query: String): List<MediaItem> {
-        _searchResult.clear()
-        _searchResult.addAll(repository.searchSongs(query).map { it.toAutoMediaItem(SEARCH) })
-        return _searchResult
+        val results = repository.searchSongs(query).map { it.toAutoMediaItem(SEARCH) }
+        _searchResult = results
+        return results
     }
 
     private suspend fun getRootChildren(context: Context, hasCurrentSong: Boolean): List<MediaItem> {

@@ -43,7 +43,7 @@ class CategoriesPreferenceDialog : DialogFragment() {
         if (savedInstanceState != null && savedInstanceState.containsKey(LIBRARY_CATEGORIES)) {
             categoryInfos = BundleCompat.getParcelableArrayList(
                 savedInstanceState, LIBRARY_CATEGORIES, CategoryInfo::class.java
-            )!!
+            ) ?: categoryInfos
         }
 
         adapter = CategoryInfoAdapter(categoryInfos.toMutableList())

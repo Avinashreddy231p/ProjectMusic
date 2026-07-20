@@ -5,8 +5,6 @@ import com.mardous.projectmusic.core.model.shuffle.GroupShuffleMode
 import com.mardous.projectmusic.core.model.shuffle.SpecialShuffleMode
 import com.mardous.projectmusic.core.sort.SongSortMode
 import com.mardous.projectmusic.data.SongProvider
-import com.mardous.projectmusic.data.local.database.analytics.PlayCountEntity
-import com.mardous.projectmusic.data.local.database.core.SongEntity
 import com.mardous.projectmusic.data.local.repository.Repository
 import com.mardous.projectmusic.data.model.ExpandedSong
 import com.mardous.projectmusic.data.model.Song

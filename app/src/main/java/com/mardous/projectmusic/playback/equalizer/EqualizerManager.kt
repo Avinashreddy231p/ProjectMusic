@@ -89,6 +89,7 @@ class EqualizerManager(
 ) {
 
     private val eqScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    @Volatile
     private var eqEngine: EQEngine? = null
 
     val eqState =
@@ -304,6 +305,7 @@ class EqualizerManager(
     private val _bandCapabilities = MutableStateFlow(EqBandCapabilities.Empty)
     val bandCapabilities: StateFlow<EqBandCapabilities> get() = _bandCapabilities
 
+    @Volatile
     var eqSession = EqSession(SessionType.Internal, NO_SESSION_ID, false)
         private set
 

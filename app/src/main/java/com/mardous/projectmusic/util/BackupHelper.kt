@@ -56,6 +56,7 @@ object BackupHelper : KoinComponent {
     private val repository by inject<Repository>()
     private val lyricsDao by inject<LyricsDao>()
     private val statsRepository by inject<StatsRepository>()
+    private val jsonFormat = Json { prettyPrint = true }
 
     suspend fun createBackup(context: Context, uri: Uri?) {
         if (uri == null) return
@@ -215,7 +216,7 @@ object BackupHelper : KoinComponent {
                     "appVersion" to session.appVersion
                 )
             })
-            val json = Json { prettyPrint = true }.encodeToString(ListeningSessionBackup(sessionJson))
+            val json = jsonFormat.encodeToString(ListeningSessionBackup(sessionJson))
             return listOf(ZipItem(STATS_PATH.child("listening_history.json"), fileContent = json))
         }
         return emptyList()

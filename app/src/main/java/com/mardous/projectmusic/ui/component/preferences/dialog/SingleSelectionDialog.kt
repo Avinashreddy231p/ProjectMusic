@@ -93,8 +93,9 @@ class SingleSelectionDialog : PreferenceDialogFragmentCompat() {
     }
 
     override fun onDialogClosed(positiveResult: Boolean) {
-        if (positiveResult && clickedDialogEntryIndex >= 0) {
-            val value = entryValues!![clickedDialogEntryIndex].toString()
+        val values = entryValues
+        if (positiveResult && clickedDialogEntryIndex >= 0 && values != null) {
+            val value = values[clickedDialogEntryIndex].toString()
             val preference: ListPreference = this.listPreference
             if (preference.callChangeListener(value)) {
                 preference.setValue(value)

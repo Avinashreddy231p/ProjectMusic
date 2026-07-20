@@ -404,7 +404,7 @@ fun NowPlayingGesturesBottomSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        sheetState = rememberModalBottomSheetState(),
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) {
         LazyColumn(
@@ -478,7 +478,7 @@ fun SeekBarCustomizationBottomSheet(
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        sheetState = rememberModalBottomSheetState(),
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) {
         LazyColumn(
@@ -576,7 +576,7 @@ fun ActionPreferenceItem(title: String, currentAction: com.mardous.projectmusic.
         summary = stringResource(currentAction.titleRes),
         onClick = {
             (context as? FragmentActivity)?.let {
-                com.mardous.projectmusic.ui.component.preferences.dialog.ActionOnCoverPreferenceDialog.newInstance(prefKey).show(it.supportFragmentManager, "ACTION_DIALOG")
+                com.mardous.projectmusic.ui.component.preferences.dialog.ActionOnCoverPreferenceDialog.newInstance(prefKey).show(it.supportFragmentManager, "ACTION_DIALOG_$prefKey")
             }
         }
     )

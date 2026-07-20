@@ -65,6 +65,7 @@ fun SettingsComposeScreen(
                     scrollBehavior = scrollBehavior
                 )
             } else {
+                @Suppress("DEPRECATION")
                 SearchBar(
                     query = searchQuery,
                     onQueryChange = { searchQuery = it },
@@ -82,6 +83,7 @@ fun SettingsComposeScreen(
                     val results = remember(searchQuery) { SettingsSearchHelper.search(searchQuery) }
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
                         items(results) { result ->
+                            @Suppress("DEPRECATION")
                             ListItem(
                                 headlineContent = { Text(result.title) },
                                 supportingContent = { Text(result.summary) },

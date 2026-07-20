@@ -192,10 +192,12 @@ class PlaybackService :
     private var eqStateHandler: Handler? = Handler(Looper.getMainLooper())
 
     private var errorRecoveryRetryCount = 0
+    @Volatile
     private var pausedByZeroVolume = false
     private var hasSetUnshuffledOrder = false
     @Volatile
     private var isCurrentSongFavorite = false
+    @Volatile
     private var stopIndex = -1
 
     private var lastTransitionMediaId: String? = null

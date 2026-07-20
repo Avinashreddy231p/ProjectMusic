@@ -3,22 +3,15 @@ package com.mardous.projectmusic.playback.stats
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.media.AudioDeviceInfo
-import android.media.AudioManager
 import android.os.BatteryManager
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.PowerManager
-import android.provider.Settings
 import androidx.core.content.getSystemService
 import com.mardous.projectmusic.BuildConfig
 import com.mardous.projectmusic.core.audio.AudioOutputObserver
 import com.mardous.projectmusic.core.model.audiodevice.AudioDeviceType
 import com.mardous.projectmusic.core.model.audiodevice.getDeviceType
 import com.mardous.projectmusic.playback.equalizer.EqualizerManager
-import java.util.concurrent.atomic.AtomicReference
-
 class DeviceContextCollector(
     private val context: Context,
     private val audioOutputObserver: AudioOutputObserver,

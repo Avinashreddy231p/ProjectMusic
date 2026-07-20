@@ -119,7 +119,7 @@ fun SwitchPreferenceItem(
         modifier = modifier,
         enabled = enabled,
         onClick = {
-            onCheckedChanged(!enabled)
+            onCheckedChanged(!checked)
         }
     )
 }

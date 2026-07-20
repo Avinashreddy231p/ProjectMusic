@@ -127,7 +127,7 @@ class AccentColorPreferenceDialog : DialogFragment() {
                                         else -> Preferences.accentColor = colorArgb
                                     }
                                     dialog?.dismiss()
-                                    requireActivity().recreate()
+                                    if (isAdded) requireActivity().recreate()
                                 }
                             )
                         }

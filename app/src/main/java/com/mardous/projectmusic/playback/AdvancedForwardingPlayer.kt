@@ -42,7 +42,8 @@ class AdvancedForwardingPlayer(
         }
     }
 
-    val exoPlayer get() = wrappedPlayer as ExoPlayer
+    val exoPlayer get() = wrappedPlayer as? ExoPlayer
+        ?: throw IllegalStateException("wrappedPlayer is not an ExoPlayer")
 
     init {
         wrappedPlayer.addListener(internalListener)

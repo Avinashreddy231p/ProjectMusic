@@ -30,6 +30,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -134,7 +135,7 @@ class StatsFlusher(
         allGroups.addAll(remainingGroups)
 
         if (allSessions.isNotEmpty() || allGroups.isNotEmpty()) {
-            kotlinx.coroutines.runBlocking {
+            kotlinx.coroutines.runBlocking(Dispatchers.IO) {
                 try {
                     if (allGroups.isNotEmpty()) {
                         statsRepository.insertGroups(allGroups)
@@ -149,6 +150,7 @@ class StatsFlusher(
                 }
             }
         }
+        tracker.stop()
         return allSessions
     }
 

@@ -127,7 +127,7 @@ class NowPlayingScreenPreferenceDialog : DialogFragment(), ViewPager.OnPageChang
             val selectedScheme = Preferences.getNowPlayingColorSchemeMode(currentItem)
             colorSchemeAdapter?.submitList(supportedSchemes)
             binding.colorScheme.isEnabled = supportedSchemes.size > 1
-            binding.colorScheme.setSelection(supportedSchemes.indexOf(selectedScheme))
+            binding.colorScheme.setSelection(supportedSchemes.indexOf(selectedScheme).coerceAtLeast(0))
         }
     }
 
@@ -138,7 +138,7 @@ class NowPlayingScreenPreferenceDialog : DialogFragment(), ViewPager.OnPageChang
             val selectedTransition = Preferences.getNowPlayingTransition(currentItem)
             transitionAdapter?.submitList(supportedTransitions)
             binding.transition.isEnabled = supportedTransitions.size > 1
-            binding.transition.setSelection(supportedTransitions.indexOf(selectedTransition))
+            binding.transition.setSelection(supportedTransitions.indexOf(selectedTransition).coerceAtLeast(0))
         }
     }
 

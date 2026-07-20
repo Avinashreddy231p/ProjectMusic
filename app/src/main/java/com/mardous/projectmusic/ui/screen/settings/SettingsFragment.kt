@@ -45,7 +45,7 @@ import androidx.appcompat.widget.SearchView
 class SettingsFragment : AbsMainActivityFragment(R.layout.fragment_settings), NavController.OnDestinationChangedListener {
 
     private var _binding: FragmentSettingsBinding? = null
-    private val binding get() = _binding!!
+    private val binding get() = requireNotNull(_binding) { "Binding accessed after fragment destruction" }
 
     private var childNavController: NavController? = null
     private lateinit var searchAdapter: SettingsSearchAdapter

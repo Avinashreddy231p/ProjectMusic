@@ -118,19 +118,22 @@ fun SwipeActionGroup(
     val context = LocalContext.current
     
     // We need to read directly from SharedPreferences since these dynamic keys aren't in uiState
-    val prefs = remember { (context as FragmentActivity).getSharedPreferences(context.packageName + "_preferences", 0) }
+    val activity = context as? FragmentActivity
+    val prefs = remember(activity) { activity?.getSharedPreferences(context.packageName + "_preferences", 0) }
     
     // Trigger recomposition on preference change
-    var leftAction by remember { mutableStateOf(SwipeAction.fromString(prefs.getString(leftKey, SwipeAction.NONE.name))) }
-    var rightAction by remember { mutableStateOf(SwipeAction.fromString(prefs.getString(rightKey, SwipeAction.NONE.name))) }
+    var leftAction by remember(prefs, leftKey) { mutableStateOf(SwipeAction.fromString(prefs?.getString(leftKey, SwipeAction.NONE.name) ?: SwipeAction.NONE.name)) }
+    var rightAction by remember(prefs, rightKey) { mutableStateOf(SwipeAction.fromString(prefs?.getString(rightKey, SwipeAction.NONE.name) ?: SwipeAction.NONE.name)) }
 
-    DisposableEffect(Unit) {
-        val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { p, key ->
-            if (key == leftKey) leftAction = SwipeAction.fromString(p.getString(leftKey, SwipeAction.NONE.name))
-            if (key == rightKey) rightAction = SwipeAction.fromString(p.getString(rightKey, SwipeAction.NONE.name))
+    if (prefs != null) {
+        DisposableEffect(leftKey, rightKey, prefs) {
+            val listener = android.content.SharedPreferences.OnSharedPreferenceChangeListener { p, key ->
+                if (key == leftKey) leftAction = SwipeAction.fromString(p.getString(leftKey, SwipeAction.NONE.name))
+                if (key == rightKey) rightAction = SwipeAction.fromString(p.getString(rightKey, SwipeAction.NONE.name))
+            }
+            prefs.registerOnSharedPreferenceChangeListener(listener)
+            onDispose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
         }
-        prefs.registerOnSharedPreferenceChangeListener(listener)
-        onDispose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
     }
 
     SegmentedPreferenceGroup {
@@ -139,7 +142,9 @@ fun SwipeActionGroup(
             summary = stringResource(leftAction.titleRes),
             icon = getSwipeActionIcon(leftAction),
             onClick = {
-                SwipeActionPreferenceDialog.newInstance(leftKey).show((context as FragmentActivity).supportFragmentManager, "SWIPE_DIALOG")
+                (context as? FragmentActivity)?.let { activity ->
+                    SwipeActionPreferenceDialog.newInstance(leftKey).show(activity.supportFragmentManager, "SWIPE_DIALOG_$leftKey")
+                }
             }
         )
         SegmentedPreferenceItem(
@@ -147,7 +152,9 @@ fun SwipeActionGroup(
             summary = stringResource(rightAction.titleRes),
             icon = getSwipeActionIcon(rightAction),
             onClick = {
-                SwipeActionPreferenceDialog.newInstance(rightKey).show((context as FragmentActivity).supportFragmentManager, "SWIPE_DIALOG")
+                (context as? FragmentActivity)?.let { activity ->
+                    SwipeActionPreferenceDialog.newInstance(rightKey).show(activity.supportFragmentManager, "SWIPE_DIALOG_$rightKey")
+                }
             },
             showDivider = false
         )

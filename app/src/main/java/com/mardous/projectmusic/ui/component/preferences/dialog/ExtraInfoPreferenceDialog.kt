@@ -52,7 +52,7 @@ class ExtraInfoPreferenceDialog : DialogFragment() {
         var currentContent = Preferences.getExtraInfoContent(preferenceKey, defaultContent)
         if (savedInstanceState != null && savedInstanceState.containsKey(SAVED_KEY)) {
             currentContent =
-                BundleCompat.getParcelableArrayList(savedInstanceState, SAVED_KEY, MetadataField::class.java)!!
+                BundleCompat.getParcelableArrayList(savedInstanceState, SAVED_KEY, MetadataField::class.java) ?: currentContent
         }
 
         adapter = ExtraInfoAdapter(currentContent.toMutableList())

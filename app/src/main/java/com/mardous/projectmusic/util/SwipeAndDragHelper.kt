@@ -46,12 +46,12 @@ class SwipeAndDragHelper(
         viewHolder: RecyclerView.ViewHolder,
         target: RecyclerView.ViewHolder
     ): Boolean {
-        contract.onViewMoved(viewHolder.adapterPosition, target.adapterPosition)
+        contract.onViewMoved(viewHolder.bindingAdapterPosition, target.bindingAdapterPosition)
         return true
     }
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-        contract.onViewSwiped(viewHolder.adapterPosition, direction)
+        contract.onViewSwiped(viewHolder.bindingAdapterPosition, direction)
     }
 
     override fun isLongPressDragEnabled(): Boolean {

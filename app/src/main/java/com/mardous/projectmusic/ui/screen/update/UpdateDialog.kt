@@ -55,6 +55,42 @@ class UpdateDialog : BottomSheetDialogFragment(), View.OnClickListener {
         release?.setIgnored()
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.syncDownloadStatus(requireContext())
+        viewModel.downloadStatus.observe(viewLifecycleOwner) { status ->
+            when (status) {
+                is UpdateViewModel.DownloadStatus.Idle -> {
+                    binding.downloadAction.setText(R.string.download_action)
+                    binding.downloadAction.setIconResource(R.drawable.ic_download_24dp)
+                    binding.downloadAction.isEnabled = true
+                    binding.downloadProgress?.isVisible = false
+                }
+                is UpdateViewModel.DownloadStatus.Downloading -> {
+                    binding.downloadAction.text = getString(R.string.downloading_progress, status.progress)
+                    binding.downloadAction.icon = null
+                    binding.downloadAction.isEnabled = false
+                    binding.downloadProgress?.isVisible = true
+                    binding.downloadProgress?.isIndeterminate = false
+                    binding.downloadProgress?.progress = status.progress
+                }
+                is UpdateViewModel.DownloadStatus.Completed -> {
+                    binding.downloadAction.text = getString(R.string.install_update_action)
+                    binding.downloadAction.setIconResource(R.drawable.ic_update_24dp)
+                    binding.downloadAction.isEnabled = true
+                    binding.downloadProgress?.isVisible = false
+                }
+                is UpdateViewModel.DownloadStatus.Failed -> {
+                    binding.downloadAction.setText(R.string.download_action)
+                    binding.downloadAction.setIconResource(R.drawable.ic_download_24dp)
+                    binding.downloadAction.isEnabled = true
+                    binding.downloadProgress?.isVisible = false
+                    status.error?.let { showToast(it) }
+                }
+            }
+        }
+    }
+
     override fun onClick(view: View) {
         when (view) {
             binding.infoAction -> {
@@ -64,11 +100,15 @@ class UpdateDialog : BottomSheetDialogFragment(), View.OnClickListener {
             }
 
             binding.downloadAction -> {
-                release?.let {
-                    viewModel.downloadUpdate(requireContext(), it)
-                    showToast(R.string.downloading_update)
+                val status = viewModel.downloadStatus.value
+                if (status is UpdateViewModel.DownloadStatus.Completed) {
+                    viewModel.installUpdate(requireContext())
+                } else {
+                    release?.let {
+                        viewModel.downloadUpdate(requireContext(), it)
+                        showToast(R.string.downloading_update)
+                    }
                 }
-                dismiss()
             }
         }
     }

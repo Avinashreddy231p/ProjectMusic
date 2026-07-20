@@ -37,15 +37,17 @@ fun LibrarySettingsComposeScreen(
     if (showRecursiveActionsDialog) {
         val entries = context.resources.getStringArray(R.array.pref_recursive_folder_action_entries).toList()
         val values = context.resources.getStringArray(R.array.pref_recursive_folder_action_values).toList()
-        MultiCheckDialog.Builder(context)
-            .title(R.string.recursive_folder_actions_title)
-            .items(entries)
-            .createDialog { _, whichPos, _ ->
-                val selectedValues = whichPos.map { values[it] }.toSet()
-                viewModel.setRecursiveFolderActions(selectedValues)
-                true
-            }
-            .show((context as FragmentActivity).supportFragmentManager, "RECURSIVE_DIALOG")
+        (context as? FragmentActivity)?.let { activity ->
+            MultiCheckDialog.Builder(activity)
+                .title(R.string.recursive_folder_actions_title)
+                .items(entries)
+                .createDialog { _, whichPos, _ ->
+                    val selectedValues = whichPos.map { values[it] }.toSet()
+                    viewModel.setRecursiveFolderActions(selectedValues)
+                    true
+                }
+                .show(activity.supportFragmentManager, "RECURSIVE_DIALOG")
+        }
         showRecursiveActionsDialog = false
     }
 

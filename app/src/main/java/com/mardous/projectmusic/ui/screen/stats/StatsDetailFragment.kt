@@ -32,7 +32,7 @@ class StatsDetailFragment : AbsRecyclerViewFragment<SongAdapter, LinearLayoutMan
     override val isShuffleVisible: Boolean = true
     override val emptyMessageRes: Int = R.string.no_songs_label
 
-    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+    override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
         menu.clear()
     }
 

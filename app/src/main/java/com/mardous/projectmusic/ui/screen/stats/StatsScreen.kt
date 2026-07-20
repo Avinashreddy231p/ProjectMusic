@@ -133,6 +133,7 @@ fun StatsScreen(
                 val pagerState = rememberPagerState(pageCount = { tabs.size })
                 val coroutineScope = rememberCoroutineScope()
 
+                @Suppress("DEPRECATION")
                 ScrollableTabRow(
                     selectedTabIndex = pagerState.currentPage,
                     edgePadding = 16.dp,
@@ -368,6 +369,7 @@ private fun TopChartsTab(state: TopChartsTabUi) {
     val segments = listOf("Tracks", "Artists", "Albums", "Genres", "Moods", "Tags", "Instruments")
 
     Column(modifier = Modifier.fillMaxSize()) {
+        @Suppress("DEPRECATION")
         ScrollableTabRow(
             selectedTabIndex = selectedIndex,
             containerColor = Color.Transparent,
