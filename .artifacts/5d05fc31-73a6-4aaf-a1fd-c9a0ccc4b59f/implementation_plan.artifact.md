@@ -1,45 +1,41 @@
-# Implementation Plan - Rich Feedback & Progress Reporting
+# Implementation Plan - Fix Notification Lyrics Button Toggle
 
-Add visual progress (e.g., "10/100") to the loading screen during playlist import and provide detailed feedback upon completion.
+The goal is to ensure the lyrics button in the notification correctly toggles between showing lyrics in the metadata and showing the original song metadata, and that the button icon/state updates accordingly.
 
 ## User Review Required
 
 > [!IMPORTANT]
-> The import process will now show real-time progress. Since matching is extremely fast, the numbers will move quickly, but it provides assurance that the app is active.
->
-> After completion, the feedback will include exactly how many songs were matched out of the total found in the file.
+> The fix involves ensuring that all metadata fields (Title, Artist, and Subtitle) are restored when lyrics mode is toggled off. Currently, the Subtitle field is not being restored, which might lead to lyrics remaining visible in the notification even after toggling off.
 
 ## Proposed Changes
 
-### Progress State Management
+### Playback Service
 
-#### [MODIFY] [LibraryResult](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/projectmusic/ui/screen/library/LibraryResult.kt)
-- Update `PlaylistImportState` to include `Progress(current: Int, total: Int)`.
+#### [MODIFY] [PlaybackService.kt](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/projectmusic/playback/PlaybackService.kt)
 
-### Optimized Readers with Progress
+1.  **Improve `restoreOriginalMetadata`**:
+    *   Ensure `subtitle` is also restored using `currentSong.songInfo()`.
+2.  **Enhance `refreshMediaButtonCustomLayout`**:
+    *   Call `mediaSession?.setCustomLayout()` with the updated button list to ensure all controllers (including the standard notification) receive the updated layout, even if they aren't explicitly identified as "remote" by the existing check.
+3.  **Refine `lyricsCommand` logic**:
+    *   Ensure the icon and display name correctly reflect whether lyrics are currently being shown.
 
-#### [MODIFY] [M3UReader](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/projectmusic/util/playlist/M3UReader.kt), [PLSReader](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/projectmusic/util/playlist/PLSReader.kt), [JSONPlaylistIO](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/projectmusic/util/playlist/JSONPlaylistIO.kt)
-- Add `onProgress: (Int, Int) -> Unit` parameter to `read` functions.
-- For M3U/PLS: Pre-calculate the total entries to provide an accurate percentage.
-- For JSON: Use the list size from the decoded object.
+#### [MODIFY] [PlaybackExtension.kt](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/projectmusic/playback/PlaybackExtension.kt)
 
-### ViewModel Refactor
-
-#### [MODIFY] [LibraryViewModel](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/projectmusic/ui/screen/library/LibraryViewModel.kt)
-- In `importPlaylistFromFile`, pass a lambda that updates `_playlistImportState` with `Progress`.
-- Enrich the `Success` message with song matching stats.
-
-### UI Overhaul
-
-#### [MODIFY] [dialog_loading.xml](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/res/layout/dialog_loading.xml)
-- Add a `MaterialTextView` to show the "X/Y" progress text alongside the spinner.
-
-#### [MODIFY] [PlaylistListFragment](file:///C:/Users/Avina/OneDrive/Documents/BoomingMusic-master/D2/BoomingMusic-master/app/src/main/java/com/mardous/projectmusic/ui/screen/library/playlists/PlaylistListFragment.kt)
-- Update `toggleProgressDialog` to find and update the progress text.
-- Observe `Progress` state and update the UI accordingly.
+*   (Optional) Add a helper if needed, but the existing ones seem sufficient.
 
 ## Verification Plan
 
+### Automated Tests
+*   Verify that `PlaybackService` correctly handles `Playback.SHOW_LYRICS` command.
+*   Check that `restoreOriginalMetadata` resets title, artist, and subtitle.
+
 ### Manual Verification
-- **Progress Visibility**: Import a medium-sized playlist and verify that the "X/Y" text updates on the loading screen.
-- **Detailed Feedback**: Verify the success Toast says something like "Imported Playlist (48/50 songs found)".
+1.  Play a song with synced lyrics.
+2.  Open the notification.
+3.  Tap the "Show Lyrics" button.
+    *   Verify notification title/artist/subtitle change to lyrics lines.
+    *   Verify button icon changes to "Hide Lyrics" (filled icon).
+4.  Tap the button again.
+    *   Verify notification title/artist/subtitle return to original song metadata.
+    *   Verify button icon returns to "Show Lyrics" (outline icon).

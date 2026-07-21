@@ -89,6 +89,7 @@ import com.mardous.projectmusic.data.model.network.ScrobblingService
 import com.mardous.projectmusic.extensions.isBluetoothA2dpConnected
 import com.mardous.projectmusic.extensions.isBluetoothA2dpDisconnected
 import com.mardous.projectmusic.extensions.media.displayArtistName
+import com.mardous.projectmusic.extensions.media.songInfo
 import com.mardous.projectmusic.extensions.showToast
 import com.mardous.projectmusic.playback.equalizer.EqualizerManager
 import com.mardous.projectmusic.playback.library.LibraryProvider
@@ -1261,16 +1262,19 @@ class PlaybackService :
 
     private fun refreshMediaButtonCustomLayout() {
         val hasTimeline = !player.currentTimeline.isEmpty
+        val buttonLayout = mutableListOf<CommandButton>()
+        if (hasTimeline) {
+            buttonLayout.add(repeatCommand)
+            buttonLayout.add(lyricsCommand)
+        }
+        buttonLayout.add(favoriteCommand)
+
+        val immutableButtonLayout = ImmutableList.copyOf(buttonLayout)
+        mediaSession?.setCustomLayout(immutableButtonLayout)
+
         mediaSession?.connectedControllers?.forEach { controllerInfo ->
             if (mediaSession?.isRemoteController(controllerInfo) == true) {
-                val buttonLayout = mutableListOf<CommandButton>()
-                if (hasTimeline) {
-                    buttonLayout.add(repeatCommand)
-                    buttonLayout.add(lyricsCommand)
-                }
-                buttonLayout.add(favoriteCommand)
-
-                mediaSession?.setMediaButtonPreferences(controllerInfo, ImmutableList.copyOf(buttonLayout))
+                mediaSession?.setMediaButtonPreferences(controllerInfo, immutableButtonLayout)
             }
         }
     }
@@ -1468,6 +1472,7 @@ class PlaybackService :
                 val updatedMetadata = currentItem.mediaMetadata.buildUpon()
                     .setTitle(currentSong.title)
                     .setArtist(currentSong.displayArtistName())
+                    .setSubtitle(currentSong.songInfo())
                     .build()
                 val updatedItem = currentItem.buildUpon()
                     .setMediaMetadata(updatedMetadata)
