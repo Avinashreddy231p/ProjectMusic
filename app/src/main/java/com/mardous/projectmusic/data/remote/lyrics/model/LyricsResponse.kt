@@ -24,6 +24,49 @@ class BetterLyricsResponse(
 )
 
 @Serializable
+data class BiniLyricsResponse(
+    val lyrics: String? = null,
+    val provider: String? = null,
+    val syncType: String? = null,
+    val success: Boolean = false
+)
+
+@Serializable
+data class UnisonLyricsResponse(
+    val success: Boolean = false,
+    val data: UnisonLyricsItem? = null
+)
+
+@Serializable
+data class UnisonSubmissionRequest(
+    val payload: UnisonPayload,
+    val signature: String,
+    val publicKey: UnisonJwk? = null
+)
+
+@Serializable
+data class UnisonPayload(
+    val keyId: String,
+    val timestamp: Long,
+    val nonce: String,
+    val song: String,
+    val artist: String,
+    val album: String? = null,
+    val duration: Int,
+    val lyrics: String,
+    val format: String,
+    val videoId: String? = null
+)
+
+@Serializable
+data class UnisonJwk(
+    val crv: String,
+    val kty: String,
+    val x: String,
+    val y: String
+)
+
+@Serializable
 data class LyricallyLyricsResponse(
     val type: String,
     val content: List<LyricallyLyricsContent> = emptyList(),

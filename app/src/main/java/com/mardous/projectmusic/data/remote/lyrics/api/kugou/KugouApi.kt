@@ -16,6 +16,9 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.http.HttpHeaders
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 
 class KugouApi(private val client: HttpClient) : LyricsApi {
 
@@ -43,24 +46,7 @@ class KugouApi(private val client: HttpClient) : LyricsApi {
             val songs = searchResponse.data?.info ?: return null
             if (songs.isEmpty()) return null
 
-            val hash = songs[0].hash
-            val duration = songs[0].duration * 1000
-            
-            val lyricsResponse = client.get(LYRIC_URL) {
-                header(HttpHeaders.UserAgent, USER_AGENT)
-                parameter("ver", 1)
-                parameter("man", "yes")
-                parameter("client", "mobi")
-                parameter("hash", hash)
-                parameter("timelength", duration)
-            }.body<KugouLyricsResponse>()
-
-            val content = lyricsResponse.content
-            if (content.isNullOrBlank()) return null
-
-            RawLyrics.Remote(
-                synced = RawLyrics.Remote.Content(name, content)
-            )
+            fetchLyricsByHash(songs[0].hash, (songs[0].duration * 1000).toLong())
         } catch (e: Exception) {
             Log.e(TAG, "Kugou request failed", e)
             null
@@ -71,33 +57,58 @@ class KugouApi(private val client: HttpClient) : LyricsApi {
         song: Song,
         title: String,
         artist: String
-    ): List<LyricsSearchResult> {
-        return try {
+    ): List<LyricsSearchResult> = coroutineScope {
+        try {
             val searchResponse = client.get(SEARCH_URL) {
                 header(HttpHeaders.UserAgent, USER_AGENT)
                 parameter("keyword", "$title $artist")
                 parameter("page", 1)
-                parameter("pagesize", 10)
+                parameter("pagesize", 5)
             }.body<KugouSearchResponse>()
 
-            val songs = searchResponse.data?.info ?: return emptyList()
-            songs.map { s ->
-                LyricsSearchResult(
-                    title = s.songname,
-                    artist = s.singername,
-                    album = s.album_name,
-                    duration = (s.duration * 1000).toLong(),
-                    instrumental = false,
-                    provider = name,
-                    lyrics = RawLyrics.Remote(
-                        plain = RawLyrics.Remote.Content(name, null),
-                        synced = RawLyrics.Remote.Content(name, null)
+            val songs = searchResponse.data?.info ?: return@coroutineScope emptyList()
+            
+            // Fetch lyrics for top 3 results in parallel
+            val deferredResults = songs.take(3).map { s ->
+                async {
+                    val duration = (s.duration * 1000).toLong()
+                    val lyrics = fetchLyricsByHash(s.hash, duration) ?: RawLyrics.Remote()
+
+                    LyricsSearchResult(
+                        title = s.songname,
+                        artist = s.singername,
+                        album = s.album_name,
+                        duration = duration,
+                        instrumental = false,
+                        provider = name,
+                        lyrics = lyrics
                     )
-                )
+                }
             }
+            deferredResults.awaitAll().filter { it.isSynced }
         } catch (e: Exception) {
             Log.e(TAG, "Kugou search failed", e)
             emptyList()
+        }
+    }
+
+    private suspend fun fetchLyricsByHash(hash: String, duration: Long): RawLyrics.Remote? {
+        return try {
+            val lyricsResponse = client.get(LYRIC_URL) {
+                header(HttpHeaders.UserAgent, USER_AGENT)
+                parameter("ver", 1)
+                parameter("man", "yes")
+                parameter("client", "mobi")
+                parameter("hash", hash)
+                parameter("timelength", duration)
+            }.body<KugouLyricsResponse>()
+
+            val content = lyricsResponse.content
+            if (content.isNullOrBlank()) null
+            else RawLyrics.Remote(synced = RawLyrics.Remote.Content(name, content))
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to fetch Kugou lyrics for $hash", e)
+            null
         }
     }
 

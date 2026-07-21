@@ -38,6 +38,14 @@ data class AddToPlaylistResult(
 
 class ImportablePlaylistResult(val playlistName: String, val songs: List<Song>)
 
+sealed class PlaylistImportState {
+    data object Idle : PlaylistImportState()
+    data object Loading : PlaylistImportState()
+    data class Progress(val current: Int, val total: Int) : PlaylistImportState()
+    data class Success(val message: String) : PlaylistImportState()
+    data class Error(val message: String) : PlaylistImportState()
+}
+
 class ImportResult(val resultMessage: String) {
     companion object {
         fun success(ctx: Context, res: ImportablePlaylistResult): ImportResult {

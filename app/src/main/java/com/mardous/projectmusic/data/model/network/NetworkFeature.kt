@@ -50,6 +50,7 @@ sealed class NetworkFeature(
                 get() = boolResource(R.bool.enable_lyrically_provider) && super.isEnabled
         }
         object Genius : Lyrics(GENIUS_ENABLED_KEY, true)
+        object BiniLyrics : Lyrics(BINILYRICS_ENABLED_KEY, true)
         object LyricsPlus : Lyrics(LYRICSPLUS_ENABLED_KEY, true)
         object NetEase : Lyrics(NETEASE_ENABLED_KEY, true)
         object Kugou : Lyrics(KUGOU_ENABLED_KEY, true)
@@ -108,6 +109,7 @@ sealed class NetworkFeature(
         const val BETTERLYRICS_ENABLED_KEY = "betterlyrics_enabled"
         const val LYRICALLY_ENABLED_KEY = "lyrically_enabled"
         const val GENIUS_ENABLED_KEY = "genius_enabled"
+        const val BINILYRICS_ENABLED_KEY = "binilyrics_enabled"
         const val LYRICSPLUS_ENABLED_KEY = "lyricsplus_enabled"
         const val NETEASE_ENABLED_KEY = "netease_enabled"
         const val KUGOU_ENABLED_KEY = "kugou_enabled"

@@ -22,6 +22,7 @@ import android.animation.AnimatorSet
 import android.animation.ValueAnimator
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.media.MediaScannerConnection
 import android.os.Environment
 import android.provider.MediaStore
@@ -34,6 +35,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.mardous.projectmusic.coil.CustomPlaylistImageManager
+import com.mardous.projectmusic.R
 import com.mardous.projectmusic.core.model.LibraryMargin
 import com.mardous.projectmusic.core.model.filesystem.FileSystemItem
 import com.mardous.projectmusic.core.model.filesystem.FileSystemQuery
@@ -107,6 +109,9 @@ class LibraryViewModel(
     fun getFileSystem(): LiveData<FileSystemQuery> = fileSystem
     fun getFabMargin(): LiveData<LibraryMargin> = fabMargin
     fun getMiniPlayerMargin(): LiveData<LibraryMargin> = miniPlayerMargin
+
+    private val _playlistImportState = MutableStateFlow<PlaylistImportState>(PlaylistImportState.Idle)
+    val playlistImportState = _playlistImportState.asStateFlow()
 
     private fun createValueAnimator(oldValue: Int, newValue: Int, setter: (Int) -> Unit): Animator {
         return ValueAnimator.ofInt(oldValue, newValue).apply {
@@ -609,23 +614,97 @@ class LibraryViewModel(
     }
 
     fun importPlaylist(context: Context, playlist: ImportablePlaylistResult): LiveData<ImportResult> = liveData(IO) {
-        var count = 1
-        var playlistName = playlist.playlistName
-        while (repository.checkPlaylistExists(playlistName).isNotEmpty() && count <= 100) {
-            playlistName = "${playlist.playlistName} $count"
-            count++
-        }
-        if (repository.checkPlaylistExists(playlistName).isEmpty()) {
-            val id = repository.createPlaylist(PlaylistEntity(playlistName = playlistName))
-            if (id != -1L) {
-                repository.insertSongsInPlaylist(id, playlist.songs)
-                emit(ImportResult.success(context, playlist))
-                forceReload(ReloadType.Playlists)
+        try {
+            var count = 1
+            var playlistName = playlist.playlistName
+            while (repository.checkPlaylistExists(playlistName).isNotEmpty() && count <= 100) {
+                playlistName = "${playlist.playlistName} $count"
+                count++
+            }
+            if (repository.checkPlaylistExists(playlistName).isEmpty()) {
+                val id = repository.createPlaylist(PlaylistEntity(playlistName = playlistName))
+                if (id != -1L) {
+                    repository.insertSongsInPlaylist(id, playlist.songs)
+                    emit(ImportResult.success(context, playlist))
+                    forceReload(ReloadType.Playlists)
+                } else {
+                    emit(ImportResult.error(context, playlist))
+                }
             } else {
                 emit(ImportResult.error(context, playlist))
             }
-        } else {
+        } catch (e: Exception) {
+            Log.e("LibraryViewModel", "Error in importPlaylist", e)
             emit(ImportResult.error(context, playlist))
+        }
+    }
+
+    fun importPlaylistFromFile(context: Context, uri: Uri) {
+        _playlistImportState.value = PlaylistImportState.Loading
+        viewModelScope.launch(IO) {
+            kotlinx.coroutines.delay(100)
+            try {
+                Log.d("LibraryViewModel", "Hyper-speed import starting for: $uri")
+                
+                // 1. Fetch library once (unsorted for speed)
+                val librarySongs = repository.allSongsUnsorted()
+                Log.d("LibraryViewModel", "Library indexed with ${librarySongs.size} songs")
+
+                // 2. Read file using memory-based matching and report progress
+                var totalInFile = 0
+                val songs = com.mardous.projectmusic.util.playlist.PlaylistFileIO.read(context, uri, librarySongs) { current, total ->
+                    totalInFile = total
+                    _playlistImportState.value = PlaylistImportState.Progress(current, total)
+                }
+                
+                if (songs.isNotEmpty()) {
+                    val name = context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                        if (cursor.moveToFirst()) {
+                            val displayNameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                            if (displayNameIndex != -1) {
+                                cursor.getString(displayNameIndex)?.substringBeforeLast(".")
+                            } else null
+                        } else null
+                    } ?: uri.path?.substringAfterLast("/")?.substringBeforeLast(".") ?: "Imported Playlist"
+                    
+                    var count = 1
+                    var playlistName = name
+                    while (repository.checkPlaylistExists(playlistName).isNotEmpty() && count <= 100) {
+                        playlistName = "$name $count"
+                        count++
+                    }
+                    
+                    val id = repository.createPlaylist(PlaylistEntity(playlistName = playlistName))
+                    if (id != -1L) {
+                        repository.insertSongsInPlaylist(id, songs)
+                        _playlistImportState.value = PlaylistImportState.Success(
+                            context.getString(R.string.imported_playlist_x, playlistName) + " (${songs.size}/$totalInFile matched)"
+                        )
+                        forceReload(ReloadType.Playlists)
+                    } else {
+                        _playlistImportState.value = PlaylistImportState.Error(context.getString(R.string.could_not_create_playlist))
+                    }
+                } else {
+                    _playlistImportState.value = PlaylistImportState.Error(context.getString(R.string.could_not_import_the_playlist_x, ""))
+                }
+            } catch (e: Exception) {
+                Log.e("LibraryViewModel", "Hyper-speed import failed", e)
+                _playlistImportState.value = PlaylistImportState.Error(e.localizedMessage ?: "Import failed")
+            }
+        }
+    }
+
+    fun resetPlaylistImportState() {
+        _playlistImportState.value = PlaylistImportState.Idle
+    }
+
+    fun exportPlaylistToFile(context: Context, playlist: PlaylistWithSongs, uri: Uri, format: String) = viewModelScope.launch(IO) {
+        try {
+            Log.d("LibraryViewModel", "Exporting playlist to $uri in format $format")
+            com.mardous.projectmusic.util.playlist.PlaylistFileIO.write(context, uri, playlist, format)
+            Log.d("LibraryViewModel", "Export successful")
+        } catch (e: Exception) {
+            Log.e("LibraryViewModel", "Error exporting playlist", e)
         }
     }
 

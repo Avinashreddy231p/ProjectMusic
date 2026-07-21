@@ -39,6 +39,9 @@ import com.mardous.projectmusic.data.remote.lyrics.model.LyricsSearchResult
 import com.mardous.projectmusic.extensions.hasR
 import com.mardous.projectmusic.extensions.media.isArtistNameUnknown
 import com.mardous.projectmusic.util.requireString
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import org.mozilla.universalchardet.UniversalDetector
 import java.io.BufferedInputStream
 import java.io.File
@@ -70,6 +73,10 @@ interface LyricsRepository {
 
     suspend fun lookupLyricsByIds(
         songIds: List<Long>,
+        onProgress: (current: Int, total: Int, label: String) -> Unit
+    ): LyricsScanResult
+
+    suspend fun scanAllLyrics(
         onProgress: (current: Int, total: Int, label: String) -> Unit
     ): LyricsScanResult
 
@@ -128,8 +135,8 @@ class RealLyricsRepository(
         return null
     }
 
-    override suspend fun fileLyrics(song: Song): RawLyrics.File? {
-        getCachedLyrics<RawLyrics.File>(LyricsSource.File, song.id)?.let { return it }
+    override suspend fun fileLyrics(song: Song): RawLyrics.File? = withContext(Dispatchers.IO) {
+        getCachedLyrics<RawLyrics.File>(LyricsSource.File, song.id)?.let { return@withContext it }
         try {
             val preferredFormatValue =
                 preferences.requireString("preferred_lyrics_file_format", "ttml")
@@ -149,24 +156,24 @@ class RealLyricsRepository(
                 if (lyrics.isNotEmpty()) {
                     val rawLyrics = RawLyrics.File(file, lyrics)
                     if (file.format == preferredFormat) {
-                        return cacheLyrics(song.id, rawLyrics)
+                        return@withContext cacheLyrics(song.id, rawLyrics)
                     }
                     rawLyricsList.add(rawLyrics)
                 }
             }
 
-            return rawLyricsList.firstOrNull()?.let {
+            rawLyricsList.firstOrNull()?.let {
                 cacheLyrics(song.id, it)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Couldn't find/read lyrics files for song ${song.data}", e)
+            null
         }
-        return null
     }
 
-    override suspend fun embeddedLyrics(song: Song): RawLyrics.Embedded? {
+    override suspend fun embeddedLyrics(song: Song): RawLyrics.Embedded? = withContext(Dispatchers.IO) {
         if (song.id != Song.emptySong.id) {
-            getCachedLyrics<RawLyrics.Embedded>(LyricsSource.Embedded, song.id)?.let { return it }
+            getCachedLyrics<RawLyrics.Embedded>(LyricsSource.Embedded, song.id)?.let { return@withContext it }
             try {
                 val metadataReader = MetadataReader(song.uri)
                 var lyrics = metadataReader.value(MetadataReader.LYRICS)
@@ -204,17 +211,17 @@ class RealLyricsRepository(
                         )
                     )
                 }
-                return cacheLyrics(song.id, RawLyrics.Embedded(lyrics))
+                return@withContext cacheLyrics(song.id, RawLyrics.Embedded(lyrics))
             } catch (e: Exception) {
                 Log.e(TAG, "Couldn't read embedded lyrics for song ${song.data}", e)
             }
         }
-        return null
+        null
     }
 
-    override suspend fun storedLyrics(song: Song, allowDownload: Boolean): RawLyrics.Stored? {
+    override suspend fun storedLyrics(song: Song, allowDownload: Boolean): RawLyrics.Stored? = withContext(Dispatchers.IO) {
         if (song.id != Song.emptySong.id) try {
-            getCachedLyrics<RawLyrics.Stored>(LyricsSource.Downloaded, song.id)?.let { return it }
+            getCachedLyrics<RawLyrics.Stored>(LyricsSource.Downloaded, song.id)?.let { return@withContext it }
             val storedLyrics = lyricsDao.getLyrics(song.id)
             if (storedLyrics == null && allowDownload) {
                 val storableLyrics = lyricsDownloadService.remoteLyrics(song)
@@ -233,10 +240,10 @@ class RealLyricsRepository(
                             )
                         )
                     }
-                    return cacheLyrics(song.id, storableLyrics)
+                    return@withContext cacheLyrics(song.id, storableLyrics)
                 }
             } else if (storedLyrics != null) {
-                return cacheLyrics(song.id, RawLyrics.Stored(
+                return@withContext cacheLyrics(song.id, RawLyrics.Stored(
                     lyrics = storedLyrics.lyrics,
                     provider = storedLyrics.provider,
                     instrumental = storedLyrics.instrumental
@@ -245,7 +252,7 @@ class RealLyricsRepository(
         } catch (e: Exception) {
             Log.e(TAG, "Couldn't fetch/download lyrics for song ${song.data}", e)
         }
-        return null
+        null
     }
 
     override suspend fun downloadLyrics(
@@ -257,7 +264,7 @@ class RealLyricsRepository(
             return null
         }
         return try {
-            lyricsDownloadService.remoteLyrics(song, searchTitle, searchArtist, fromUser = true)
+            searchAndPickBestLyrics(song)
         } catch (_: Exception) {
             null
         }
@@ -336,7 +343,7 @@ class RealLyricsRepository(
     override suspend fun lookupLyricsByIds(
         songIds: List<Long>,
         onProgress: (current: Int, total: Int, label: String) -> Unit
-    ): LyricsScanResult {
+    ): LyricsScanResult = withContext(Dispatchers.IO) {
         var result = LyricsScanResult()
         val songs = songRepository.songs(songIds)
         val total = songs.size
@@ -344,6 +351,12 @@ class RealLyricsRepository(
         for ((index, song) in songs.withIndex()) {
             try {
                 onProgress(index, total, song.title)
+                
+                // Add a small delay between requests for mass lookup
+                if (total > 1) {
+                    delay(500)
+                }
+
                 val remoteLyrics = searchAndPickBestLyrics(song)
                 if (remoteLyrics != null) {
                     val storable = remoteLyrics.prepareToStore()
@@ -374,25 +387,38 @@ class RealLyricsRepository(
             }
         }
         onProgress(total, total, "Done")
-        return result
+        result
+    }
+
+    override suspend fun scanAllLyrics(
+        onProgress: (Int, Int, String) -> Unit
+    ): LyricsScanResult = withContext(Dispatchers.IO) {
+        val allSongIds = songRepository.songs().map { it.id }
+        lookupLyricsByIds(allSongIds, onProgress)
     }
 
     private suspend fun searchAndPickBestLyrics(song: Song): RawLyrics.Remote? {
         val results = lyricsDownloadService.searchRemoteLyrics(song, song.title, song.artistName)
         if (results.isEmpty()) return null
 
-        // Priority 1: Word-by-word (syllable level)
-        for (res in results) {
+        val parsedResults = results.mapNotNull { res ->
             if (res.lyrics.hasSynced) {
-                val parsed = parseRawLyrics(song, RawLyrics.Stored(res.lyrics.synced?.lyrics))
-                if (parsed?.lines?.any { it.isWordSynced } == true) {
-                    return res.lyrics
-                }
+                val parsed = parseRawLyrics(song, RawLyrics.Stored(res.lyrics.synced?.lyrics, res.provider))
+                if (parsed != null) res to parsed else null
+            } else {
+                res to null
+            }
+        }
+
+        // Priority 1: Word-by-word (syllable level)
+        for ((res, parsed) in parsedResults) {
+            if (parsed != null && parsed.lines.any { it.isWordSynced }) {
+                return res.lyrics
             }
         }
 
         // Priority 2: Synced (line level)
-        for (res in results) {
+        for ((res, _) in parsedResults) {
             if (res.lyrics.hasSynced) return res.lyrics
         }
 

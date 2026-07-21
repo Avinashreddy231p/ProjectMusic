@@ -1,0 +1,5 @@
+- [x] Optimize `FavoriteBurstView` performance and timing
+- [x] Implement `springScale` extension in `AbsPlayerFragment`
+- [x] Refactor `AbsPlayerFragment.setIsFavorite` to use spring animations
+- [x] Refactor `VibrantPlayerControlsFragment.updateFavoriteButton` to use spring animations
+- [x] Verify animations build correctly

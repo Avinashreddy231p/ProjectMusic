@@ -24,6 +24,7 @@ import com.mardous.projectmusic.data.local.repository.LyricsRepository
 import com.mardous.projectmusic.data.model.Song
 import com.mardous.projectmusic.data.model.lyrics.LyricsSource
 import com.mardous.projectmusic.data.model.lyrics.RawLyrics
+import com.mardous.projectmusic.data.remote.lyrics.UnisonSubmissionService
 import com.mardous.projectmusic.data.remote.lyrics.model.LyricsSearchResult
 import com.mardous.projectmusic.data.model.network.NetworkFeature
 import com.mardous.projectmusic.data.model.network.NetworkFeature.Lyrics.BetterLyrics
@@ -53,7 +54,8 @@ import com.mardous.projectmusic.core.model.lyrics.LyricsViewSettings.Mode as Lyr
 class LyricsViewModel(
     application: Application,
     private val preferences: SharedPreferences,
-    private val repository: LyricsRepository
+    private val repository: LyricsRepository,
+    private val submissionService: UnisonSubmissionService
 ) : AndroidViewModel(application), OnSharedPreferenceChangeListener {
 
     private var instrumentalDetector: InstrumentalDetector
@@ -78,6 +80,9 @@ class LyricsViewModel(
 
     private val _permissionRequestEvent = Channel<List<Uri>>(Channel.BUFFERED)
     val permissionRequestEvent = _permissionRequestEvent.receiveAsFlow()
+
+    private val _submissionEvent = Channel<Boolean>(Channel.BUFFERED)
+    val submissionEvent = _submissionEvent.receiveAsFlow()
 
     private val _playerLyricsViewSettings = MutableStateFlow(createViewSettings(LyricsViewMode.Player))
     val playerLyricsViewSettings = _playerLyricsViewSettings.asStateFlow()
@@ -178,6 +183,20 @@ class LyricsViewModel(
             if (uiState is LyricsEditorUiState.Visible) {
                 val results = repository.searchLyrics(song, title, artist)
                 _lyricsSearchResults.value = results
+                _lyricsEditorUiState.value = uiState.copy(isLoading = false)
+            }
+        }
+
+    fun submitToUnison(song: Song, lyrics: String, format: String) =
+        viewModelScope.launch(IO) {
+            val uiState = _lyricsEditorUiState.updateAndGet {
+                if (it is LyricsEditorUiState.Visible) {
+                    it.copy(isLoading = true)
+                } else it
+            }
+            if (uiState is LyricsEditorUiState.Visible) {
+                val result = submissionService.submitLyrics(song, lyrics, format)
+                _submissionEvent.send(result)
                 _lyricsEditorUiState.value = uiState.copy(isLoading = false)
             }
         }

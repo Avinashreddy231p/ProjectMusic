@@ -1,0 +1,10 @@
+- [x] Implement Rich Progress Feedback for Playlist Import
+    - [x] Update `PlaylistImportState` in `LibraryResult.kt`
+    - [x] Update `M3UReader`, `PLSReader`, and `JSONPlaylistIO` to report progress
+    - [x] Update `PlaylistFileIO` to propagate progress callback
+    - [x] Refactor `LibraryViewModel` to handle progress state
+    - [x] Update `dialog_loading.xml` with progress text
+    - [x] Update `PlaylistListFragment` to show live progress numbers
+- [x] Verification
+    - [x] Import a playlist and verify the "X / Y" progress text
+    - [x] Verify detailed success message (e.g., "98 of 100 songs found")

@@ -23,6 +23,7 @@ import com.mardous.projectmusic.data.model.lyrics.RawLyrics
 import com.mardous.projectmusic.data.model.network.NetworkFeature
 import com.mardous.projectmusic.data.remote.lyrics.api.LyricsApi
 import com.mardous.projectmusic.data.remote.lyrics.api.betterlyrics.BetterLyricsApi
+import com.mardous.projectmusic.data.remote.lyrics.api.binilyrics.BiniLyricsApi
 import com.mardous.projectmusic.data.remote.lyrics.api.genius.GeniusApi
 import com.mardous.projectmusic.data.remote.lyrics.api.kugou.KugouApi
 import com.mardous.projectmusic.data.remote.lyrics.api.lrclib.LrcLibApi
@@ -33,6 +34,9 @@ import com.mardous.projectmusic.data.remote.lyrics.model.LyricsSearchResult
 import com.mardous.projectmusic.extensions.media.albumArtistName
 import com.mardous.projectmusic.extensions.media.extractMainArtistName
 import io.ktor.client.HttpClient
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import java.io.IOException
 
 class LyricsDownloadService(client: HttpClient) {
@@ -40,6 +44,7 @@ class LyricsDownloadService(client: HttpClient) {
     private val lyricsApi = listOf(
         LrcLibApi(client),
         NetEaseApi(client),
+        BiniLyricsApi(client),
         KugouApi(client),
         LyricallyApi(client),
         BetterLyricsApi(client),
@@ -87,25 +92,35 @@ class LyricsDownloadService(client: HttpClient) {
         song: Song,
         title: String,
         artist: String
-    ): List<LyricsSearchResult> {
+    ): List<LyricsSearchResult> = coroutineScope {
         if (song == Song.emptySong || !NetworkFeature.isOnline(ignoreWifiSetting = true))
-            return emptyList()
+            return@coroutineScope emptyList()
 
-        val results = mutableListOf<LyricsSearchResult>()
         val cleanedTitle = cleanTitle(title)
         val cleanedArtist = artist.extractMainArtistName()
+        Log.d(TAG, "Starting lyrics search for: $cleanedTitle by $cleanedArtist")
 
-        for (api in lyricsApi) {
-            if (!api.networkFeature.isEnabled) continue
-            runCatching {
-                api.searchLyrics(song, cleanedTitle, cleanedArtist)
-            }.onSuccess {
-                results.addAll(it)
-            }.onFailure {
-                Log.e(TAG, "Search failed for ${api.name}", it)
+        val deferredResults = lyricsApi.map { api ->
+            async {
+                if (!api.networkFeature.isEnabled) {
+                    Log.d(TAG, "${api.name} is disabled")
+                    return@async emptyList()
+                }
+                Log.d(TAG, "Querying ${api.name}...")
+                runCatching {
+                    api.searchLyrics(song, cleanedTitle, cleanedArtist)
+                }.onSuccess {
+                    Log.d(TAG, "${api.name} returned ${it.size} results")
+                }.onFailure {
+                    Log.e(TAG, "Search failed for ${api.name}", it)
+                }.getOrDefault(emptyList())
             }
         }
-        return results.sortedByDescending { it.isSynced }
+
+        val allResults = deferredResults.awaitAll().flatten().sortedByDescending { it.isSynced }
+        Log.d(TAG, "Total results found: ${allResults.size}")
+        allResults.forEach { Log.v(TAG, "Result: ${it.title} by ${it.artist} (${it.provider})") }
+        allResults
     }
 
     /**

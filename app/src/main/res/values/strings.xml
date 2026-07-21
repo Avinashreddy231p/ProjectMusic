@@ -67,6 +67,7 @@
     <string name="there_are_no_importable_playlists">There are no importable playlists.</string>
     <string name="playlist_x_not_imported">Playlist %s not imported.</string>
     <string name="action_import_playlist">Import playlist…</string>
+    <string name="action_import_from_file">Import from file…</string>
     <string name="select_playlists_title">Select playlists</string>
     <string name="new_playlist_title">New playlist</string>
     <string name="new_playlist_action">New</string>
@@ -98,6 +99,7 @@
     <string name="songs_added_to_playlists">Songs added to playlists.</string>
     <string name="playlist_exists">Playlist %s already exists.</string>
     <string name="playlist_created">Playlist %s created successfully.</string>
+    <string name="progress_x_y">%1$d / %2$d</string>
     <string name="remove_song_from_playlist_title">Remove song from playlist</string>
     <string name="remove_songs_from_playlist_title">Remove songs from playlist</string>
     <string name="remove_song_x_from_playlist"><![CDATA[Remove the song <b>%1$s</b> from the playlist?]]></string>
@@ -339,6 +341,7 @@
     <string name="select_content_to_restore">Select content to restore:</string>
     <string name="could_not_restore_data">Couldn\'t not restore data. Verify backup file and retry.</string>
     <string name="data_restored_successfully">Data restored successfully.</string>
+    <string name="restart_app_to_apply_settings">Please restart the app to apply the restored settings.</string>
     <string name="action_toggle_playlist_lock">Lock/unlock playlist</string>
     <string name="playlist_locked">Playlist locked</string>
     <string name="playlist_unlocked">Playlist unlocked</string>
@@ -985,6 +988,8 @@
     <string name="use_lrclib_provider_summary">Community-driven lyrics database.</string>
     <string name="use_betterlyrics_provider_title">Use BetterLyrics provider</string>
     <string name="use_betterlyrics_provider_summary">Word by word synced lyrics.</string>
+    <string name="use_binilyrics_provider_title">Use BiniLyrics provider</string>
+    <string name="use_binilyrics_provider_summary">High-quality synchronized lyrics for OPM and popular tracks.</string>
     <string name="use_lyrically_provider_title">Use Lyrically provider</string>
     <string name="use_lyrically_provider_summary">Rich lyrics API with karaoke and multi-person support.</string>
     <string name="use_genius_provider_summary">Popular lyrics database. Scrapes text from the web.</string>
@@ -1114,6 +1119,8 @@
     <string name="stats_title">Listening Stats</string>
     <string name="stats_summary">View detailed listening history and statistics</string>
     <string name="backup_listening_history">Listening history</string>
+    <string name="backup_metadata">Favorites and ratings</string>
+    <string name="backup_blacklist">Blacklist and Whitelist</string>
     <string name="stats_total_plays">Total plays</string>
     <string name="stats_total_time">Total time listened</string>
     <string name="stats_total_songs">Unique songs</string>
@@ -1249,5 +1256,11 @@
     <string name="lyrics_selection_title">Select Songs for Lyrics Lookup</string>
     <string name="lyrics_lookup_progress_title">Lyrics Lookup Progress</string>
     <string name="lyrics_lookup_finished_title">Lyrics Lookup Finished</string>
+    <string name="action_submit_to_unison">Submit to Unison</string>
+    <string name="action_submit_to_unison_summary">Share these lyrics with the Better Lyrics community. Your submission will be signed with a secure key.</string>
+    <string name="lyrics_submission_success">Lyrics submitted successfully!</string>
+    <string name="lyrics_submission_failed">Failed to submit lyrics. Please try again later.</string>
+    <string name="lyrics_submit_confirm_title">Submit to Unison?</string>
+    <string name="lyrics_submit_confirm_message">You are about to share these lyrics with the Unison platform. This action is public and will help other users get synchronized lyrics for this song.</string>
     <string name="ic_lyrics_24dp" translatable="false">ic_lyrics_24dp</string>
 </resources>

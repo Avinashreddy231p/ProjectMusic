@@ -86,6 +86,14 @@ class RankingEngine(
         return songKey
     }
 
+    /**
+     * Minimal registration for hyper-speed operations.
+     * Does NOT trigger recalculations or mark database as dirty.
+     */
+    suspend fun registerSongLight(song: Song): Long {
+        return rankingDao.getSongKeyByMediaStoreId(song.id) ?: rankingDao.upsertSong(song.toSongEntity())
+    }
+
     fun markDirty() {
         dirtyGlobal.set(true)
         dirtyMoods.set(true)

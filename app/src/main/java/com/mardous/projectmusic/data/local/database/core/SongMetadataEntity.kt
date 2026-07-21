@@ -21,6 +21,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
 @Entity(
     tableName = "song_metadata",
@@ -33,6 +34,7 @@ import androidx.room.PrimaryKey
         )
     ]
 )
+@Serializable
 data class SongMetadataEntity(
     @PrimaryKey
     @ColumnInfo(name = "song_key")

@@ -135,7 +135,7 @@ sealed class LyricsUiState(open val id: Long) {
     data class Loading(override val id: Long) : LyricsUiState(id)
     data class Empty(override val id: Long) : LyricsUiState(id)
     data class Instrumental(override val id: Long) : LyricsUiState(id)
-    data class Plain(override val id: Long, val lyrics: String) : LyricsUiState(id)
+    data class Plain(override val id: Long, val lyrics: String, val provider: String? = null) : LyricsUiState(id)
     data class Synced(override val id: Long, val syncedLyrics: SyncedLyrics) : LyricsUiState(id)
 }
 

@@ -18,11 +18,13 @@
 package com.mardous.projectmusic.ui.screen.library.playlists
 
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
@@ -30,6 +32,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.transition.MaterialArcMotion
 import com.google.android.material.transition.MaterialContainerTransform
 import com.h6ah4i.android.widget.advrecyclerview.animator.RefactoredDefaultItemAnimator
@@ -88,6 +91,31 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
     private var playlistSongAdapter: PlaylistSongAdapter? = null
     private var wrappedAdapter: RecyclerView.Adapter<*>? = null
     private var recyclerViewDragDropManager: RecyclerViewDragDropManager? = null
+
+    private var selectedFormat = "m3u"
+    private val createPlaylistFile = registerForActivityResult(ActivityResultContracts.CreateDocument("*/*")) { uri: Uri? ->
+        uri?.let {
+            libraryViewModel.exportPlaylistToFile(requireContext(), playlist, it, selectedFormat)
+            showToast(getString(R.string.saved_playlist_x, playlist.playlistEntity.playlistName))
+        }
+    }
+
+    private fun showExportDialog() {
+        val formats = arrayOf("JSON", "M3U", "PLS")
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.action_export_playlist)
+            .setItems(formats) { _, which ->
+                selectedFormat = formats[which].lowercase()
+                val mimeType = when (selectedFormat) {
+                    "json" -> "application/json"
+                    "pls" -> "audio/scpls"
+                    else -> "audio/mpegurl"
+                }
+                val fileName = "${playlist.playlistEntity.playlistName}.$selectedFormat"
+                createPlaylistFile.launch(fileName)
+            }
+            .show()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -247,6 +275,11 @@ class PlaylistDetailFragment : AbsMainActivityFragment(R.layout.fragment_playlis
                     showToast(R.string.playlist_unlocked)
                 }
                 playlistSongAdapter?.setLockDrag(lockedPlaylists)
+                true
+            }
+
+            R.id.action_export_playlist -> {
+                showExportDialog()
                 true
             }
 

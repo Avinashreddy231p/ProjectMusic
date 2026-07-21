@@ -326,8 +326,8 @@ class PlaybackPreferencesFragment : Fragment() {
                     PlaybackSettingsComposeScreen(
                         viewModel = viewModel,
                         onBackClick = { findNavController().popBackStack() },
-                        onEqualizerClick = { findNavController().navigate(R.id.nav_equalizer) },
-                        onSoundSettingsClick = { findNavController().navigate(R.id.nav_sound_settings) }
+                        onEqualizerClick = { findActivityNavController(R.id.fragment_container).navigate(R.id.nav_equalizer) },
+                        onSoundSettingsClick = { findActivityNavController(R.id.fragment_container).navigate(R.id.nav_sound_settings) }
                     )
                 }
             }

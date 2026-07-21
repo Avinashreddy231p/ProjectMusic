@@ -21,6 +21,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.view.KeyEvent
@@ -46,6 +47,7 @@ import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import androidx.transition.TransitionManager
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.mardous.projectmusic.R
 import com.mardous.projectmusic.data.SearchFilter
 import com.mardous.projectmusic.data.local.database.metadata.PlaylistWithSongs
@@ -100,6 +102,30 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
 
     private lateinit var searchAdapter: SearchAdapter
     private lateinit var voiceSearchLauncher: ActivityResultLauncher<Intent>
+
+    private var playlistToExport: PlaylistWithSongs? = null
+    private var selectedFormat = "m3u"
+    private val createPlaylistFile = registerForActivityResult(ActivityResultContracts.CreateDocument("*/*")) { uri: Uri? ->
+        uri?.let {
+            playlistToExport?.let { p ->
+                libraryViewModel.exportPlaylistToFile(requireContext(), p, it, selectedFormat)
+                showToast(getString(R.string.saved_playlist_x, p.playlistEntity.playlistName))
+            }
+        }
+    }
+
+    private fun showExportDialog(playlist: PlaylistWithSongs) {
+        playlistToExport = playlist
+        val formats = arrayOf("JSON", "M3U", "PLS")
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.action_export_playlist)
+            .setItems(formats) { _, which ->
+                selectedFormat = formats[which].lowercase()
+                val fileName = "${playlist.playlistEntity.playlistName}.$selectedFormat"
+                createPlaylistFile.launch(fileName)
+            }
+            .show()
+    }
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -315,6 +341,10 @@ class SearchFragment : AbsMainActivityFragment(R.layout.fragment_search),
     }
 
     override fun playlistMenuItemClick(playlist: PlaylistWithSongs, menuItem: MenuItem): Boolean {
+        if (menuItem.itemId == R.id.action_export_playlist) {
+            showExportDialog(playlist)
+            return true
+        }
         return playlist.onPlaylistMenu(this, menuItem)
     }
 

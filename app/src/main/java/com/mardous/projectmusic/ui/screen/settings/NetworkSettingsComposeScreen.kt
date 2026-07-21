@@ -303,6 +303,20 @@ fun NetworkSettingsComposeScreen(
                         )
                     }
 
+                    ScanButtonWithProgress(
+                        title = if (uiState.lyricsScanning) "Looking Up Lyrics..." else "Look Up Song Lyrics",
+                        summary = uiState.lyricsScanResult ?: "Search all enabled providers for synced lyrics and write to database + file tags",
+                        icon = R.drawable.ic_lyrics_24dp,
+                        enabled = !uiState.lyricsScanning,
+                        isScanning = uiState.lyricsScanning,
+                        progress = uiState.lyricsScanProgress,
+                        total = uiState.lyricsScanTotal,
+                        label = uiState.lyricsScanLabel,
+                        result = uiState.lyricsScanResult,
+                        onScanClick = { viewModel.runLyricsScan() },
+                        onDismissClick = { viewModel.clearLyricsScanResult() }
+                    )
+
                     ExpressivePreferenceItem(
                         title = "Clear Downloaded Lyrics",
                         summary = "Delete cached .lrc and .ttml files",

@@ -57,6 +57,7 @@ import java.io.File
 interface Repository {
 
     suspend fun allSongs(): List<Song>
+    suspend fun allSongsUnsorted(): List<Song>
     suspend fun allAlbums(): List<Album>
     suspend fun allArtists(): List<Artist>
     suspend fun allAlbumArtists(): List<Artist>
@@ -180,6 +181,8 @@ class RealRepository(
 ) : Repository {
 
     override suspend fun allSongs(): List<Song> = songRepository.songs()
+
+    override suspend fun allSongsUnsorted(): List<Song> = songRepository.allSongsUnsorted()
 
     override suspend fun allAlbums(): List<Album> = albumRepository.albums()
 

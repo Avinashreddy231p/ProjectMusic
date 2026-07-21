@@ -132,7 +132,7 @@ fun SettingsComposeScreen(
                 ExpressivePreferenceItem(
                     title = "Playback Engine",
                     summary = "Equalizer, sound effects, and behavior",
-                    icon = painterResource(R.drawable.ic_equalizer_24dp),
+                    icon = R.drawable.ic_equalizer_24dp,
                     onClick = { navController.navigate(R.id.action_to_playbackPreferences) }
                 )
             }
@@ -143,7 +143,7 @@ fun SettingsComposeScreen(
                 ExpressivePreferenceItem(
                     title = "Lyrics Experience",
                     summary = "Syllable lyrics, visual effects, and typography",
-                    icon = painterResource(R.drawable.ic_lyrics_outline_24dp),
+                    icon = R.drawable.ic_lyrics_outline_24dp,
                     onClick = { navController.navigate(R.id.action_to_lyricsPreferences) }
                 )
             }
@@ -151,7 +151,7 @@ fun SettingsComposeScreen(
                 ExpressivePreferenceItem(
                     title = "Library & Files",
                     summary = "Smart playlists, folders, and management",
-                    icon = painterResource(R.drawable.ic_library_music_24dp),
+                    icon = R.drawable.ic_library_music_24dp,
                     onClick = { navController.navigate(R.id.action_to_libraryPreferences) }
                 )
             }
@@ -162,7 +162,7 @@ fun SettingsComposeScreen(
                 ExpressivePreferenceItem(
                     title = "Network & Cloud",
                     summary = "Last.fm, ListenBrainz, and updates",
-                    icon = painterResource(R.drawable.ic_cloud_24dp),
+                    icon = R.drawable.ic_cloud_24dp,
                     onClick = { navController.navigate(R.id.action_to_networkPreferences) }
                 )
             }
@@ -173,7 +173,7 @@ fun SettingsComposeScreen(
                 ExpressivePreferenceItem(
                     title = "Advanced Settings",
                     summary = "Backup, language, and internals",
-                    icon = painterResource(R.drawable.ic_settings_applications_24dp),
+                    icon = R.drawable.ic_settings_applications_24dp,
                     onClick = { navController.navigate(R.id.action_to_advancedPreferences) }
                 )
             }
@@ -182,7 +182,7 @@ fun SettingsComposeScreen(
                 ExpressivePreferenceItem(
                     title = "Listening Stats",
                     summary = "Your top tracks, artists, and habits",
-                    icon = painterResource(R.drawable.ic_trending_up_24dp),
+                    icon = R.drawable.ic_trending_up_24dp,
                     onClick = onStatsClick
                 )
             }
@@ -191,7 +191,7 @@ fun SettingsComposeScreen(
                 ExpressivePreferenceItem(
                     title = "About Project Music",
                     summary = "Version 1.3.1-beta.2 • Premium Edition",
-                    icon = painterResource(R.drawable.ic_info_24dp),
+                    icon = R.drawable.ic_info_24dp,
                     onClick = onAboutClick
                 )
             }

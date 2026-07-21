@@ -1179,6 +1179,35 @@ class SettingsViewModel(
         _uiState.update { it.copy(artistScanResult = null) }
     }
 
+    fun runLyricsScan() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(lyricsScanning = true, lyricsScanResult = null, lyricsScanProgress = 0, lyricsScanTotal = 0, lyricsScanLabel = null) }
+            try {
+                val repo = org.koin.java.KoinJavaComponent.get<com.mardous.projectmusic.data.local.repository.LyricsRepository>(com.mardous.projectmusic.data.local.repository.LyricsRepository::class.java)
+                val result = repo.scanAllLyrics { current, total, label ->
+                    _uiState.update { it.copy(lyricsScanProgress = current, lyricsScanTotal = total, lyricsScanLabel = label) }
+                }
+                _uiState.update {
+                    it.copy(
+                        lyricsScanning = false,
+                        lyricsScanResult = "Scanned ${result.songsScanned}, updated ${result.songsUpdated}, embedded ${result.tagsWritten}, ${result.errors} errors"
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        lyricsScanning = false,
+                        lyricsScanResult = "Error: ${e.message}"
+                    )
+                }
+            }
+        }
+    }
+
+    fun clearLyricsScanResult() {
+        _uiState.update { it.copy(lyricsScanResult = null) }
+    }
+
     fun setAudioOffload(enabled: Boolean) {
         _uiState.update { it.copy(audioOffload = enabled) }
         viewModelScope.launch { equalizerManager.setEnableAudioOffload(enabled) }
@@ -1376,6 +1405,11 @@ data class SettingsUiState(
     val musicbrainzScanProgress: Int = 0,
     val musicbrainzScanTotal: Int = 0,
     val musicbrainzScanLabel: String? = null,
+    val lyricsScanning: Boolean = false,
+    val lyricsScanResult: String? = null,
+    val lyricsScanProgress: Int = 0,
+    val lyricsScanTotal: Int = 0,
+    val lyricsScanLabel: String? = null,
     val fileTagScanning: Boolean = false,
     val fileTagScanResult: String? = null,
     val fileTagScanProgress: Int = 0,

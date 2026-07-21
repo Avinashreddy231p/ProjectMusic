@@ -4,6 +4,7 @@ import android.content.Context
 import android.widget.ImageView
 import coil3.load
 import coil3.request.ImageRequest
+import coil3.request.allowHardware
 import coil3.request.error
 import coil3.request.placeholder
 import com.mardous.projectmusic.R
@@ -30,6 +31,7 @@ fun ImageView.songImage(
     song: Song?,
     builder: ImageRequest.Builder.() -> Unit = {}
 ) = load(song) {
+    allowHardware(false)
     placeholderDrawableRes(context, DEFAULT_SONG_IMAGE)
     builder()
 }
@@ -38,6 +40,7 @@ fun ImageView.albumImage(
     album: Album?,
     builder: ImageRequest.Builder.() -> Unit = {}
 ) = load(album) {
+    allowHardware(false)
     placeholderDrawableRes(context, DEFAULT_ALBUM_IMAGE)
     builder()
 }
@@ -46,6 +49,7 @@ fun ImageView.artistImage(
     artist: Artist?,
     builder: ImageRequest.Builder.() -> Unit = {}
 ) = load(artist) {
+    allowHardware(false)
     placeholderDrawableRes(context, DEFAULT_ARTIST_IMAGE)
     builder()
 }
@@ -54,6 +58,7 @@ fun ImageView.playlistImage(
     playlist: PlaylistWithSongs?,
     builder: ImageRequest.Builder.() -> Unit = {}
 ) = load(playlist) {
+    allowHardware(false)
     placeholderDrawableRes(context, DEFAULT_PLAYLIST_IMAGE)
     builder()
 }

@@ -20,8 +20,10 @@ package com.mardous.projectmusic.data.local.database.intel
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
 @Entity(tableName = "lyrics")
+@Serializable
 data class LyricsEntity(
     @PrimaryKey
     val id: Long,

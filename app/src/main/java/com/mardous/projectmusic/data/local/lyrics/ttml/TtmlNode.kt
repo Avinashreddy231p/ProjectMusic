@@ -84,10 +84,11 @@ data class TtmlNode(
 
         if (this.type == NODE_BODY && node.type == NODE_SECTION ||
             this.type == NODE_SECTION && node.type == NODE_LINE ||
-            this.type == NODE_LINE && node.type == NODE_WORD
+            this.type == NODE_LINE && node.type == NODE_WORD ||
+            this.type == NODE_WORD && node.type == NODE_WORD
         ) {
 
-            if (node.begin > -1 || node.type == NODE_SECTION) {
+            if (node.begin > -1 || node.type == NODE_SECTION || node.type == NODE_WORD) {
                 return children.add(node)
             }
 

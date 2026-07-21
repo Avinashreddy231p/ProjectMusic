@@ -39,12 +39,11 @@ private fun provideDefaultCache(context: Context): Cache? {
     return null
 }
 
-private fun headerInterceptor(context: Context): Interceptor {
+private fun headerInterceptor(): Interceptor {
     return Interceptor {
         val original = it.request()
         val request = original.newBuilder()
-            .header("LastFmUser-Agent", context.packageName)
-            .addHeader("Content-Type", "application/json; charset=utf-8")
+            .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
             .method(original.method, original.body)
             .build()
         it.proceed(request)
@@ -53,7 +52,7 @@ private fun headerInterceptor(context: Context): Interceptor {
 
 fun provideOkHttp(context: Context): OkHttpClient {
     return OkHttpClient.Builder()
-        .addInterceptor(headerInterceptor(context))
+        .addInterceptor(headerInterceptor())
         .connectTimeout(5, TimeUnit.SECONDS)
         .readTimeout(5, TimeUnit.SECONDS)
         .cache(provideDefaultCache(context))

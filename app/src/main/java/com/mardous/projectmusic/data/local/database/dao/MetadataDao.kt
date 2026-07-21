@@ -22,6 +22,7 @@ import com.mardous.projectmusic.data.local.database.metadata.*
 import com.mardous.projectmusic.data.local.database.core.SongMetadataEntity
 import com.mardous.projectmusic.data.local.database.intel.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.serialization.Serializable
 
 @Dao
 interface MetadataDao {
@@ -101,6 +102,9 @@ interface MetadataDao {
 
     @Upsert
     suspend fun upsertSongMetadata(metadata: SongMetadataEntity)
+
+    @Query("SELECT m.*, s.data FROM song_metadata m INNER JOIN songs s ON m.song_key = s.song_key")
+    suspend fun getAllMetadataWithPaths(): List<MetadataWithPath>
 
     // --- ArtistEntity CRUD ---
     @Upsert
@@ -398,4 +402,10 @@ data class InstrumentWithStatsEntity(
     @ColumnInfo(name = "calculated_song_count") val calculatedSongCount: Int,
     @ColumnInfo(name = "total_play_count") val totalPlayCount: Long,
     @ColumnInfo(name = "total_duration_ms") val totalDurationMs: Long
+)
+
+@Serializable
+data class MetadataWithPath(
+    @Embedded val metadata: SongMetadataEntity,
+    val data: String
 )

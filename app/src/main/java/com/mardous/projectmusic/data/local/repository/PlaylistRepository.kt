@@ -23,6 +23,9 @@ import android.provider.MediaStore
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.mardous.projectmusic.R
 import com.mardous.projectmusic.core.sort.PlaylistSortMode
 import com.mardous.projectmusic.data.local.database.dao.PlaylistDao
@@ -30,6 +33,8 @@ import com.mardous.projectmusic.data.local.database.metadata.PlaylistEntity
 import com.mardous.projectmusic.data.local.database.metadata.PlaylistWithSongs
 import com.mardous.projectmusic.data.local.database.metadata.SongPlaylistEntity
 import com.mardous.projectmusic.data.local.database.core.SongEntity
+import com.mardous.projectmusic.data.local.database.sync.RankingEngine
+import com.mardous.projectmusic.data.local.database.sync.RankingWorker
 import com.mardous.projectmusic.data.mapper.toSongs
 import com.mardous.projectmusic.data.model.Playlist
 import com.mardous.projectmusic.data.model.Song
@@ -41,6 +46,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import java.util.concurrent.TimeUnit
 
 interface PlaylistRepository {
     fun devicePlaylists(): List<Playlist>
@@ -80,7 +86,8 @@ interface PlaylistRepository {
 class RealPlaylistRepository(
     private val context: Context,
     private val songRepository: SongRepository,
-    private val playlistDao: PlaylistDao
+    private val playlistDao: PlaylistDao,
+    private val rankingEngine: RankingEngine
 ) : PlaylistRepository {
 
     companion object {
@@ -147,12 +154,26 @@ class RealPlaylistRepository(
         playlistDao.searchSongs(playlistId, "%$searchQuery%")
 
     override suspend fun insertSongs(playlistId: Long, songs: List<Song>) {
-        // We need song_key to create relationships.
-        // Assuming songRepository can provide song_keys for media_store_ids.
-        // For now, I'll simplify or assume we have them.
-        // Stage 2 will handle song_key retrieval better.
-        val relationships = songs.map { SongPlaylistEntity(songId = it.id, playlistId = playlistId) }
+        val relationships = songs.map { song ->
+            // Use light registration to avoid heavy ranking engine triggers during import
+            val songKey = rankingEngine.registerSongLight(song)
+            SongPlaylistEntity(songId = songKey, playlistId = playlistId)
+        }
         playlistDao.insertSongsToPlaylist(relationships)
+
+        // Defer heavy ranking work to a background worker
+        try {
+            val request = OneTimeWorkRequestBuilder<RankingWorker>()
+                .setInitialDelay(2, TimeUnit.SECONDS)
+                .build()
+            WorkManager.getInstance(context).enqueueUniqueWork(
+                "ranking_deferred",
+                ExistingWorkPolicy.REPLACE,
+                request
+            )
+        } catch (e: Exception) {
+            Log.e("PlaylistRepository", "Failed to schedule deferred ranking", e)
+        }
     }
 
     override suspend fun renamePlaylistEntity(playlistId: Long, name: String) =

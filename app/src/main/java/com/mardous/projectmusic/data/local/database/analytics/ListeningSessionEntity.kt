@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
 @Entity(
     tableName = "listening_sessions",
@@ -40,6 +41,7 @@ import androidx.room.PrimaryKey
         Index(value = ["playback_origin", "start_time"])
     ]
 )
+@Serializable
 data class ListeningSessionEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "session_id")

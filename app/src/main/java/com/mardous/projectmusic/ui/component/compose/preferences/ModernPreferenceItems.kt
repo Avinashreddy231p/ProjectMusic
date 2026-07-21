@@ -14,6 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -215,6 +216,12 @@ fun ExpressivePreferenceItem(
                             tint = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = if (enabled) 1f else 0.38f),
                             modifier = Modifier.size(24.dp)
                         )
+                        is Painter -> Icon(
+                            painter = icon,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = if (enabled) 1f else 0.38f),
+                            modifier = Modifier.size(24.dp)
+                        )
                     }
                 }
                 Spacer(modifier = Modifier.width(16.dp))
@@ -310,6 +317,7 @@ fun ExpressiveSliderItem(
                         when (icon) {
                             is Int -> Icon(painter = painterResource(icon), contentDescription = null, modifier = Modifier.size(24.dp))
                             is ImageVector -> Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(24.dp))
+                            is Painter -> Icon(painter = icon, contentDescription = null, modifier = Modifier.size(24.dp))
                         }
                     }
                     Spacer(modifier = Modifier.width(16.dp))
@@ -378,6 +386,7 @@ fun SplitButtonPreference(
                         when (icon) {
                             is Int -> Icon(painter = painterResource(icon), contentDescription = null, modifier = Modifier.size(24.dp))
                             is ImageVector -> Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(24.dp))
+                            is Painter -> Icon(painter = icon, contentDescription = null, modifier = Modifier.size(24.dp))
                         }
                     }
                     Spacer(modifier = Modifier.width(16.dp))
@@ -455,6 +464,7 @@ fun SegmentedPreferenceItem(
                 when (icon) {
                     is Int -> Icon(painter = painterResource(icon), contentDescription = null, modifier = Modifier.size(24.dp))
                     is ImageVector -> Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(24.dp))
+                    is Painter -> Icon(painter = icon, contentDescription = null, modifier = Modifier.size(24.dp))
                 }
                 Spacer(modifier = Modifier.width(12.dp))
             }
@@ -518,6 +528,7 @@ fun SegmentedPreferenceItem(
                     when (icon) {
                         is Int -> Icon(painter = painterResource(icon), contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                         is ImageVector -> Icon(imageVector = icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        is Painter -> Icon(painter = icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     }
                 }
                 Spacer(modifier = Modifier.width(16.dp))
@@ -576,6 +587,7 @@ fun SliderPreferenceItem(
                             when (icon) {
                                 is Int -> Icon(painter = painterResource(icon), contentDescription = null, modifier = Modifier.size(24.dp))
                                 is ImageVector -> Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(24.dp))
+                                is Painter -> Icon(painter = icon, contentDescription = null, modifier = Modifier.size(24.dp))
                             }
                         }
                         Spacer(modifier = Modifier.width(16.dp))

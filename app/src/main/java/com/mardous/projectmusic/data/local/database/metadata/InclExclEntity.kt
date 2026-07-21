@@ -19,8 +19,10 @@ package com.mardous.projectmusic.data.local.database.metadata
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
 @Entity(tableName = "incl_excl")
+@Serializable
 class InclExclEntity(
     @PrimaryKey
     val path: String,

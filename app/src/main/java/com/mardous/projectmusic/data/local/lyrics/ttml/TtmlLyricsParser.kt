@@ -158,17 +158,9 @@ class TtmlLyricsParser : LyricsParser {
                                 // Spans can be words (timed), background vocals, or inline translations
                                 val role = parser.getAttributeValue(null, "ttm:role")
                                 val lang = parser.getAttributeValue(null, "xml:lang")
-                                if (role == null) {
-                                    // Default span is treated as a word
-                                    val openWord = nodeTree.openWord(
-                                        TtmlNode.buildWord(
-                                            begin = parser.getTimeAttribute("begin"),
-                                            end = parser.getTimeAttribute("end"),
-                                            dur = parser.getTimeAttribute("dur")
-                                        )
-                                    )
-                                    if (!openWord && nodeTree.hasRoot) break
-                                } else {
+                                val begin = parser.getTimeAttribute("begin")
+
+                                if (role != null) {
                                     when (role) {
                                         "x-bg" -> {
                                             nodeTree.enterBackground()
@@ -177,6 +169,18 @@ class TtmlLyricsParser : LyricsParser {
                                             nodeTree.prepareTranslationForCurrentLine(lang)
                                         }
                                     }
+                                }
+
+                                if (begin > -1 || role == null) {
+                                    // Default span is treated as a word
+                                    val openWord = nodeTree.openWord(
+                                        TtmlNode.buildWord(
+                                            begin = begin,
+                                            end = parser.getTimeAttribute("end"),
+                                            dur = parser.getTimeAttribute("dur")
+                                        )
+                                    )
+                                    if (!openWord && nodeTree.hasRoot) break
                                 }
                             }
                         }
@@ -196,11 +200,12 @@ class TtmlLyricsParser : LyricsParser {
                             TtmlNode.TAG_DIV -> if (!nodeTree.closeNode(TtmlNode.NODE_SECTION)) break
                             TtmlNode.TAG_PARAGRAPH -> if (!nodeTree.closeNode(TtmlNode.NODE_LINE)) break
                             TtmlNode.TAG_SPAN -> {
-                                if (!nodeTree.finishTranslationForCurrentLine()) {
-                                    val closeWord = nodeTree.closeNode(TtmlNode.NODE_WORD)
-                                    if (!closeWord) {
-                                        if (!nodeTree.closeBackground()) break
-                                    }
+                                val closedTranslation = nodeTree.finishTranslationForCurrentLine()
+                                val closedWord = nodeTree.closeNode(TtmlNode.NODE_WORD)
+                                if (!closedTranslation && !closedWord) {
+                                    if (!nodeTree.closeBackground()) break
+                                } else if (closedWord) {
+                                    nodeTree.closeBackground()
                                 }
                             }
                         }

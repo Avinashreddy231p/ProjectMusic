@@ -23,6 +23,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import coil3.load
 import coil3.request.ImageRequest
+import coil3.request.allowHardware
 import coil3.toBitmap
 import com.google.android.material.card.MaterialCardView
 import com.mardous.projectmusic.coil.placeholderDrawableRes
@@ -62,6 +63,7 @@ fun MediaEntryViewHolder.loadPaletteImage(
     builder: ImageRequest.Builder.() -> Unit = {}
 ) =
     image?.load(data) {
+        allowHardware(false)
         placeholderDrawableRes(itemView.context, placeholderRes)
         builder()
         listener(

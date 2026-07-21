@@ -19,6 +19,7 @@ package com.mardous.projectmusic.data.remote.lyrics.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 
 @Serializable
 data class ITunesSearchResponse(
@@ -71,3 +72,64 @@ data class GeniusSongResult(
 data class GeniusArtist(
     val name: String
 )
+
+@Serializable
+data class LyricsPlusSearchResponse(
+    val results: List<LyricsPlusSearchResultItem> = emptyList()
+)
+
+@Serializable
+data class LyricsPlusSearchResultItem(
+    val name: String? = null,
+    val title: String? = null,
+    val artist: String? = null,
+    val artistName: String? = null,
+    val album: String? = null,
+    val albumName: String? = null,
+    val duration: Long? = null,
+    val isrc: String? = null,
+    val source: String? = null
+) {
+    val finalTitle: String get() = title ?: name ?: "Unknown"
+    val finalArtist: String get() = artist ?: artistName ?: "Unknown Artist"
+    val finalAlbum: String? get() = album ?: albumName
+}
+
+@Serializable
+data class BetterLyricsSuggestion(
+    val song: String? = null,
+    val title: String? = null,
+    val artist: String? = null,
+    val artistName: String? = null,
+    val album: String? = null,
+    val albumName: String? = null,
+    val videoId: String? = null
+) {
+    val finalTitle: String get() = title ?: song ?: "Unknown"
+    val finalArtist: String get() = artist ?: artistName ?: "Unknown Artist"
+    val finalAlbum: String? get() = album ?: albumName
+}
+
+@Serializable
+data class UnisonSearchResponse(
+    val success: Boolean = false,
+    val data: List<UnisonLyricsItem> = emptyList()
+)
+
+@Serializable
+data class UnisonLyricsItem(
+    val videoId: String? = null,
+    val song: String? = null,
+    val title: String? = null,
+    val artist: String? = null,
+    val artistName: String? = null,
+    val album: String? = null,
+    val albumName: String? = null,
+    val lyrics: String? = null,
+    val duration: Long? = null,
+    val format: String? = null
+) {
+    val finalTitle: String get() = title ?: song ?: "Unknown"
+    val finalArtist: String get() = artist ?: artistName ?: "Unknown Artist"
+    val finalAlbum: String? get() = album ?: albumName
+}

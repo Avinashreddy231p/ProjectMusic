@@ -74,14 +74,22 @@ class App : Application(), SingletonImageLoader.Factory {
         }
 
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        val lastSetVersion = prefs.getInt("last_set_defaults_version", 0)
+
         // we cannot call setDefaultValues for multiple fragment based XML preference
-        // files with readAgain flag set to false, so always check KEY_HAS_SET_DEFAULT_VALUES
-        if (!prefs.getBoolean(PreferenceManager.KEY_HAS_SET_DEFAULT_VALUES, false)) {
+        // files with readAgain flag set to false, so manually reset the internal flag 
+        // to ensure each file is processed without overwriting user-set values.
+        if (lastSetVersion < BuildConfig.VERSION_CODE) {
             for (screen in SettingsScreen.entries) {
-                PreferenceManager.setDefaultValues(this, screen.layoutRes, true)
+                prefs.edit().putBoolean(PreferenceManager.KEY_HAS_SET_DEFAULT_VALUES, false).commit()
+                PreferenceManager.setDefaultValues(this, screen.layoutRes, false)
             }
-            if (isExperimentalBuild()) {
-                prefs.edit { putBoolean(EXPERIMENTAL_UPDATES, true) }
+            prefs.edit {
+                putInt("last_set_defaults_version", BuildConfig.VERSION_CODE)
+                putBoolean(PreferenceManager.KEY_HAS_SET_DEFAULT_VALUES, true)
+                if (isExperimentalBuild()) {
+                    putBoolean(EXPERIMENTAL_UPDATES, true)
+                }
             }
         }
 
@@ -114,7 +122,7 @@ class App : Application(), SingletonImageLoader.Factory {
     override fun newImageLoader(context: PlatformContext): ImageLoader {
         return ImageLoader.Builder(context)
             .crossfade(true)
-            .allowHardware(true)
+            .allowHardware(false)
             .components {
                 // Song/album
                 add(SongMapper(preferences = get()))

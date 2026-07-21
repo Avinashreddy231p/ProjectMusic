@@ -376,13 +376,6 @@ fun PlaylistWithSongs.onPlaylistMenu(fragment: Fragment, menuItem: MenuItem): Bo
             DeletePlaylistDialog.create(this).show(fragment.childFragmentManager, "DELETE_PLAYLIST")
             return true
         }
-
-        R.id.action_export_playlist -> {
-            fragment.lifecycleScope.launch {
-                M3UWriter.export(fragment.requireContext(), this@onPlaylistMenu)
-            }
-            return true
-        }
     }
     return songs.toSongs().onSongsMenu(fragment, menuItem)
 }
@@ -392,19 +385,6 @@ fun List<PlaylistWithSongs>.onPlaylistsMenu(fragment: Fragment, menuItem: MenuIt
         R.id.action_delete_playlist -> {
             DeletePlaylistDialog.create(this)
                 .show(fragment.childFragmentManager, "DELETE_PLAYLISTS")
-            return true
-        }
-
-        R.id.action_export_playlist -> {
-            if (this.size == 1) {
-                fragment.lifecycleScope.launch {
-                    M3UWriter.export(fragment.requireContext(), first())
-                }
-            } else {
-                fragment.lifecycleScope.launch {
-                    M3UWriter.export(fragment.requireContext(), this@onPlaylistsMenu)
-                }
-            }
             return true
         }
     }

@@ -24,6 +24,7 @@ import com.mardous.projectmusic.data.model.lyrics.RawLyrics
 import com.mardous.projectmusic.data.model.network.NetworkFeature
 import com.mardous.projectmusic.data.remote.lyrics.api.LyricsApi
 import com.mardous.projectmusic.data.remote.lyrics.model.ITunesSearchResponse
+import com.mardous.projectmusic.data.remote.lyrics.model.LyricsSearchResult
 import com.mardous.projectmusic.data.remote.lyrics.model.LyricallyLyricText
 import com.mardous.projectmusic.data.remote.lyrics.model.LyricallyLyricsResponse
 import com.mardous.projectmusic.util.Constants.USER_AGENT
@@ -37,6 +38,9 @@ import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.http.HttpHeaders
 import io.ktor.http.userAgent
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import org.apache.commons.text.similarity.JaroWinklerSimilarity
 import kotlin.math.abs
 
@@ -59,35 +63,94 @@ class LyricallyApi(private val client: HttpClient) : LyricsApi {
         artist: String
     ): RawLyrics.Remote? {
         return try {
-            var searchResponse = searchHelper.getAppleMusicSearchResponse(title, artist)
+            val searchResponse = searchHelper.getAppleMusicSearchResponse(title, artist)
+                ?: searchHelper.getMusixmatchSearchResponse(title, artist)
 
-            if (searchResponse == null || searchResponse.size == 0) {
-                searchResponse = searchHelper.getMusixmatchSearchResponse(title, artist)
-            }
-
-            if (searchResponse != null && searchResponse.size > 0) {
+            if (searchResponse != null && searchResponse.results.isNotEmpty()) {
                 var lyrics: RawLyrics.Remote? = null
 
                 val scoredIds = getScoredAppleMusicIds(title, artist, song.duration, searchResponse)
                 for ((result, score) in scoredIds.take(5)) {
                     if (score <= 0.0) continue
 
-                    val lyricsResponse = client.paxsenix(LYRICALLY_API_URL) {
-                        parameter("id", result)
-                    }.body<LyricallyLyricsResponse>()
-
-                    val newLyrics = parseLyricallyResponse(lyricsResponse)
-
-                    lyrics = lyrics?.accept(newLyrics) ?: newLyrics
-                    if (lyrics.hasBoth) {
-                        return lyrics
+                    val newLyrics = fetchLyricsById(result)
+                    if (newLyrics != null) {
+                        lyrics = lyrics?.accept(newLyrics) ?: newLyrics
+                        if (lyrics.hasBoth) break
                     }
                 }
-
                 lyrics
             } else null
         } catch (e: Exception) {
             Log.e(TAG, "Lyrically request failed", e)
+            null
+        }
+    }
+
+    override suspend fun searchLyrics(
+        song: Song,
+        title: String,
+        artist: String
+    ): List<LyricsSearchResult> = coroutineScope {
+        val userApiKey = Preferences.lyricallyApiKey
+        val apiKey = userApiKey.ifBlank { BuildConfig.LYRICALLY_API_KEY }
+
+        if (apiKey.isBlank()) {
+            Log.w(TAG, "Lyrically API key is empty, search will likely fail")
+        }
+
+        try {
+            Log.d(TAG, "Searching Lyrically for: $title $artist")
+            val searchResponse = searchHelper.getAppleMusicSearchResponse(title, artist)
+                ?: searchHelper.getMusixmatchSearchResponse(title, artist)
+
+            if (searchResponse != null && searchResponse.results.isNotEmpty()) {
+                val scoredIds = getScoredAppleMusicIds(title, artist, song.duration, searchResponse)
+
+                // Fetch lyrics for the top 5 results in parallel to make them usable in the dialog
+                val deferredResults = scoredIds.take(5).map { (id, _) ->
+                    async {
+                        val songInfo = searchResponse.results.find { it.id == id } ?: return@async null
+                        val lyrics = fetchLyricsById(id) ?: RawLyrics.Remote()
+
+                        if (lyrics.hasPlain || lyrics.hasSynced) {
+                            LyricsSearchResult(
+                                title = songInfo.name,
+                                artist = songInfo.artist,
+                                album = songInfo.album,
+                                duration = songInfo.durationInMillis,
+                                instrumental = false,
+                                provider = name,
+                                lyrics = lyrics
+                            )
+                        } else {
+                            Log.v(TAG, "No lyrics found for Lyrically ID $id")
+                            null
+                        }
+                    }
+                }
+                val results = deferredResults.awaitAll().filterNotNull()
+                Log.d(TAG, "Lyrically found ${results.size} results")
+                results
+            } else {
+                Log.d(TAG, "Lyrically search returned no results")
+                emptyList()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Lyrically search failed", e)
+            emptyList()
+        }
+    }
+
+    private suspend fun fetchLyricsById(id: Long): RawLyrics.Remote? {
+        return try {
+            val lyricsResponse = client.paxsenix(LYRICALLY_API_URL) {
+                parameter("id", id)
+            }.body<LyricallyLyricsResponse>()
+
+            parseLyricallyResponse(lyricsResponse)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to fetch lyrics for ID $id", e)
             null
         }
     }

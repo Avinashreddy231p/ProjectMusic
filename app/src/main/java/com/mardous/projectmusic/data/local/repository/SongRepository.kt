@@ -62,6 +62,8 @@ interface SongRepository {
         ignoreBlacklist: Boolean = false
     ): Cursor?
     fun makeSongCursor(queryDispatcher: MediaQueryDispatcher, ignoreBlacklist: Boolean = false): Cursor?
+    fun findSong(title: String, artist: String): Song
+    fun allSongsUnsorted(): List<Song>
     suspend fun initializeBlacklist()
 }
 
@@ -89,6 +91,24 @@ class RealSongRepository(
         return cursor.use {
             it.mapIfValid { getSongFromCursorImpl(this) }
         }
+    }
+
+    override fun findSong(title: String, artist: String): Song {
+        val selection = "${AudioColumns.TITLE}=? AND ${AudioColumns.ARTIST}=?"
+        val selectionValues = arrayOf(title, artist)
+        var song = song(makeSongCursor(selection, selectionValues))
+        
+        if (song == Song.emptySong) {
+            // Try matching only by title if artist is various or unknown
+            val titleSelection = "${AudioColumns.TITLE}=?"
+            song = song(makeSongCursor(titleSelection, arrayOf(title)))
+        }
+        
+        return song
+    }
+
+    override fun allSongsUnsorted(): List<Song> {
+        return songs(makeSongCursor(null, null, sortOrder = null))
     }
 
     override fun song(cursor: Cursor?): Song {

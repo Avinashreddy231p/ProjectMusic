@@ -16,6 +16,9 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.http.HttpHeaders
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 
 class NetEaseApi(private val client: HttpClient) : LyricsApi {
 
@@ -43,23 +46,7 @@ class NetEaseApi(private val client: HttpClient) : LyricsApi {
             val songs = searchResponse.result?.songs ?: return null
             if (songs.isEmpty()) return null
 
-            // Try first 2 songs for a match (or just the first one for now)
-            val songId = songs[0].id
-            
-            val lyricsResponse = client.get(LYRIC_URL) {
-                header(HttpHeaders.UserAgent, USER_AGENT)
-                parameter("id", songId)
-                parameter("lv", 1)
-                parameter("kv", 1)
-                parameter("tv", -1)
-            }.body<NetEaseLyricsResponse>()
-
-            val lrc = lyricsResponse.lrc?.lyric
-            if (lrc.isNullOrBlank()) return null
-
-            RawLyrics.Remote(
-                synced = RawLyrics.Remote.Content(name, lrc)
-            )
+            fetchLyricsBySongId(songs[0].id)
         } catch (e: Exception) {
             Log.e(TAG, "NetEase request failed", e)
             null
@@ -70,34 +57,62 @@ class NetEaseApi(private val client: HttpClient) : LyricsApi {
         song: Song,
         title: String,
         artist: String
-    ): List<LyricsSearchResult> {
-        return try {
+    ): List<LyricsSearchResult> = coroutineScope {
+        try {
+            Log.d(TAG, "Searching NetEase for: $title $artist")
             val searchResponse = client.get(SEARCH_URL) {
                 header(HttpHeaders.UserAgent, USER_AGENT)
                 parameter("s", "$title $artist")
                 parameter("type", 1)
-                parameter("limit", 10)
+                parameter("limit", 5)
             }.body<NetEaseSearchResponse>()
 
-            val songs = searchResponse.result?.songs ?: return emptyList()
-            songs.map { s ->
-                val artistName = s.artists.joinToString(", ") { it.name }
-                LyricsSearchResult(
-                    title = s.name,
-                    artist = artistName,
-                    album = s.album?.name,
-                    duration = null, // NetEase search doesn't easily give duration in this basic API
-                    instrumental = false,
-                    provider = name,
-                    lyrics = RawLyrics.Remote(
-                        plain = RawLyrics.Remote.Content(name, null), // We only know ID here
-                        synced = RawLyrics.Remote.Content(name, null)
+            val songs = searchResponse.result?.songs ?: return@coroutineScope emptyList()
+            
+            // Fetch lyrics for the top 3 hits in parallel to find best sync quality
+            val deferredResults = songs.take(3).map { s ->
+                async {
+                    val artistName = s.artists.joinToString(", ") { it.name }
+                    val lyrics = fetchLyricsBySongId(s.id) ?: RawLyrics.Remote()
+                    
+                    Log.v(TAG, "Fetched lyrics for NetEase song ${s.id}: hasSynced=${lyrics.hasSynced}")
+                    
+                    LyricsSearchResult(
+                        title = s.name,
+                        artist = artistName,
+                        album = s.album?.name,
+                        duration = null,
+                        instrumental = false,
+                        provider = name,
+                        lyrics = lyrics
                     )
-                )
+                }
             }
+            val results = deferredResults.awaitAll().filter { it.isSynced }
+            Log.d(TAG, "NetEase found ${results.size} synced results")
+            results
         } catch (e: Exception) {
             Log.e(TAG, "NetEase search failed", e)
             emptyList()
+        }
+    }
+
+    private suspend fun fetchLyricsBySongId(songId: Long): RawLyrics.Remote? {
+        return try {
+            val lyricsResponse = client.get(LYRIC_URL) {
+                header(HttpHeaders.UserAgent, USER_AGENT)
+                parameter("id", songId)
+                parameter("lv", 1)
+                parameter("kv", 1)
+                parameter("tv", -1)
+            }.body<NetEaseLyricsResponse>()
+
+            val lrc = lyricsResponse.lrc?.lyric
+            if (lrc.isNullOrBlank()) null
+            else RawLyrics.Remote(synced = RawLyrics.Remote.Content(name, lrc))
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to fetch NetEase lyrics for $songId", e)
+            null
         }
     }
 

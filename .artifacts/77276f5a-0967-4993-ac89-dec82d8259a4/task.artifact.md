@@ -1,0 +1,2 @@
+- [x] Disable hardware bitmaps in `App.kt`
+- [ ] Verify fix by attempting to drag items in Playlist or Queue

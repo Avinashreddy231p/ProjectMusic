@@ -56,6 +56,7 @@ import com.mardous.projectmusic.data.remote.jsonHttpClient
 import com.mardous.projectmusic.data.remote.lastfm.LastFmService
 import com.mardous.projectmusic.data.remote.listenbrainz.ListenBrainzService
 import com.mardous.projectmusic.data.remote.lyrics.LyricsDownloadService
+import com.mardous.projectmusic.data.remote.lyrics.UnisonSubmissionService
 import com.mardous.projectmusic.data.remote.musicbrainz.MusicBrainzService
 import com.mardous.projectmusic.data.remote.provideOkHttp
 import com.mardous.projectmusic.playback.SleepTimer
@@ -120,6 +121,9 @@ val networkModule = module {
     }
     single {
         LyricsDownloadService(client = get())
+    }
+    single {
+        UnisonSubmissionService(client = get())
     }
     single {
         MusicBrainzService(client = get())
@@ -293,7 +297,8 @@ private val dataModule = module {
         RealPlaylistRepository(
             context = androidContext(),
             songRepository = get(),
-            playlistDao = get()
+            playlistDao = get(),
+            rankingEngine = get()
         )
     } bind PlaylistRepository::class
 

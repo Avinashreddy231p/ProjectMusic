@@ -47,4 +47,7 @@ interface InclExclDao {
 
     @Query("SELECT * FROM incl_excl WHERE type = 0")
     fun whitelistPaths(): List<InclExclEntity>
+
+    @Query("SELECT * FROM incl_excl")
+    suspend fun getAllInclExcl(): List<InclExclEntity>
 }

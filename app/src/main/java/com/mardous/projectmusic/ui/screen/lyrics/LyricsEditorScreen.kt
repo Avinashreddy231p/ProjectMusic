@@ -213,6 +213,7 @@ fun LyricsEditorScreen(
     var showLyricsManualLookupDialog by remember { mutableStateOf(false) }
     var showLyricsSearchDialog by remember { mutableStateOf(false) }
     var showLyricsLookupDialog by remember { mutableStateOf(false) }
+    var showUnisonSubmitConfirmDialog by remember { mutableStateOf(false) }
     var downloadedLyricsForSelector by rememberSaveable { mutableStateOf<RawLyrics.Remote?>(null) }
 
     val lyricsSearchResults by viewModel.lyricsSearchResults.collectAsStateWithLifecycle()
@@ -228,6 +229,15 @@ fun LyricsEditorScreen(
             LyricsEditorResult.NoChanges -> context.getString(R.string.there_are_no_changes_to_save)
             LyricsEditorResult.Failed -> context.getString(R.string.could_not_save_some_changes)
             LyricsEditorResult.Success -> context.getString(R.string.changes_saved_successfully)
+        }
+        context.showToast(toastMessage)
+    }
+
+    ObserveAsEvent(viewModel.submissionEvent) { success ->
+        val toastMessage = if (success) {
+            context.getString(R.string.lyrics_submission_success)
+        } else {
+            context.getString(R.string.lyrics_submission_failed)
         }
         context.showToast(toastMessage)
     }
@@ -392,6 +402,32 @@ fun LyricsEditorScreen(
         )
     }
 
+    if (showUnisonSubmitConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showUnisonSubmitConfirmDialog = false },
+            title = { Text(stringResource(R.string.lyrics_submit_confirm_title)) },
+            text = { Text(stringResource(R.string.lyrics_submit_confirm_message)) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val content = textFieldState.text.toString().trim()
+                        val format = if (content.contains("[00:")) "lrc" else "plain"
+                        val finalFormat = if (content.startsWith("<tt")) "ttml" else format
+                        viewModel.submitToUnison(song, content, finalFormat)
+                        showUnisonSubmitConfirmDialog = false
+                    }
+                ) {
+                    Text(stringResource(R.string.continue_action))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showUnisonSubmitConfirmDialog = false }) {
+                    Text(stringResource(android.R.string.cancel))
+                }
+            }
+        )
+    }
+
     fun saveContent() {
         viewModel.saveLyrics(song, editedContent)
     }
@@ -479,6 +515,12 @@ fun LyricsEditorScreen(
                                     onClick = { showLyricsSearchDialog = true }
                                 ),
                                 MenuItem.Button.DropDown(
+                                    text = stringResource(R.string.action_submit_to_unison),
+                                    icon = painterResource(R.drawable.ic_cloud_24dp),
+                                    enabled = !uiState.isLoading && !isFileSource && textFieldState.text.isNotEmpty(),
+                                    onClick = { showUnisonSubmitConfirmDialog = true }
+                                ),
+                                MenuItem.Button.DropDown(
                                     text = stringResource(android.R.string.paste),
                                     icon = painterResource(R.drawable.ic_content_paste_24dp),
                                     onClick = { pasteFromClipboard() }
@@ -505,13 +547,15 @@ fun LyricsEditorScreen(
                 LyricsEditorBottomBar(
                     enabled = !uiState.isLoading && !isFileSource,
                     downloadEnabled = isLyricsDownloadEnabled,
+                    isFileSource = isFileSource,
                     onSearchClick = { showLyricsSearchDialog = true },
                     onLookupClick = { showLyricsManualLookupDialog = true },
                     onDownloadClick = { downloadLyrics() },
                     onSelectAllClick = { selectAllText() },
                     onPasteClick = { pasteFromClipboard() },
                     onUndoChangesClick = { undoChanges() },
-                    onSaveClick = { saveContent() }
+                    onSaveClick = { saveContent() },
+                    onSubmitToUnisonClick = { showUnisonSubmitConfirmDialog = true }
                 )
             }
         }
@@ -831,13 +875,15 @@ private fun LyricsEditorHeader(
 private fun LyricsEditorBottomBar(
     enabled: Boolean,
     downloadEnabled: Boolean,
+    isFileSource: Boolean,
     onSearchClick: () -> Unit,
     onLookupClick: () -> Unit,
     onDownloadClick: () -> Unit,
     onPasteClick: () -> Unit,
     onSaveClick: () -> Unit,
     onUndoChangesClick: () -> Unit,
-    onSelectAllClick: () -> Unit
+    onSelectAllClick: () -> Unit,
+    onSubmitToUnisonClick: () -> Unit
 ) {
     FlexibleBottomAppBar {
         IconButton(
@@ -892,6 +938,12 @@ private fun LyricsEditorBottomBar(
         OverflowMenu(
             enabled = enabled,
             items = listOf(
+                MenuItem.Button.DropDown(
+                    text = stringResource(R.string.action_submit_to_unison),
+                    icon = painterResource(R.drawable.ic_cloud_24dp),
+                    enabled = !isFileSource,
+                    onClick = { onSubmitToUnisonClick() }
+                ),
                 MenuItem.Button.DropDown(
                     text = stringResource(R.string.select_all_title),
                     icon = painterResource(R.drawable.ic_select_all_24dp),

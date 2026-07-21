@@ -83,9 +83,7 @@ object M3UWriter : KoinComponent {
                 playlistsUri,
                 MediaStoreWriter.Request.forPlaylist(exportedPlaylistName)
             ) { stream ->
-                stream.bufferedWriter().use {
-                    writeImpl(it, playlist.songs)
-                }
+                writeToStream(stream, playlist)
             }
             if (scopedStorageResult.resultCode == MediaStoreWriter.Result.Code.NO_SCOPED_STORAGE) {
                 val directory = FileUtil.playlistsDirectory()
@@ -97,6 +95,13 @@ object M3UWriter : KoinComponent {
             return scopedStorageResult.resultCode == MediaStoreWriter.Result.Code.SUCCESS
         }
         return false
+    }
+
+    @Throws(IOException::class)
+    fun writeToStream(outputStream: java.io.OutputStream, playlist: PlaylistWithSongs): Boolean {
+        return outputStream.bufferedWriter().use {
+            writeImpl(it, playlist.songs)
+        }
     }
 
     @Throws(IOException::class)
@@ -114,9 +119,7 @@ object M3UWriter : KoinComponent {
 
     @Throws(IOException::class)
     private fun writeImpl(bw: BufferedWriter, songs: List<SongEntity>): Boolean {
-        val songs: List<Song> = songs.sortedBy {
-            it.songKey
-        }.toSongs()
+        val songs: List<Song> = songs.toSongs()
         if (songs.isNotEmpty()) {
             bw.write(M3UConstants.HEADER)
             for (song in songs) {

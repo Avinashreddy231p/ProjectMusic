@@ -1,0 +1,3 @@
+- [x] Modify `AdapterExt.kt` to add `allowHardware(false)` to `loadPaletteImage`
+- [x] Modify `CoilExtension.kt` to add `allowHardware(false)` to `songImage`, `albumImage`, `artistImage`, and `playlistImage`
+- [x] Verify changes

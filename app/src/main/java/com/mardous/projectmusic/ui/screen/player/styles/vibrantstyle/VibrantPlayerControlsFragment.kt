@@ -30,6 +30,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
+import androidx.dynamicanimation.animation.DynamicAnimation
+import androidx.dynamicanimation.animation.SpringAnimation
+import androidx.dynamicanimation.animation.SpringForce
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.mardous.projectmusic.R
@@ -310,21 +313,20 @@ class VibrantPlayerControlsFragment : AbsPlayerControlsFragment(R.layout.fragmen
         if (withAnimation && drawable is AnimatedVectorDrawable) {
             drawable.start()
             
-            // Polished Micro-Bounce with Elastic Feel
-            binding.minusButton.animate()
-                .scaleX(if (isFavorite) 1.5f else 0.8f)
-                .scaleY(if (isFavorite) 1.5f else 0.8f)
-                .setDuration(150)
-                .setInterpolator(android.view.animation.AccelerateInterpolator())
-                .withEndAction {
-                    binding.minusButton.animate()
-                        .scaleX(1.0f)
-                        .scaleY(1.0f)
-                        .setDuration(400)
-                        .setInterpolator(android.view.animation.OvershootInterpolator(4f))
-                        .start()
-                }
-                .start()
+            // Snappy Spring Bounce
+            val peakScale = if (isFavorite) 1.4f else 0.85f
+            val springX = SpringAnimation(binding.minusButton, DynamicAnimation.SCALE_X, 1.0f).apply {
+                setStartValue(peakScale)
+                spring.dampingRatio = SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY
+                spring.stiffness = SpringForce.STIFFNESS_MEDIUM
+            }
+            val springY = SpringAnimation(binding.minusButton, DynamicAnimation.SCALE_Y, 1.0f).apply {
+                setStartValue(peakScale)
+                spring.dampingRatio = SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY
+                spring.stiffness = SpringForce.STIFFNESS_MEDIUM
+            }
+            springX.start()
+            springY.start()
 
             if (isFavorite) {
                 binding.favoriteBurstView.startAnimation()

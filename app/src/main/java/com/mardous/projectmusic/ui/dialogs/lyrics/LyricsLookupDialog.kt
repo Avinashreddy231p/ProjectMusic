@@ -117,13 +117,27 @@ private fun LyricsResultItem(
         
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = result.provider,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
+            Surface(
+                color = when (result.provider.lowercase()) {
+                    "lrclib" -> MaterialTheme.colorScheme.tertiaryContainer
+                    "betterlyrics" -> MaterialTheme.colorScheme.secondaryContainer
+                    "lyricsplus" -> MaterialTheme.colorScheme.primaryContainer
+                    "lyrically" -> MaterialTheme.colorScheme.errorContainer
+                    "genius" -> MaterialTheme.colorScheme.surfaceVariant
+                    else -> MaterialTheme.colorScheme.surfaceContainerHigh
+                },
+                shape = MaterialTheme.shapes.extraSmall
+            ) {
+                Text(
+                    text = result.provider,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                )
+            }
             result.duration?.let {
                 Text(
                     text = it.asReadableDuration(),

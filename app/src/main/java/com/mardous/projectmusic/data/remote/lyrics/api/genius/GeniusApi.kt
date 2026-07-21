@@ -7,6 +7,7 @@ import com.mardous.projectmusic.data.model.lyrics.RawLyrics
 import com.mardous.projectmusic.data.model.network.NetworkFeature
 import com.mardous.projectmusic.data.remote.lyrics.api.LyricsApi
 import com.mardous.projectmusic.data.remote.lyrics.model.GeniusSearchResponse
+import com.mardous.projectmusic.data.remote.lyrics.model.LyricsSearchResult
 import com.mardous.projectmusic.util.Constants.USER_AGENT
 import com.mardous.projectmusic.util.Preferences
 import io.ktor.client.HttpClient
@@ -17,6 +18,9 @@ import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 
 class GeniusApi(private val client: HttpClient) : LyricsApi {
 
@@ -51,8 +55,7 @@ class GeniusApi(private val client: HttpClient) : LyricsApi {
 
         // Try first 3 hits for a match
         for (hit in hits.take(3)) {
-            val geniusUrl = hit.result.url
-            val lyricsText = scrapeLyrics(geniusUrl)
+            val lyricsText = scrapeLyrics(hit.result.url)
             if (!lyricsText.isNullOrBlank()) {
                 return RawLyrics.Remote(
                     plain = RawLyrics.Remote.Content(name, lyricsText)
@@ -61,6 +64,53 @@ class GeniusApi(private val client: HttpClient) : LyricsApi {
         }
 
         return null
+    }
+
+    override suspend fun searchLyrics(
+        song: Song,
+        title: String,
+        artist: String
+    ): List<LyricsSearchResult> = coroutineScope {
+        val userApiKey = Preferences.geniusApiKey
+        val apiKey = userApiKey.ifBlank { BuildConfig.GENIUS_API_KEY }
+
+        if (apiKey.isBlank()) {
+            Log.w(TAG, "Genius API key is empty, search will likely fail")
+        }
+
+        try {
+            Log.d(TAG, "Searching Genius for: $title $artist")
+            val searchResponse = client.get("https://api.genius.com/search") {
+                header("Authorization", "Bearer $apiKey")
+                parameter("q", "$title $artist")
+            }.body<GeniusSearchResponse>()
+
+            val deferredResults = searchResponse.response.hits.take(5).map { hit ->
+                async {
+                    val lyricsText = scrapeLyrics(hit.result.url)
+                    if (!lyricsText.isNullOrBlank()) {
+                        LyricsSearchResult(
+                            title = hit.result.title,
+                            artist = hit.result.primaryArtist.name,
+                            album = null,
+                            duration = null,
+                            instrumental = false,
+                            provider = name,
+                            lyrics = RawLyrics.Remote(plain = RawLyrics.Remote.Content(name, lyricsText))
+                        )
+                    } else {
+                        Log.v(TAG, "No lyrics scraped for ${hit.result.url}")
+                        null
+                    }
+                }
+            }
+            val results = deferredResults.awaitAll().filterNotNull()
+            Log.d(TAG, "Genius found ${results.size} results")
+            results
+        } catch (e: Exception) {
+            Log.e(TAG, "Genius search failed", e)
+            emptyList()
+        }
     }
 
     private suspend fun scrapeLyrics(url: String): String? {

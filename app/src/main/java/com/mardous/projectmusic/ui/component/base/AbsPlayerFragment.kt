@@ -50,6 +50,9 @@ import coil3.size.Precision
 import coil3.size.Scale
 import com.commit451.coiltransformations.BlurTransformation
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import androidx.dynamicanimation.animation.DynamicAnimation
+import androidx.dynamicanimation.animation.SpringAnimation
+import androidx.dynamicanimation.animation.SpringForce
 import com.google.android.material.button.MaterialButton
 import com.mardous.projectmusic.R
 import com.mardous.projectmusic.core.model.MediaEvent
@@ -608,6 +611,19 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
         textView.forEach { it?.setMarquee(marquee && scrollingTextEnabled) }
     }
 
+    fun View.springScale(targetScale: Float) {
+        val springX = SpringAnimation(this, DynamicAnimation.SCALE_X, targetScale).apply {
+            spring.dampingRatio = SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY
+            spring.stiffness = SpringForce.STIFFNESS_MEDIUM
+        }
+        val springY = SpringAnimation(this, DynamicAnimation.SCALE_Y, targetScale).apply {
+            spring.dampingRatio = SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY
+            spring.stiffness = SpringForce.STIFFNESS_MEDIUM
+        }
+        springX.start()
+        springY.start()
+    }
+
     fun MaterialButton.setIsFavorite(isFavorite: Boolean, withAnimation: Boolean) {
         val iconRes = if (isFavorite) R.drawable.ic_favorite_24dp else R.drawable.ic_favorite_outline_24dp
         val avdRes = if (isFavorite) R.drawable.avd_favorite else R.drawable.avd_unfavorite
@@ -622,20 +638,20 @@ abstract class AbsPlayerFragment(@LayoutRes layoutRes: Int) : Fragment(layoutRes
         if (withAnimation && drawable is android.graphics.drawable.AnimatedVectorDrawable) {
             drawable.start()
             
-            // Premium Elastic Bounce
-            this.animate()
-                .scaleX(if (isFavorite) 1.5f else 0.8f)
-                .scaleY(if (isFavorite) 1.5f else 0.8f)
-                .setDuration(150)
-                .withEndAction {
-                    this.animate()
-                        .scaleX(1.0f)
-                        .scaleY(1.0f)
-                        .setDuration(400)
-                        .setInterpolator(android.view.animation.OvershootInterpolator(4f))
-                        .start()
-                }
-                .start()
+            // Snappy Spring Bounce
+            val peakScale = if (isFavorite) 1.4f else 0.85f
+            val springX = SpringAnimation(this, DynamicAnimation.SCALE_X, 1.0f).apply {
+                setStartValue(peakScale)
+                spring.dampingRatio = SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY
+                spring.stiffness = SpringForce.STIFFNESS_MEDIUM
+            }
+            val springY = SpringAnimation(this, DynamicAnimation.SCALE_Y, 1.0f).apply {
+                setStartValue(peakScale)
+                spring.dampingRatio = SpringForce.DAMPING_RATIO_MEDIUM_BOUNCY
+                spring.stiffness = SpringForce.STIFFNESS_MEDIUM
+            }
+            springX.start()
+            springY.start()
         }
     }
 

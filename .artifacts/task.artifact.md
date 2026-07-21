@@ -1,10 +1,12 @@
-- [x] Enable existing lyrics providers by default in `NetworkFeature.kt`
-- [x] Add `NetEase` and `Kugou` to `NetworkFeature.kt`
-- [x] Implement `NetEaseApi.kt`
-- [x] Implement `KugouApi.kt`
-- [x] Update `LyricsDownloadService.kt` to include new providers
-- [x] Update `SettingsUiState.kt` and `SettingsViewModel.kt` for new providers
-- [x] Update `NetworkSettingsComposeScreen.kt` UI
-- [/] Verify lyrics download and search contribution
-- [x] Update `LyricsViewModel.kt` to include new providers in enabled check
-- [x] Update `preferences_screen_network.xml` for default values and new providers
+- `[x]` Add `@Serializable` to `LyricsEntity`, `ListeningSessionEntity`, `InclExclEntity`, `SongMetadataEntity`, and `PlaylistEntity`
+- `[x]` Update DAOs for comprehensive data extraction
+    - `[x]` `MetadataDao`: add `getAllMetadataWithPaths`
+    - `[x]` `InclExclDao`: add `getAllInclExcl`
+- `[x]` Expand `BackupHelper.kt` for "Perfect" backup
+    - `[x]` Consolidated all settings (SharedPrefs + DataStore)
+    - `[x]` Included custom playlist covers and metadata (descriptions)
+    - `[x]` Added Favorites, Ratings, and Overrides backup
+    - `[x]` Added Blacklist/Whitelist backup
+    - `[x]` Implemented metadata-based matching for cross-device restore
+- `[x]` Update UI/Strings for new backup categories
+- `[x]` Verification
