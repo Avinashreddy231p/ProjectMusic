@@ -10,8 +10,6 @@
 
 ### 🚀 Get the App
 [![GitHub Releases](https://img.shields.io/github/v/release/Avinashreddy231p/ProjectMusic?label=GitHub&logo=github)](https://github.com/Avinashreddy231p/ProjectMusic/releases)
-[![F-Droid](https://raw.githubusercontent.com/Avinashreddy231p/ProjectMusic/master/assets/badge-fdroid.png)](https://f-droid.org)
-[![Play Store](https://raw.githubusercontent.com/Avinashreddy231p/ProjectMusic/master/assets/badge-playstore.png)](https://play.google.com/store)
 
 ---
 
